@@ -308,118 +308,118 @@ export const confirmPassword = [
     }
 ]
 
-// export const login = [
-//     body("email", "Invalid email format.")
-//         .trim()
-//         .notEmpty()
-//         .isEmail(),
-//     body("password", "Password must be at least 8 digits.")
-//         .trim()
-//         .notEmpty()
-//         .matches(/^[\d]+$/)
-//         .isLength({ min: 8, max: 8 }),
-//     async (req: Request, res: Response, next: NextFunction) => {
-//         const errors = validationResult(req).array({ onlyFirstError: true })
-//         if (errors.length > 0) return next(createHttpError({
-//             message: errors[0].msg,
-//             status: 400,
-//             code: errorCodes.invalid,
-//         }))
+export const login = [
+    body("email", "Invalid email format.")
+        .trim()
+        .notEmpty()
+        .isEmail(),
+    body("password", "Password must be at least 8 digits.")
+        .trim()
+        .notEmpty()
+        .matches(/^[\d]+$/)
+        .isLength({ min: 8, max: 8 }),
+    async (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid,
+        }))
 
-//         const password = req.body.password
-//         let phone = req.body.phone
-//         if (phone.slice(0, 2) === '09') {
-//             phone = phone.substring(2, phone.length)
-//         }
+        const password = req.body.password
+        let phone = req.body.phone
+        if (phone.slice(0, 2) === '09') {
+            phone = phone.substring(2, phone.length)
+        }
 
-//         const user = await getUserByEmail(phone)
-//         checkUserIfNotExist(user)
+        const user = await getUserByEmail(phone)
+        checkUserIfNotExist(user)
 
-//         if (user?.status === 'FREEZE') {
-//             return next(createHttpError({
-//                 message: "Your account is temporarily locked. Please contact admin.",
-//                 status: 401,
-//                 code: errorCodes.accountFreeze,
-//             }))
-//         }
+        if (user?.status === 'FREEZE') {
+            return next(createHttpError({
+                message: "Your account is temporarily locked. Please contact admin.",
+                status: 401,
+                code: errorCodes.accountFreeze,
+            }))
+        }
 
-//         const isMatchPassword = await bcrypt.compare(password, user!.password)
+        const isMatchPassword = await bcrypt.compare(password, user!.password)
 
-//         if (!isMatchPassword) {
-//             //* ------------ Starting to record wrong times
-//             const lastRequest = new Date(user!.updatedAt).toLocaleDateString()
-//             const isSameDate = lastRequest === new Date().toLocaleDateString()
+        if (!isMatchPassword) {
+            //* ------------ Starting to record wrong times
+            const lastRequest = new Date(user!.updatedAt).toLocaleDateString()
+            const isSameDate = lastRequest === new Date().toLocaleDateString()
 
-//             if (!isSameDate) {
-//                 const userData = {
-//                     errorLoginCount: 1
-//                 }
+            if (!isSameDate) {
+                const userData = {
+                    errorLoginCount: 1
+                }
 
-//                 await updateUser(user!.id, userData)
-//             } else {
-//                 if (user!.errorLoginCount >= 3) {
-//                     const userData = {
-//                         status: 'FREEZE'
-//                     }
+                await updateUser(user!.id, userData)
+            } else {
+                if (user!.errorLoginCount >= 3) {
+                    const userData = {
+                        status: 'FREEZE'
+                    }
 
-//                     await updateUser(user!.id, userData)
-//                 } else {
-//                     const userData = {
-//                         errorLoginCount: { increment: 1 }
-//                     }
+                    await updateUser(user!.id, userData)
+                } else {
+                    const userData = {
+                        errorLoginCount: { increment: 1 }
+                    }
 
-//                     await updateUser(user!.id, userData)
-//                 }
-//             }
-//             //* ------------ Ending -------------
-//             return next(createHttpError({
-//                 message: "Password is incorrect.",
-//                 status: 401,
-//                 code: errorCodes.invalid,
-//             }))
-//         }
+                    await updateUser(user!.id, userData)
+                }
+            }
+            //* ------------ Ending -------------
+            return next(createHttpError({
+                message: "Password is incorrect.",
+                status: 401,
+                code: errorCodes.invalid,
+            }))
+        }
 
-//         //* Authorization token
-//         const accessTokenPayload = { id: user!.id }
-//         const refreshTokenPayload = { id: user!.id, email: user!.email, role: user!.role }
+        //* Authorization token
+        const accessTokenPayload = { id: user!.id }
+        const refreshTokenPayload = { id: user!.id, email: user!.email, role: user!.role }
 
-//         const accessToken = jwt.sign(
-//             accessTokenPayload,
-//             process.env.ACCESS_TOKEN_SECRET!,
-//             { expiresIn: 60 * 15 }
-//         )
+        const accessToken = jwt.sign(
+            accessTokenPayload,
+            process.env.ACCESS_TOKEN_SECRET!,
+            { expiresIn: 60 * 15 }
+        )
 
-//         const refreshToken = jwt.sign(
-//             refreshTokenPayload,
-//             process.env.REFRESH_TOKEN_SECRET!,
-//             { expiresIn: "30d" }
-//         )
+        const refreshToken = jwt.sign(
+            refreshTokenPayload,
+            process.env.REFRESH_TOKEN_SECRET!,
+            { expiresIn: "30d" }
+        )
 
-//         const userData = {
-//             errorLoginCount: 0,
-//             randToken: refreshToken
-//         }
+        const userData = {
+            errorLoginCount: 0,
+            randToken: refreshToken
+        }
 
-//         await updateUser(user!.id, userData)
+        await updateUser(user!.id, userData)
 
-//         res.cookie("accessToken", accessToken, {
-//             httpOnly: true,
-//             secure: process.env.NODE_ENV === 'production',
-//             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-//             maxAge: 1000 * 60 * 15,
-//             path: "/"
-//         }).cookie("refreshToken", refreshToken, {
-//             httpOnly: true,
-//             secure: process.env.NODE_ENV === 'production',
-//             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-//             maxAge: 1000 * 60 * 60 * 24 * 30,
-//             path: "/"
-//         }).status(200).json({
-//             message: 'Successfully Logged In.',
-//             userId: user!.id,
-//         })
-//     }
-// ]
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 1000 * 60 * 15,
+            path: "/"
+        }).cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+            path: "/"
+        }).status(200).json({
+            message: 'Successfully Logged In.',
+            userId: user!.id,
+        })
+    }
+]
 
 // export const logout = async (req: Request, res: Response, next: NextFunction) => {
 //     //* Clear HttpOnly cookies
