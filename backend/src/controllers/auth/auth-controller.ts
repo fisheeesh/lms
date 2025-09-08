@@ -421,66 +421,66 @@ export const login = [
     }
 ]
 
-// export const logout = async (req: Request, res: Response, next: NextFunction) => {
-//     //* Clear HttpOnly cookies
-//     const refreshToken = req.cookies ? req.cookies.refreshToken : null
-//     if (!refreshToken) return next(createHttpError({
-//         message: 'You are not an authenticated user.',
-//         code: errorCodes.unauthenticated,
-//         status: 401,
-//     }))
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+    //* Clear HttpOnly cookies
+    const refreshToken = req.cookies ? req.cookies.refreshToken : null
+    if (!refreshToken) return next(createHttpError({
+        message: 'You are not an authenticated user.',
+        code: errorCodes.unauthenticated,
+        status: 401,
+    }))
 
-//     let decoded;
-//     try {
-//         decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as {
-//             id: number, email: string, role: string
-//         }
-//     } catch (error) {
-//         return next(createHttpError({
-//             message: 'You are not an authenticated user.',
-//             code: errorCodes.unauthenticated,
-//             status: 401,
-//         }))
-//     }
+    let decoded;
+    try {
+        decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as {
+            id: number, email: string, role: string
+        }
+    } catch (error) {
+        return next(createHttpError({
+            message: 'You are not an authenticated user.',
+            code: errorCodes.unauthenticated,
+            status: 401,
+        }))
+    }
 
-//     if (isNaN(decoded.id)) {
-//         return next(createHttpError({
-//             message: 'You are not an authenticated user.',
-//             code: errorCodes.unauthenticated,
-//             status: 401,
-//         }))
-//     }
+    if (isNaN(decoded.id)) {
+        return next(createHttpError({
+            message: 'You are not an authenticated user.',
+            code: errorCodes.unauthenticated,
+            status: 401,
+        }))
+    }
 
-//     const user = await getUserById(decoded.id)
-//     checkUserIfNotExist(user)
+    const user = await getUserById(decoded.id)
+    checkUserIfNotExist(user)
 
-//     if (user!.email !== decoded.email) return next(createHttpError({
-//         message: 'You are not an authenticated user.',
-//         code: errorCodes.unauthenticated,
-//         status: 401,
-//     }))
+    if (user!.email !== decoded.email) return next(createHttpError({
+        message: 'You are not an authenticated user.',
+        code: errorCodes.unauthenticated,
+        status: 401,
+    }))
 
-//     //* Update randToken is User Table
-//     const userData = {
-//         randToken: generateToken(),
-//     }
-//     await updateUser(user!.id, userData)
+    //* Update randToken is User Table
+    const userData = {
+        randToken: generateToken(),
+    }
+    await updateUser(user!.id, userData)
 
-//     res.clearCookie('accessToken', {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === 'production',
-//         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-//         path: "/"
-//     })
-//     res.clearCookie('refreshToken', {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === 'production',
-//         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-//         path: "/"
-//     })
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        path: "/"
+    })
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        path: "/"
+    })
 
-//     res.status(200).json({ message: "Successfully logged out. See you soon.!" })
-// }
+    res.status(200).json({ message: "Successfully logged out. See you soon.!" })
+}
 
 // export const forgetPassword = [
 //     body("email", "Invalid email format.")
