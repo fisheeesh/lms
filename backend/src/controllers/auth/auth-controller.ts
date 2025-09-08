@@ -651,100 +651,100 @@ export const verifyForgotOTP = [
     }
 ]
 
-// export const resetPassword = [
-//     body("email", "Invalid email format.")
-//         .trim()
-//         .notEmpty()
-//         .isEmail(),
-//     body("password", "Password must be at least 8 digits.")
-//         .trim()
-//         .notEmpty()
-//         .matches(/^[\d]+$/)
-//         .isLength({ min: 8, max: 8 }),
-//     body('token', "Invalid Token.")
-//         .trim()
-//         .notEmpty()
-//         .escape(),
-//     async (req: Request, res: Response, next: NextFunction) => {
-//         const errors = validationResult(req).array({ onlyFirstError: true })
-//         if (errors.length > 0) return next(createHttpError({
-//             message: errors[0].msg,
-//             status: 400,
-//             code: errorCodes.invalid,
-//         }))
+export const resetPassword = [
+    body("email", "Invalid email format.")
+        .trim()
+        .notEmpty()
+        .isEmail(),
+    body("password", "Password must be at least 8 digits.")
+        .trim()
+        .notEmpty()
+        .matches(/^[\d]+$/)
+        .isLength({ min: 8, max: 8 }),
+    body('token', "Invalid Token.")
+        .trim()
+        .notEmpty()
+        .escape(),
+    async (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid,
+        }))
 
-//         const { email, password, token } = req.body
+        const { email, password, token } = req.body
 
-//         const user = await getUserByEmail(email)
-//         checkUserIfNotExist(user)
+        const user = await getUserByEmail(email)
+        checkUserIfNotExist(user)
 
-//         //* OTP row must be in db
-//         const otpRow = await getOTPByEmail(email)
+        //* OTP row must be in db
+        const otpRow = await getOTPByEmail(email)
 
-//         if (otpRow!.error >= 5) return next(createHttpError({
-//             message: "Your request is over-limit. Please try again tomorrow.",
-//             status: 400,
-//             code: errorCodes.attack,
-//         }))
+        if (otpRow!.error >= 5) return next(createHttpError({
+            message: "Your request is over-limit. Please try again tomorrow.",
+            status: 400,
+            code: errorCodes.attack,
+        }))
 
-//         if (otpRow!.verifyToken !== token) {
-//             const otpData = {
-//                 error: 5
-//             }
-//             await updateOTP(otpRow!.id, otpData)
-//             return next(createHttpError({
-//                 message: "Your request is over-limit. Please try again.",
-//                 status: 400,
-//                 code: errorCodes.attack,
-//             }))
-//         }
+        if (otpRow!.verifyToken !== token) {
+            const otpData = {
+                error: 5
+            }
+            await updateOTP(otpRow!.id, otpData)
+            return next(createHttpError({
+                message: "Your request is over-limit. Please try again.",
+                status: 400,
+                code: errorCodes.attack,
+            }))
+        }
 
-//         const isExpired = moment().diff(otpRow!.updatedAt) > 10 * 60 * 1000;
+        const isExpired = moment().diff(otpRow!.updatedAt) > 10 * 60 * 1000;
 
-//         if (isExpired) return next(createHttpError({
-//             message: "OTP is expired.",
-//             status: 400,
-//             code: errorCodes.otpExpired,
-//         }))
+        if (isExpired) return next(createHttpError({
+            message: "OTP is expired.",
+            status: 400,
+            code: errorCodes.otpExpired,
+        }))
 
-//         const hashPassword = await generateHashedValue(password)
+        const hashPassword = await generateHashedValue(password)
 
-//         const accessPayload = { id: user!.id }
-//         const refreshPayload = { id: user!.id, email: user!.email, role: user!.role }
+        const accessPayload = { id: user!.id }
+        const refreshPayload = { id: user!.id, email: user!.email, role: user!.role }
 
-//         const accessToken = jwt.sign(
-//             accessPayload,
-//             process.env.ACCESS_TOKEN_SECRET!,
-//             { expiresIn: 60 * 15 }
-//         )
-//         const refreshToken = jwt.sign(
-//             refreshPayload,
-//             process.env.REFRESH_TOKEN_SECRET!,
-//             { expiresIn: "30d" }
-//         )
+        const accessToken = jwt.sign(
+            accessPayload,
+            process.env.ACCESS_TOKEN_SECRET!,
+            { expiresIn: 60 * 15 }
+        )
+        const refreshToken = jwt.sign(
+            refreshPayload,
+            process.env.REFRESH_TOKEN_SECRET!,
+            { expiresIn: "30d" }
+        )
 
-//         const userUpdatedData = {
-//             password: hashPassword,
-//             randToken: refreshToken
-//         }
+        const userUpdatedData = {
+            password: hashPassword,
+            randToken: refreshToken
+        }
 
-//         await updateUser(user!.id, userUpdatedData)
+        await updateUser(user!.id, userUpdatedData)
 
-//         res.cookie("accessToken", accessToken, {
-//             httpOnly: true,
-//             secure: process.env.NODE_ENV === 'production',
-//             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-//             maxAge: 1000 * 60 * 15
-//         })
-//             .cookie("refreshToken", refreshToken, {
-//                 httpOnly: true,
-//                 secure: process.env.NODE_ENV === 'production',
-//                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-//                 maxAge: 1000 * 60 * 60 * 24 * 30
-//             })
-//             .status(200).json({
-//                 message: "Password is successfully reset.",
-//                 userId: user!.id
-//             })
-//     }
-// ]
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 1000 * 60 * 15
+        })
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+                maxAge: 1000 * 60 * 60 * 24 * 30
+            })
+            .status(200).json({
+                message: "Password is successfully reset.",
+                userId: user!.id
+            })
+    }
+]
