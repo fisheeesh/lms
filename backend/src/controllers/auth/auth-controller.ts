@@ -200,113 +200,113 @@ export const verifyOtp = [
     }
 ]
 
-// export const confirmPassword = [
-//     body("email", "Invalid email format.")
-//         .trim()
-//         .notEmpty()
-//         .isEmail(),
-//     body("password", "Password must be at least 8 digits.")
-//         .trim()
-//         .notEmpty()
-//         .matches(/^[\d]+$/)
-//         .isLength({ min: 8, max: 8 }),
-//     body('token', "Invalid Token.")
-//         .trim()
-//         .notEmpty()
-//         .escape(),
-//     async (req: Request, res: Response, next: NextFunction) => {
-//         const errors = validationResult(req).array({ onlyFirstError: true })
-//         if (errors.length > 0) return next(createHttpError({
-//             message: errors[0].msg,
-//             status: 400,
-//             code: errorCodes.invalid,
-//         }))
+export const confirmPassword = [
+    body("email", "Invalid email format.")
+        .trim()
+        .notEmpty()
+        .isEmail(),
+    body("password", "Password must be at least 8 digits.")
+        .trim()
+        .notEmpty()
+        .matches(/^[\d]+$/)
+        .isLength({ min: 8, max: 8 }),
+    body('token', "Invalid Token.")
+        .trim()
+        .notEmpty()
+        .escape(),
+    async (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid,
+        }))
 
-//         const { email, password, token } = req.body
+        const { email, password, token } = req.body
 
-//         const user = await getUserByEmail(email)
-//         checkUserExit(user)
+        const user = await getUserByEmail(email)
+        checkUserExit(user)
 
-//         const otpRow = await getOTPByEmail(email)
-//         checkOTPRow(otpRow)
+        const otpRow = await getOTPByEmail(email)
+        checkOTPRow(otpRow)
 
-//         //* OTP error count is over-limit
-//         if (otpRow?.error === 5) {
-//             return next(createHttpError({
-//                 message: "Your request is over-limit. Please try again tomorrow.",
-//                 status: 400,
-//                 code: errorCodes.attack,
-//             }))
-//         }
+        //* OTP error count is over-limit
+        if (otpRow?.error === 5) {
+            return next(createHttpError({
+                message: "Your request is over-limit. Please try again tomorrow.",
+                status: 400,
+                code: errorCodes.attack,
+            }))
+        }
 
-//         //* Token is wrong
-//         if (otpRow?.verifyToken !== token) {
-//             const otpData = {
-//                 error: 5
-//             }
-//             await updateOTP(otpRow!.id, otpData)
-//             return next(createHttpError({
-//                 message: "Invalid Token.",
-//                 status: 400,
-//                 code: errorCodes.invalid,
-//             }))
-//         }
+        //* Token is wrong
+        if (otpRow?.verifyToken !== token) {
+            const otpData = {
+                error: 5
+            }
+            await updateOTP(otpRow!.id, otpData)
+            return next(createHttpError({
+                message: "Invalid Token.",
+                status: 400,
+                code: errorCodes.invalid,
+            }))
+        }
 
-//         //* request is expired
-//         const isExpired = moment().diff(otpRow!.updatedAt) > 10 * 60 * 1000;
-//         if (isExpired) return next(createHttpError({
-//             message: "Your request is expired. Please try again.",
-//             status: 403,
-//             code: errorCodes.requestExpired,
-//         }))
+        //* request is expired
+        const isExpired = moment().diff(otpRow!.updatedAt) > 10 * 60 * 1000;
+        if (isExpired) return next(createHttpError({
+            message: "Your request is expired. Please try again.",
+            status: 403,
+            code: errorCodes.requestExpired,
+        }))
 
-//         const hashPassword = await generateHashedValue(password)
-//         const randToken = "@TODO://"
+        const hashPassword = await generateHashedValue(password)
+        const randToken = "@TODO://"
 
-//         const userData = {
-//             email,
-//             password: hashPassword,
-//             randToken,
-//         }
-//         const newUser = await createUser(userData)
+        const userData = {
+            email,
+            password: hashPassword,
+            randToken,
+        }
+        const newUser = await createUser(userData)
 
-//         const accessTokenPayload = { id: newUser.id }
-//         const refreshTokenPayload = { id: newUser.id, email: newUser.email, role: newUser.role }
+        const accessTokenPayload = { id: newUser.id }
+        const refreshTokenPayload = { id: newUser.id, email: newUser.email, role: newUser.role }
 
-//         const accessToken = jwt.sign(
-//             accessTokenPayload,
-//             process.env.ACCESS_TOKEN_SECRET!,
-//             { expiresIn: 60 * 15 }
-//         )
+        const accessToken = jwt.sign(
+            accessTokenPayload,
+            process.env.ACCESS_TOKEN_SECRET!,
+            { expiresIn: 60 * 15 }
+        )
 
-//         const refreshToken = jwt.sign(
-//             refreshTokenPayload,
-//             process.env.REFRESH_TOKEN_SECRET!,
-//             { expiresIn: "30d" }
-//         )
+        const refreshToken = jwt.sign(
+            refreshTokenPayload,
+            process.env.REFRESH_TOKEN_SECRET!,
+            { expiresIn: "30d" }
+        )
 
-//         const userUpdatedData = { randToken: refreshToken }
+        const userUpdatedData = { randToken: refreshToken }
 
-//         await updateUser(newUser.id, userUpdatedData)
+        await updateUser(newUser.id, userUpdatedData)
 
-//         res.cookie("accessToken", accessToken, {
-//             httpOnly: true,
-//             secure: process.env.NODE_ENV === 'production',
-//             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-//             maxAge: 1000 * 60 * 15,
-//             path: '/'
-//         }).cookie("refreshToken", refreshToken, {
-//             httpOnly: true,
-//             secure: process.env.NODE_ENV === 'production',
-//             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-//             maxAge: 1000 * 60 * 60 * 24 * 30,
-//             path: "/"
-//         }).status(201).json({
-//             message: 'Successfully created an account.',
-//             userId: newUser.id,
-//         })
-//     }
-// ]
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 1000 * 60 * 15,
+            path: '/'
+        }).cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+            path: "/"
+        }).status(201).json({
+            message: 'Successfully created an account.',
+            userId: newUser.id,
+        })
+    }
+]
 
 // export const login = [
 //     body("email", "Invalid email format.")
