@@ -32,8 +32,7 @@ export const register = [
         //* Genereate OTP & call OTP sending API
         const otp = 123456 //? For testing
         // const otp = generateOTP()
-        const salt = await bcrypt.genSalt(10)
-        const hashOtp = await bcrypt.hash(otp.toString(), salt)
+        const hashOtp = await generateHashedValue(otp.toString())
         const token = generateToken()
 
         //* Get otp by phone
@@ -214,6 +213,10 @@ export const confirmPassword = [
         .trim()
         .notEmpty()
         .escape(),
+    body('tenant', "Tenant is required.")
+        .trim()
+        .notEmpty()
+        .escape(),
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req).array({ onlyFirstError: true })
         if (errors.length > 0) return next(createHttpError({
@@ -222,7 +225,7 @@ export const confirmPassword = [
             code: errorCodes.invalid,
         }))
 
-        const { email, password, token } = req.body
+        const { email, password, token, tenant } = req.body
 
         const user = await getUserByEmail(email)
         checkUserExit(user)
@@ -261,12 +264,13 @@ export const confirmPassword = [
         }))
 
         const hashPassword = await generateHashedValue(password)
-        const randToken = "@TODO://"
+        const rndToken = "@TODO://"
 
         const userData = {
+            tenant,
             email,
             password: hashPassword,
-            randToken,
+            rndToken,
         }
         const newUser = await createUser(userData)
 
@@ -285,7 +289,7 @@ export const confirmPassword = [
             { expiresIn: "30d" }
         )
 
-        const userUpdatedData = { randToken: refreshToken }
+        const userUpdatedData = { rndToken: refreshToken }
 
         await updateUser(newUser.id, userUpdatedData)
 
@@ -326,13 +330,9 @@ export const login = [
             code: errorCodes.invalid,
         }))
 
-        const password = req.body.password
-        let phone = req.body.phone
-        if (phone.slice(0, 2) === '09') {
-            phone = phone.substring(2, phone.length)
-        }
+        const { email, password } = req.body
 
-        const user = await getUserByEmail(phone)
+        const user = await getUserByEmail(email)
         checkUserIfNotExist(user)
 
         if (user?.status === 'FREEZE') {
@@ -397,7 +397,7 @@ export const login = [
 
         const userData = {
             errorLoginCount: 0,
-            randToken: refreshToken
+            rndToken: refreshToken
         }
 
         await updateUser(user!.id, userData)
@@ -460,9 +460,9 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
         status: 401,
     }))
 
-    //* Update randToken is User Table
+    //* Update rndToken is User Table
     const userData = {
-        randToken: generateToken(),
+        rndToken: generateToken(),
     }
     await updateUser(user!.id, userData)
 
@@ -482,7 +482,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     res.status(200).json({ message: "Successfully logged out. See you soon.!" })
 }
 
-export const forgetPassword = [
+export const forgotPassword = [
     body("email", "Invalid email format.")
         .trim()
         .notEmpty()
@@ -510,8 +510,7 @@ export const forgetPassword = [
         }
 
         const otp = 123456
-        const salt = await bcrypt.genSalt(10)
-        const hashOtp = await bcrypt.hash(otp.toString(), salt)
+        const hashOtp = await generateHashedValue(otp.toString())
         const token = generateToken()
 
         //* OTP Row must be in db
@@ -725,7 +724,7 @@ export const resetPassword = [
 
         const userUpdatedData = {
             password: hashPassword,
-            randToken: refreshToken
+            rndToken: refreshToken
         }
 
         await updateUser(user!.id, userUpdatedData)
