@@ -482,82 +482,82 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     res.status(200).json({ message: "Successfully logged out. See you soon.!" })
 }
 
-// export const forgetPassword = [
-//     body("email", "Invalid email format.")
-//         .trim()
-//         .notEmpty()
-//         .isEmail(),
-//     async (req: Request, res: Response, next: NextFunction) => {
-//         const errors = validationResult(req).array({ onlyFirstError: true })
-//         if (errors.length > 0) return next(createHttpError({
-//             message: errors[0].msg,
-//             status: 400,
-//             code: errorCodes.invalid,
-//         }))
+export const forgetPassword = [
+    body("email", "Invalid email format.")
+        .trim()
+        .notEmpty()
+        .isEmail(),
+    async (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid,
+        }))
 
-//         const { email } = req.body
-//         //* Check user's phone is in db or not
-//         const user = await getUserByEmail(email)
-//         checkUserIfNotExist(user)
+        const { email } = req.body
+        //* Check user's phone is in db or not
+        const user = await getUserByEmail(email)
+        checkUserIfNotExist(user)
 
-//         //* Check user's account is freeze or not
-//         if (user!.status === 'FREEZE') {
-//             return next(createHttpError({
-//                 message: "Your account is temporarily locked. Please contact us.",
-//                 status: 401,
-//                 code: errorCodes.accountFreeze,
-//             }))
-//         }
+        //* Check user's account is freeze or not
+        if (user!.status === 'FREEZE') {
+            return next(createHttpError({
+                message: "Your account is temporarily locked. Please contact us.",
+                status: 401,
+                code: errorCodes.accountFreeze,
+            }))
+        }
 
-//         const otp = 123456
-//         const salt = await bcrypt.genSalt(10)
-//         const hashOtp = await bcrypt.hash(otp.toString(), salt)
-//         const token = generateToken()
+        const otp = 123456
+        const salt = await bcrypt.genSalt(10)
+        const hashOtp = await bcrypt.hash(otp.toString(), salt)
+        const token = generateToken()
 
-//         //* OTP Row must be in db
-//         const otpRow = await getOTPByEmail(email)
-//         //$ Warning - Our app may let users change their phone number.
-//         // * If so, you need to check if phone number exists in OTP table
+        //* OTP Row must be in db
+        const otpRow = await getOTPByEmail(email)
+        //$ Warning - Our app may let users change their phone number.
+        // * If so, you need to check if phone number exists in OTP table
 
-//         let result;
-//         const lastOtpRequest = new Date(otpRow!.updatedAt).toLocaleDateString()
-//         const isSameDate = lastOtpRequest === new Date().toLocaleDateString()
+        let result;
+        const lastOtpRequest = new Date(otpRow!.updatedAt).toLocaleDateString()
+        const isSameDate = lastOtpRequest === new Date().toLocaleDateString()
 
-//         checkOTPErrorIfSameDate(isSameDate, otpRow!.error)
+        checkOTPErrorIfSameDate(isSameDate, otpRow!.error)
 
-//         if (!isSameDate) {
-//             const otpData = {
-//                 otp: hashOtp,
-//                 rememberToken: token,
-//                 count: 1,
-//                 error: 0
-//             }
-//             result = await updateOTP(otpRow!.id, otpData)
-//         } else {
-//             if (otpRow!.count === 3) {
-//                 return next(createHttpError({
-//                     message: 'You have reached the maximum number of attempts. Please try again tomorrow.',
-//                     status: 400,
-//                     code: errorCodes.invalid,
-//                 }))
-//             } else {
-//                 const otpData = {
-//                     otp: hashOtp,
-//                     rememberToken: token,
-//                     count: { increment: 1 },
-//                 }
+        if (!isSameDate) {
+            const otpData = {
+                otp: hashOtp,
+                rememberToken: token,
+                count: 1,
+                error: 0
+            }
+            result = await updateOTP(otpRow!.id, otpData)
+        } else {
+            if (otpRow!.count === 3) {
+                return next(createHttpError({
+                    message: 'You have reached the maximum number of attempts. Please try again tomorrow.',
+                    status: 400,
+                    code: errorCodes.invalid,
+                }))
+            } else {
+                const otpData = {
+                    otp: hashOtp,
+                    rememberToken: token,
+                    count: { increment: 1 },
+                }
 
-//                 result = await updateOTP(otpRow!.id, otpData)
-//             }
-//         }
+                result = await updateOTP(otpRow!.id, otpData)
+            }
+        }
 
-//         res.status(200).json({
-//             message: `We are sending OTP to ${result.email} to reset password.`,
-//             email: result.email,
-//             token: result.rememberToken
-//         })
-//     }
-// ]
+        res.status(200).json({
+            message: `We are sending OTP to ${result.email} to reset password.`,
+            email: result.email,
+            token: result.rememberToken
+        })
+    }
+]
 
 // export const verifyForgotOTP = [
 //     body("email", "Invalid email format.")
