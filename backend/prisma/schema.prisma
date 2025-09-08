@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  firstName       String?  @db.VarChar(52)
+  lastName        String?  @db.VarChar(52)
+  email           String   @unique @db.VarChar(52)
+  password        String
+  tenant          String
+  role            Role     @default(USER)
+  status          Status   @default(ACTIVE)
+  errorLoginCount Int      @default(0) @db.SmallInt
+  rndToken        String
+  avatar          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  logs            Log[]
+
+  @@map("users")
+}
+
+model Otp {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique @db.VarChar(52)
+  otp           String
+  rememberToken String
+  count         Int      @default(0) @db.SmallInt
+  createdAt     DateTime @default(now())
+  error         Int      @default(0) @db.SmallInt
+  verifyToken   String?
+  updatedAt     DateTime @updatedAt
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique @db.VarChar(50)
+  value String @db.VarChar(200)
+}
+
+model Log {
+  id        Int       @id @default(autoincrement())
+  tenant    String
+  timestamp DateTime
+  source    LogSource
+  eventType String?
+  ip        String?
+  reason    String?
+  raw       Json?
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([tenant, timestamp])
+  @@index([tenant, source])
+  @@index([tenant, eventType])
+  @@index([timestamp])
+  @@index([tenant, ip])
+  @@map("logs")
+}
+
+model AlertRule {
+  id            Int      @id @default(autoincrement())
+  tenant        String
+  name          String
+  condition     String
+  threshold     Int
+  windowSeconds Int
+  createdAt     DateTime @default(now())
+
+  @@unique([tenant, name])
+  @@index([tenant])
+  @@map("alert_rules")
+}
+
+model Alert {
+  id          Int         @id @default(autoincrement())
+  tenant      String
+  ruleName    String
+  status      AlertStatus @default(NEW)
+  triggeredAt DateTime    @default(now())
+
+  @@index([tenant, triggeredAt])
+  @@index([ruleName, triggeredAt])
+  @@map("alerts")
+}
+
+enum AlertStatus {
+  NEW
+  ACK
+  RESOLVED
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  FREEZE
+}
+
+enum LogSource {
+  FIREWALL
+  API
+  CROWDSTRIKE
+  AWS
+  M365
+  AD
+  NETWORK
+}
