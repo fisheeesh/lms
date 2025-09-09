@@ -3,6 +3,6 @@ import { createALog } from "../../../controllers/admin/admin-controller"
 
 const router = express.Router()
 
-router.post("/create-log", createALog)
+router.post("/ingest", createALog)
 
 export default router
