@@ -42,7 +42,9 @@ export function RegisterForm({
             <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center gap-2">
                     <Logo />
-                    <h1 className="text-xl font-bold mt-5">Your space just got cozier ✨</h1>
+                    <h1 className="text-xl font-bold mt-5">
+                        Your logging journey starts here 🚀
+                    </h1>
                     <div className="text-center text-sm">
                         Already have an account?{" "}
                         <Link to="/login" className="underline underline-offset-4">
