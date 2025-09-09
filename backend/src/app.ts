@@ -8,9 +8,7 @@ import cookieParser from "cookie-parser"
 import cron from "node-cron"
 
 import routes from './routes/v1'
-// import { createOrUpdateSettingStatus, getSettignStatus } from "./services/system-service"
 
-//* client -> req -> middleware -> controller -> res -> client
 export const app = express()
 
 var whitelist = ['http://localhost:5173', 'http://localhost:4000']
@@ -53,9 +51,4 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
 //* For heavy tasks, it is ideal for worker thread
 cron.schedule("* 5 * * *", async () => {
     console.log('Running a taks at every 5 minutes for testing purpose.')
-    // const setting = await getSettignStatus("maintenance")
-    // if (setting?.value === 'true') {
-    //     await createOrUpdateSettingStatus("maintenance", 'false')
-    //     console.log("Now maintainance mode is off.")
-    // }
 })
