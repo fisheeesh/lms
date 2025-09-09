@@ -8,12 +8,14 @@ import {
     DialogHeader,
     DialogTitle
 } from "@/components/ui/dialog"
+import useUserStore from "@/store/user-store"
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 import Spinner from "../shared/spinner"
 export default function LogoutModal() {
     const navigate = useNavigate()
+    const { clearUser } = useUserStore()
 
     const { mutate, isPending: isLoading } = useMutation({
         mutationFn: async () => {
@@ -26,6 +28,7 @@ export default function LogoutModal() {
             return res.data
         },
         onSuccess: () => {
+            clearUser()
             navigate('/login', { replace: true })
         },
         onError: (error) => {
