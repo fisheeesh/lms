@@ -9,6 +9,10 @@ import { checkOTPErrorIfSameDate, checkOTPRow, checkUserExit, checkUserIfNotExis
 import { generateHashedValue, generateToken } from '../../utils/generate'
 import { createOTP, createUser, getOTPByEmail, getUserByEmail, getUserById, updateOTP, updateUser } from '../../services/auth-service'
 
+interface CustomRequest extends Request {
+    userId?: number
+}
+
 export const register = [
     body("email", "Invalid email format.")
         .trim()
@@ -747,3 +751,15 @@ export const resetPassword = [
             })
     }
 ]
+
+export const authCheck = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const userId = req.userId
+    const user = await getUserById(userId!)
+    checkUserIfNotExist(user)
+
+    res.status(200).json({
+        message: "You are authenticated.",
+        userId: user?.id,
+        tenant: user?.tenant
+    })
+}

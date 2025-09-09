@@ -12,6 +12,14 @@ interface CustomRequest extends Request {
 
 const prisma = new PrismaClient()
 
+export const testAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    res.status(200).json({
+        message: "You are allowed to see this resources.",
+        userId: req.userId,
+        role: req.user?.role
+    })
+}
+
 export const createALog = [
     body("tenant")
         .notEmpty().withMessage("Tenant is required.")

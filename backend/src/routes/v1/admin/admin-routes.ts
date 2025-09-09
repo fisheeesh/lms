@@ -1,8 +1,9 @@
 import express from "express"
-import { createALog } from "../../../controllers/admin/admin-controller"
+import { createALog, testAdmin } from "../../../controllers/admin/admin-controller"
 
 const router = express.Router()
 
+router.get("/test", testAdmin)
 router.post("/ingest", createALog)
 
 export default router

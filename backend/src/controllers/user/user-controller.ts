@@ -7,6 +7,13 @@ interface CustomRequest extends Request {
     userId?: number
 }
 
+export const testUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    res.status(200).json({
+        message: "You are authenticated.",
+        userId: req.userId
+    })
+}
+
 export const getLogs = [
     query("tenant", "Tenant is required."),
     async (req: CustomRequest, res: Response, next: NextFunction) => {
