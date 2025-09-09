@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { app } from "./app";
+import "./syslog-listener"
 
 const PORT = process.env.PORT || 4000
 
