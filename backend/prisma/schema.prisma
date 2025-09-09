@@ -28,7 +28,6 @@ model User {
   avatar          String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  logs            Log[]
 
   @@map("users")
 }
@@ -45,30 +44,46 @@ model Otp {
   updatedAt     DateTime @updatedAt
 }
 
-model Setting {
-  id    Int    @id @default(autoincrement())
-  key   String @unique @db.VarChar(50)
-  value String @db.VarChar(200)
-}
-
 model Log {
-  id        Int       @id @default(autoincrement())
-  tenant    String
-  timestamp DateTime
-  source    LogSource
-  eventType String?
-  ip        String?
-  reason    String?
-  raw       Json?
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id               Int       @id @default(autoincrement())
+  ts               DateTime
+  tenant           String
+  source           LogSource
+  vendor           String?
+  product          String?
+  eventType        String?
+  eventSubtype     String?
+  severity         Int?      @db.SmallInt
+  action           Action?
+  user             String?
+  host             String?
+  process          String?
+  src_ip           String?
+  src_port         String?
+  dst_ip           String?
+  dst_port         String?
+  protocol         String?
+  url              String?
+  http_method      String?
+  status_code      Int?      @db.Integer
+  rule_name        String?
+  rule_id          String?
+  ip               String?
+  reason           String?
+  cloud_account_id String?
+  cloud_region     String?
+  cloud_service    String?
+  raw              Json?
+  tags             String[]  @db.Text
 
-  @@index([tenant, timestamp])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenant, ts])
   @@index([tenant, source])
   @@index([tenant, eventType])
-  @@index([timestamp])
+  @@index([ts])
+  @@index([tenant, user])
   @@index([tenant, ip])
   @@map("logs")
 }
@@ -124,4 +139,14 @@ enum LogSource {
   M365
   AD
   NETWORK
+}
+
+enum Action {
+  ALLOW
+  DENY
+  CREATE
+  DELETE
+  LOGIN
+  LOGOUT
+  ALERT
 }
