@@ -21,11 +21,14 @@ import { Link } from "react-router";
 import LogoutModal from "../modals/log-out-modal";
 import { Button } from "../ui/button";
 import { Dialog, DialogTrigger } from "../ui/dialog";
+import useUserStore from "@/store/user-store";
 
 export default function AuthDropdown() {
+    const { user } = useUserStore()
+
     const dialogTriggerRef = useRef<HTMLButtonElement>(null)
 
-    // const initialName = `${user.fullName.split(" ")[0]?.charAt(0).toUpperCase()}${user.fullName.split(" ")[1]?.charAt(0).toUpperCase()}`
+    const initialName = `${user.fullName?.split(" ")[0]?.charAt(0).toUpperCase()}${user.fullName?.split(" ")[1]?.charAt(0).toUpperCase()}`
 
     return (
         <Dialog>
@@ -33,16 +36,16 @@ export default function AuthDropdown() {
                 <DropdownMenuTrigger asChild>
                     <Button variant="secondary" className="size-8 rounded-full cursor-pointer">
                         <Avatar className="size-9">
-                            <AvatarImage src={IMG_URL} alt={'SYP'} />
-                            <AvatarFallback>{'SY'}</AvatarFallback>
+                            <AvatarImage src={IMG_URL} alt={user.fullName} />
+                            <AvatarFallback>{initialName}</AvatarFallback>
                         </Avatar>
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-70" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal mb-1">
                         <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none truncate">Swam Yi Phyo</p>
-                            <p className="text-xs leading-none text-muted-foreground truncate">syp@gmail.com</p>
+                            <p className="text-sm font-medium leading-none truncate">{user.fullName}</p>
+                            <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuGroup>
@@ -53,7 +56,7 @@ export default function AuthDropdown() {
                                 <DropdownMenuShortcut>⇧⌘D</DropdownMenuShortcut>
                             </Link>
                         </DropdownMenuItem>
-                        {<DropdownMenuItem asChild className="cursor-pointer">
+                        {user.role === 'ADMIN' && <DropdownMenuItem asChild className="cursor-pointer">
                             <Link to='/admin-dashboard' className="whitespace-nowrap">
                                 <LuLayoutDashboard className="size-4 text-black mr-1 dark:text-white" aria-hidden="true" />
                                 Admin Dashboard
