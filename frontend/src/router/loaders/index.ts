@@ -1,15 +1,12 @@
-import api, { authApi } from "@/api"
+import { authApi } from "@/api"
+import { queryClient, userDataQuery } from "@/api/query"
 import useAuthStore, { Status } from "@/store/auth-store"
 import { redirect } from "react-router"
 
 export const homeLoader = async () => {
-    try {
-        const res = await api.get("user/test")
+    await queryClient.ensureQueryData(userDataQuery())
 
-        return res.data
-    } catch (error) {
-        console.log(error)
-    }
+    return null
 }
 
 export const loginLoader = async () => {
