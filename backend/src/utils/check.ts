@@ -9,7 +9,7 @@ export const createHttpError = ({ message, status, code }: { message: string, st
 
 export const checkUserExit = (user: any) => {
     if (user) {
-        const error: any = new Error('This eamil Address has already been registered.')
+        const error: any = new Error('This email address has already been registered.')
         error.status = 409
         error.code = errorCodes.userExists
         throw error
@@ -18,7 +18,7 @@ export const checkUserExit = (user: any) => {
 
 export const checkUserIfNotExist = (user: any) => {
     if (!user) {
-        const error: any = new Error('This eamil Address has not been registered.')
+        const error: any = new Error('This email address has not been registered.')
         error.status = 401
         error.code = errorCodes.unauthenticated
         throw error
