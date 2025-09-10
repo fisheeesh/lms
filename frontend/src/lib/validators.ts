@@ -75,17 +75,17 @@ export const HTTPSchema = BASE_SCHEMA.extend({
 
 export const CrowdStrikeSchema = BASE_SCHEMA.extend({
     source: z.literal("CROWDSTRIKE"),
-    event_type: z.string().min(1, { message: "Event type is required" }),
+    eventType: z.string().min(1, { message: "Event type is required" }),
     host: z.string().min(1, { message: "Host is required" }),
-    process: z.string().optional(),
+    process: z.string().min(1, { message: "Process is required" }),
     action: z.literal("ALERT"),
-    sha256: z.string().optional(),
+    sha256: z.string().min(1, { message: "SHA256 is required" }),
 })
 
 export const AwsSchema = BASE_SCHEMA.extend({
     source: z.literal("AWS"),
     action: z.literal("ALERT"),
-    event_type: z.string(),
+    eventType: z.string(),
     user: z.string().optional(),
     // cloud: z.object({
     //     service: z.string(),
@@ -102,7 +102,7 @@ export const AwsSchema = BASE_SCHEMA.extend({
 export const M365Schema = BASE_SCHEMA.extend({
     source: z.literal("M365"),
     action: z.literal("ALERT"),
-    event_type: z.string().min(1, { message: "Event type is required" }),
+    eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().min(1, { message: "User is required" }),
     ip: z.string().min(1, { message: "IP is required" }),
     status: z.string().min(1, { message: "Status is required" }),
@@ -112,12 +112,12 @@ export const M365Schema = BASE_SCHEMA.extend({
 export const AdSchema = BASE_SCHEMA.extend({
     source: z.literal("AD"),
     action: z.literal("ALERT"),
-    event_id: z.number().min(1, { message: "Event ID is required" }),
-    event_type: z.string().min(1, { message: "Event type is required" }),
+    eventId: z.string().min(1, { message: "Event ID is required" }),
+    eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().min(1, { message: "User is required" }),
     host: z.string().min(1, { message: "Host is required" }),
     ip: z.string().min(1, { message: "Host is required" }),
-    logon_type: z.number().min(1, { message: "Event ID is required" }),
+    logonType: z.string().min(1, { message: "Event ID is required" }),
 })
 
 export const CreateUserSchema = z.object({

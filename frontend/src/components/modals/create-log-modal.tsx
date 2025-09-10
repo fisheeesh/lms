@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import api from "@/api"
 import { Button } from "@/components/ui/button"
 import {
     DialogContent,
@@ -9,13 +10,15 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { AdSchema, AwsSchema, CrowdStrikeSchema, HTTPSchema, M365Schema } from "@/lib/validators"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { TbLogs } from "react-icons/tb"
 import { z } from "zod"
 import Spinner from "../shared/spinner"
-import { HTTPSchema, AwsSchema, CrowdStrikeSchema, M365Schema, AdSchema } from "@/lib/validators"
+import { toast } from "sonner"
 
 const ACTIONS = [
     "ALLOW",
@@ -51,7 +54,7 @@ const defaults = {
         source: "CROWDSTRIKE",
         action: "ALERT",
         severity: 8,
-        event_type: "malware_detected",
+        eventType: "malware_detected",
         host: "WIN10-01",
         process: "powershell.exe",
         sha256: "abc123def456",
@@ -61,7 +64,7 @@ const defaults = {
         source: "AWS",
         action: "ALERT",
         severity: 4,
-        event_type: "CreateUser",
+        eventType: "CreateUser",
         user: "admin",
     },
     m365: {
@@ -69,7 +72,7 @@ const defaults = {
         source: "M365",
         action: "ALERT",
         severity: 3,
-        event_type: "UserLoggedIn",
+        eventType: "UserLoggedIn",
         user: "bob@demo.local",
         ip: "198.51.100.23",
         status: "Success",
@@ -80,18 +83,29 @@ const defaults = {
         source: "AD",
         action: "ALERT",
         severity: 6,
-        event_id: 4625,
-        event_type: "LogonFailed",
+        eventId: "4625",
+        eventType: "LogonFailed",
         user: "demo\\eve",
         host: "DC01",
         ip: "203.0.113.77",
-        logon_type: 3,
+        logonType: "3",
     },
 } as const
 
 type TemplateKey = keyof typeof schemas
 
-export default function CreateLogModal() {
+type IngestPayload =
+    | z.infer<typeof HTTPSchema>
+    | z.infer<typeof AwsSchema>
+    | z.infer<typeof CrowdStrikeSchema>
+    | z.infer<typeof M365Schema>
+    | z.infer<typeof AdSchema>;
+
+interface CreateLogModalProps {
+    onClose?: () => void;
+}
+
+export default function CreateLogModal({ onClose }: CreateLogModalProps) {
     const [template, setTemplate] = useState<TemplateKey>("http")
 
     const currentSchema = useMemo(() => schemas[template], [template])
@@ -103,16 +117,41 @@ export default function CreateLogModal() {
         mode: "onBlur",
     })
 
+    const { mutate, isPending } = useMutation({
+        mutationFn: async (payload: IngestPayload) => {
+            const { data } = await api.post("admin/ingest", payload, { withCredentials: true });
+            return data;
+        },
+    });
+
     useEffect(() => {
-        // In case you prefer not to remount, you could do `form.reset(currentDefaults as any)`
-        // But we remount via the `key` on <Form> below, which is more reliable for resolver updates.
-    }, [template])
+        form.reset(currentDefaults as any);
+    }, [template, currentDefaults, form]);
 
     const onSubmit = (values: z.infer<typeof currentSchema>) => {
-        console.log("submit:", values)
-    }
+        mutate(values as IngestPayload, {
+            onSuccess: () => {
+                toast.success('Success', {
+                    description: "Your log has been ingested successfully.",
+                });
+            },
+            onError: (err: any) => {
+                const msg =
+                    err?.response?.data?.message ||
+                    err?.message ||
+                    "Failed to ingest log. Please try again.";
+                toast.error('Error', {
+                    description: msg,
+                });
+            },
+            onSettled: () => {
+                form.reset(currentDefaults as any);
+                onClose?.();
+            },
+        });
+    };
 
-    const isWorking = form.formState.isSubmitting
+    const isWorking = form.formState.isSubmitting || isPending
 
     const renderField = (name: string) => {
         if (name === "source") {

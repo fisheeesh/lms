@@ -9,9 +9,11 @@ import CommonFilter from "../shared/common-filter";
 import { Button } from "../ui/button";
 import CreateLogModal from "../modals/create-log-modal";
 import ConfirmModal from "../modals/confirm-modal";
+import { useState } from "react";
 
 export default function LogsTable() {
     const { user } = useUserStore()
+    const [open, setOpen] = useState(false);
 
     const isAdmin = user.role === 'ADMIN'
 
@@ -24,13 +26,13 @@ export default function LogsTable() {
                         <CardDescription>Search and filter logs for easier navigation</CardDescription>
                     </div>
                     {isAdmin && <div className="flex flex-col xl:flex-row xl:items-center gap-2">
-                        <Dialog>
+                        <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
                                 <Button className="bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 font-semibold hover:from-pink-500 hover:via-purple-500 hover:to-blue-400 transition-colors duration-300 w-fit min-h-[44px] text-white flex items-center gap-2 cursor-pointer">
                                     <MdFormatListBulletedAdd className="size-5" /> Create a new log
                                 </Button>
                             </DialogTrigger>
-                            <CreateLogModal />
+                            {open && <CreateLogModal onClose={() => setOpen(false)} />}
                         </Dialog>
                     </div>}
                 </div>
