@@ -14,14 +14,15 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IMG_URL } from "@/lib/constants";
+import useUserStore from "@/store/user-store";
 import { useRef } from "react";
+import { GrSettingsOption } from "react-icons/gr";
 import { IoMdLogOut } from "react-icons/io";
-import { LuLayoutDashboard, LuLogs } from "react-icons/lu";
+import { LuLogs } from "react-icons/lu";
 import { Link } from "react-router";
 import LogoutModal from "../modals/log-out-modal";
 import { Button } from "../ui/button";
 import { Dialog, DialogTrigger } from "../ui/dialog";
-import useUserStore from "@/store/user-store";
 
 export default function AuthDropdown() {
     const { user } = useUserStore()
@@ -57,9 +58,9 @@ export default function AuthDropdown() {
                             </Link>
                         </DropdownMenuItem>
                         {user.role === 'ADMIN' && <DropdownMenuItem asChild className="cursor-pointer">
-                            <Link to='/admin-dashboard' className="whitespace-nowrap">
-                                <LuLayoutDashboard className="size-4 text-black mr-1 dark:text-white" aria-hidden="true" />
-                                Admin Dashboard
+                            <Link to='/management' className="whitespace-nowrap">
+                                <GrSettingsOption className="size-4 text-black mr-1 dark:text-white" aria-hidden="true" />
+                                Management
                                 <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
                             </Link>
                         </DropdownMenuItem>}

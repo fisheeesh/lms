@@ -28,7 +28,7 @@ export default function Navbar() {
 
     return (
         <div>
-            <nav className='fixed top-0 left-0 right-0 z-50 border-b bg-white/90 backdrop-blur-sm border-gray-100 shadow-sm dark:bg-slate-900/90 dark:border-0 dark:shadow-2xl'>
+            <nav className='fixed top-0 left-0 right-0 z-50 border-b bg-white/70 backdrop-blur-sm border-gray-100 shadow-sm dark:bg-slate-900/70 dark:border-0 dark:shadow-2xl'>
                 <div className="w-full flex justify-between items-center max-w-[1440px] px-4 mx-auto md:h-20 h-16">
                     {/* Logo & Links */}
                     <div className="flex items-center cursor-pointer gap-4" onClick={() => navigate('/')}>
