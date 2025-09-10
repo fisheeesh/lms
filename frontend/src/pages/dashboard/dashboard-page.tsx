@@ -3,11 +3,13 @@ import { LogsOverviewChart } from "@/components/charts/logs-overview-chart"
 import { SeverityOverviewChart } from "@/components/charts/severity-overview-chart"
 import { SourceComparisonChart } from "@/components/charts/source-comparison-chart"
 import LogsTable from "@/components/tables/logs-table"
+import useTitle from "@/hooks/use-title"
 import useUserStore from "@/store/user-store"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { useEffect } from "react"
 
 export default function DashboardPage() {
+    useTitle("Logs Dashboard")
     const { setUser } = useUserStore()
 
     const { data: userData } = useSuspenseQuery(userDataQuery())

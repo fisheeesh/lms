@@ -143,7 +143,7 @@ export function LogsOverviewChart() {
                 <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
                     <CardTitle className="text-xl md:text-2xl">Logs Overview</CardTitle>
                     <CardDescription>
-                        Showing total visitors for the last 3 months
+                        Showing total logs for the last <span className="font-en">3</span> months
                     </CardDescription>
                 </div>
                 <div className="flex">

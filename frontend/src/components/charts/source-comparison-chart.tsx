@@ -13,6 +13,8 @@ import {
     ChartTooltipContent,
     type ChartConfig,
 } from "@/components/ui/chart"
+import CommonFilter from "../shared/common-filter"
+import { TSFILTER } from "@/lib/constants"
 
 export const description = "A line chart"
 
@@ -35,9 +37,16 @@ const chartConfig = {
 export function SourceComparisonChart() {
     return (
         <Card className="h-full">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-xl md:text-2xl">Logs' Source Comparison Chart</CardTitle>
-                <CardDescription>January - June 2024</CardDescription>
+            <CardHeader className="pb-2 flex lg:items-center flex-col lg:flex-row justify-between gap-4">
+                <div>
+                    <CardTitle className="text-xl md:text-2xl">Logs' Source Comparison Chart</CardTitle>
+                    <CardDescription>Comparison of different log sources</CardDescription>
+                </div>
+                <CommonFilter
+                    filterValue="duration"
+                    filters={TSFILTER}
+                    otherClasses="min-h-[44px] sm:min-w-[150px]"
+                />
             </CardHeader>
             <CardContent className="h-[320px]">
                 <ChartContainer config={chartConfig} className="h-full w-full">

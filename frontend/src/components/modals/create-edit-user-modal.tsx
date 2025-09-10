@@ -50,7 +50,9 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
                     {formType === 'CREATE' ? <FaUserPlus /> : <FaUserPen />}
                     {formType === 'CREATE' ? 'Create a new User' : "Edit User"}
                 </DialogTitle>
-                <DialogDescription>Choose a template and edit fields before submitting.</DialogDescription>
+                <DialogDescription>
+                    {formType === 'CREATE' ? 'Fill in the details to add a new user.' : "Update the user information and save changes."}
+                </DialogDescription>
             </DialogHeader>
 
             <Form {...form}>

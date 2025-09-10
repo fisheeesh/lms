@@ -22,7 +22,7 @@ export default function UserTable() {
                 <div className="flex flex-col xl:flex-row gap-3 xl:gap-0 justify-between">
                     <div className="flex flex-col items-start gap-2 tracking-wide">
                         <CardTitle className="text-xl md:text-2xl">All User Lists</CardTitle>
-                        <CardDescription>Check them out</CardDescription>
+                        <CardDescription>View and manage every user in the system</CardDescription>
                     </div>
                     {isAdmin && <div className="flex flex-col xl:flex-row xl:items-center gap-2">
                         <Dialog>
