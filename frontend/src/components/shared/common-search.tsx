@@ -25,7 +25,7 @@ export default function LocalSearch({ filterValue = 'search' }: { filterValue: s
                 value={query}
                 type="search"
                 placeholder="Search by keywords..."
-                className="min-h-[44px] w-[300px] pl-10"
+                className="min-h-[44px] w-full xl:w-[300px] pl-10"
                 onChange={(e) => setQuery(e.target.value)}
             />
             <BsSearch className="absolute top-3.5 left-3 size-[16px]" />

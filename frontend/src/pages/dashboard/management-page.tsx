@@ -1,9 +1,12 @@
+import LogsTable from "@/components/tables/logs-table";
+import UserTable from "@/components/tables/user-table";
 
 export default function AdminDashboardPage() {
 
     return (
-        <div>
-            Admin Dashboard
-        </div>
+        <section className="flex flex-col gap-4">
+            <LogsTable />
+            <UserTable />
+        </section>
     )
 }
