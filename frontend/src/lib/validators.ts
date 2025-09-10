@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { LOG_SOURCES, ACTIONS } from './constants'
 
 export const LogInSchema = z.object({
     email: z.string().email({ message: 'Invalid email format' }),
@@ -48,26 +49,6 @@ export const ResetPasswordSchema = z.object({
     message: "Passwords do not match",
     path: ["confirmPassword"]
 })
-
-export const LOG_SOURCES = [
-    "FIREWALL",
-    "API",
-    "CROWDSTRIKE",
-    "AWS",
-    "M365",
-    "AD",
-    "NETWORK",
-] as const
-
-export const ACTIONS = [
-    "ALLOW",
-    "DENY",
-    "CREATE",
-    "DELETE",
-    "LOGIN",
-    "LOGOUT",
-    "ALERT",
-] as const
 
 export const BASE_SCHEMA = z.object({
     tenant: z.string().min(1, { message: "Tenant is required" }),

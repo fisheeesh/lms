@@ -1,3 +1,5 @@
+import { HTTPSchema, AwsSchema, CrowdStrikeSchema, M365Schema, AdSchema } from "./validators"
+
 export const LOGIN = "Login"
 export const REGISTER = "Register"
 
@@ -15,6 +17,88 @@ export const NAVLINKS = [
     { to: "/", name: "Logs Dashboard" },
     { to: "/management", name: "Management" },
 ]
+
+export const LOG_SOURCES = [
+    "FIREWALL",
+    "API",
+    "CROWDSTRIKE",
+    "AWS",
+    "M365",
+    "AD",
+    "NETWORK",
+] as const
+
+export const ACTIONS = [
+    "ALLOW",
+    "DENY",
+    "CREATE",
+    "DELETE",
+    "LOGIN",
+    "LOGOUT",
+    "ALERT",
+] as const
+
+export const schemas = {
+    http: HTTPSchema,
+    aws: AwsSchema,
+    crowdstrike: CrowdStrikeSchema,
+    m365: M365Schema,
+    ad: AdSchema,
+} as const
+
+export const defaults = {
+    http: {
+        tenant: "demoTenant",
+        source: "API",
+        action: "ALERT",
+        severity: 5,
+        eventType: "LoginAttempt",
+        user: "john.doe",
+        ip: "127.0.0.1",
+        reason: "Testing default API log",
+    },
+    crowdstrike: {
+        tenant: "demoTenant",
+        source: "CROWDSTRIKE",
+        action: "ALERT",
+        severity: 8,
+        event_type: "malware_detected",
+        host: "WIN10-01",
+        process: "powershell.exe",
+        sha256: "abc123def456",
+    },
+    aws: {
+        tenant: "demoTenant",
+        source: "AWS",
+        action: "ALERT",
+        severity: 4,
+        event_type: "CreateUser",
+        user: "admin",
+    },
+    m365: {
+        tenant: "demoTenant",
+        source: "M365",
+        action: "ALERT",
+        severity: 3,
+        event_type: "UserLoggedIn",
+        user: "bob@demo.local",
+        ip: "198.51.100.23",
+        status: "Success",
+        workload: "Exchange",
+    },
+    ad: {
+        tenant: "demoTenant",
+        source: "AD",
+        action: "ALERT",
+        severity: 6,
+        event_id: 4625,
+        event_type: "LogonFailed",
+        user: "demo\\eve",
+        host: "DC01",
+        ip: "203.0.113.77",
+        logon_type: 3,
+    },
+} as const
 
 export const TSFILTER = [
     { name: 'Last 7 days', value: "7" },
