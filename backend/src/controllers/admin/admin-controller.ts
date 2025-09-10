@@ -6,6 +6,7 @@ import { checkModalIfExist, checkUserIfNotExist, createHttpError } from "../../u
 import { normalizeData } from "../../utils/normalize"
 import { getUserById } from "../../services/auth-services"
 import { deleteLogById, getLogById } from "../../services/log-services"
+import CacheQueue from "../../jobs/queues/cache-queue"
 
 interface CustomRequest extends Request {
     userId?: number
@@ -86,6 +87,13 @@ export const createALog = [
         const data = normalizeData(tenant, source, payload);
         const log = await prisma.log.create({ data });
 
+        await CacheQueue.add("invalidate-log-cache", {
+            pattern: 'logs:*'
+        }, {
+            jobId: `invalidate-${Date.now()}`,
+            priority: 1
+        })
+
         res.status(201).json({
             message: "Successfully created a log.",
             logId: log.id
@@ -116,6 +124,13 @@ export const deleteALog = [
         checkModalIfExist(log)
 
         const deletedLog = await deleteLogById(log!.id)
+
+        await CacheQueue.add("invalidate-log-cache", {
+            pattern: 'logs:*'
+        }, {
+            jobId: `invalidate-${Date.now()}`,
+            priority: 1
+        })
 
         res.status(200).json({
             message: "Successfully deleted a log.",
