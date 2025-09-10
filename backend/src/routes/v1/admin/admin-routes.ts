@@ -1,5 +1,5 @@
 import express from "express"
-import { createALog, createAUser, deleteALog, testAdmin } from "../../../controllers/admin/admin-controller"
+import { createALog, createAUser, deleteALog, deleteAUser, testAdmin } from "../../../controllers/admin/admin-controller"
 
 const router = express.Router()
 
@@ -8,5 +8,6 @@ router.post("/ingest", createALog)
 router.delete("/logs", deleteALog)
 
 router.post("/create-user", createAUser)
+router.delete("/users", deleteAUser)
 
 export default router

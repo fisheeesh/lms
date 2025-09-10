@@ -3,10 +3,10 @@ import { body, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource } from "../../generated/prisma"
 import CacheQueue from "../../jobs/queues/cache-queue"
-import { getUserById } from "../../services/auth-services"
+import { getUserByEmail, getUserById } from "../../services/auth-services"
 import { createLog, deleteLogById, getLogById } from "../../services/log-services"
-import { createNewUser } from "../../services/user-services"
-import { checkModalIfExist, checkUserIfNotExist, createHttpError } from "../../utils/check"
+import { createNewUser, deleteUserById } from "../../services/user-services"
+import { checkModalIfExist, checkUserExit, checkUserIfNotExist, createHttpError } from "../../utils/check"
 import { generateHashedValue, generateToken } from "../../utils/generate"
 import { normalizeData } from "../../utils/normalize"
 
@@ -164,6 +164,9 @@ export const createAUser = [
 
         const { email, password, firstName, lastName, role, tenant } = req.body
 
+        const existingUser = await getUserByEmail(email)
+        checkUserExit(existingUser)
+
         const otp = 123456
         const hashPassword = await generateHashedValue(password)
         const hashOTP = await generateHashedValue(otp.toString())
@@ -187,9 +190,54 @@ export const createAUser = [
 
         const newUser = await createNewUser(userData, otpData)
 
+        await CacheQueue.add("invalidate-user-cache", {
+            pattern: 'users:*'
+        }, {
+            jobId: `invalidate-${Date.now()}`,
+            priority: 1
+        })
+
         res.status(201).json({
             message: "Successfully created a user.",
             userId: newUser.id
+        })
+    }
+]
+
+export const deleteAUser = [
+    body("id", "User ID is required.").notEmpty().isInt({ gt: 0 }),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true });
+        if (errors.length > 0) {
+            return next(
+                createHttpError({
+                    message: errors[0].msg,
+                    status: 400,
+                    code: errorCodes.invalid,
+                })
+            );
+        }
+
+        const { id } = req.body
+        const user = await getUserById(+id)
+        if (!user) return next(createHttpError({
+            message: 'There is no account with this ID in database.',
+            code: errorCodes.notFound,
+            status: 404
+        }))
+
+        const deletedUser = await deleteUserById(user.id)
+
+        await CacheQueue.add("invalidate-user-cache", {
+            pattern: 'users:*'
+        }, {
+            jobId: `invalidate-${Date.now()}`,
+            priority: 1
+        })
+
+        res.status(200).json({
+            message: "Successfully deleted a user.",
+            userId: deletedUser.id
         })
     }
 ]

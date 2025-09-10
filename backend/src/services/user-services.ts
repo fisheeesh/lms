@@ -29,3 +29,17 @@ export const createNewUser = async (userData: any, otpData: any) => {
         return newUser
     })
 }
+
+export const deleteUserById = async (id: number) => {
+    return await prisma.$transaction(async (tx) => {
+        const deletedUser = await tx.user.delete({
+            where: { id }
+        })
+
+        await tx.otp.deleteMany({
+            where: { email: deletedUser.email }
+        })
+
+        return deletedUser
+    })
+}
