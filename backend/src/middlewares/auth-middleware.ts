@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { createHttpError } from "../utils/check";
 import jwt from "jsonwebtoken"
 import { errorCodes } from "../config/error-codes";
-import { getUserById, updateUser } from "../services/auth-service";
+import { getUserById, updateUser } from "../services/auth-services";
 
 interface CustomRequest extends Request {
     userId?: number

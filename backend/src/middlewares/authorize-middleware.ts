@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { getUserById } from "../services/auth-service";
+import { getUserById } from "../services/auth-services";
 import { errorCodes } from "../config/error-codes";
 import { createHttpError } from "../utils/check";
 

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import { query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
-import { getUserById } from "../../services/auth-service"
+import { getUserById } from "../../services/auth-services"
 import { checkUserIfNotExist, createHttpError } from "../../utils/check"
 import { prisma } from "../../config/prisma-client"
 

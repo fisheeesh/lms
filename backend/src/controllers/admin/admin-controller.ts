@@ -2,8 +2,10 @@ import { NextFunction, Request, Response } from "express"
 import { body, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource, PrismaClient } from "../../generated/prisma"
-import { createHttpError } from "../../utils/check"
+import { checkModalIfExist, checkUserIfNotExist, createHttpError } from "../../utils/check"
 import { normalizeData } from "../../utils/normalize"
+import { getUserById } from "../../services/auth-services"
+import { deleteLogById, getLogById } from "../../services/log-services"
 
 interface CustomRequest extends Request {
     userId?: number
@@ -90,3 +92,34 @@ export const createALog = [
         });
     },
 ];
+
+export const deleteALog = [
+    body("id", "Log ID is required.").notEmpty().isInt({ gt: 0 }),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true });
+        if (errors.length > 0) {
+            return next(
+                createHttpError({
+                    message: errors[0].msg,
+                    status: 400,
+                    code: errorCodes.invalid,
+                })
+            );
+        }
+
+        const { id } = req.body
+        const userId = req.userId
+        const user = await getUserById(userId!)
+        checkUserIfNotExist(user)
+
+        const log = await getLogById(id)
+        checkModalIfExist(log)
+
+        const deletedLog = await deleteLogById(log!.id)
+
+        res.status(200).json({
+            message: "Successfully deleted a log.",
+            logId: deletedLog.id
+        });
+    }
+]

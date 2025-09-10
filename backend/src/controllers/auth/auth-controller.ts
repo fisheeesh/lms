@@ -7,7 +7,7 @@ import moment from 'moment'
 import { errorCodes } from '../../config/error-codes'
 import { checkOTPErrorIfSameDate, checkOTPRow, checkUserExit, checkUserIfNotExist, createHttpError } from '../../utils/check'
 import { generateHashedValue, generateToken } from '../../utils/generate'
-import { createOTP, createUser, getOTPByEmail, getUserByEmail, getUserById, updateOTP, updateUser } from '../../services/auth-service'
+import { createOTP, createUser, getOTPByEmail, getUserByEmail, getUserById, updateOTP, updateUser } from '../../services/auth-services'
 
 interface CustomRequest extends Request {
     userId?: number
