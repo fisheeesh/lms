@@ -16,6 +16,11 @@ export const NAVLINKS = [
     { to: "/management", name: "Management" },
 ]
 
+export const TSFILTER = [
+    { name: 'Last 7 days', value: "7" },
+    { name: "Last 30 days", value: "30" },
+]
+
 export const SOURCEFILTER = [
     { name: "All Sources", value: "all" },
     { name: "Firewall", value: "FIREWALL" },
@@ -393,5 +398,78 @@ export const dummyLogs = [
         tags: ["proxy", "security"],
         createdAt: new Date(),
         updatedAt: new Date(),
+    },
+]
+
+export const dummyUsers = [
+    {
+        name: "Alice Johnson",
+        email: "alice.johnson@example.com",
+        tenant: "CompanyA",
+        role: "Admin",
+        status: "Active",
+    },
+    {
+        name: "Bob Smith",
+        email: "bob.smith@example.com",
+        tenant: "CompanyB",
+        role: "User",
+        status: "Inactive",
+    },
+    {
+        name: "Charlie Brown",
+        email: "charlie.brown@example.com",
+        tenant: "CompanyA",
+        role: "Manager",
+        status: "Active",
+    },
+    {
+        name: "Diana Prince",
+        email: "diana.prince@example.com",
+        tenant: "CompanyC",
+        role: "User",
+        status: "Pending",
+    },
+    {
+        name: "Ethan Hunt",
+        email: "ethan.hunt@example.com",
+        tenant: "CompanyB",
+        role: "Admin",
+        status: "Active",
+    },
+    {
+        name: "Fiona Gallagher",
+        email: "fiona.gallagher@example.com",
+        tenant: "CompanyC",
+        role: "User",
+        status: "Suspended",
+    },
+    {
+        name: "George Miller",
+        email: "george.miller@example.com",
+        tenant: "CompanyA",
+        role: "User",
+        status: "Active",
+    },
+    {
+        name: "Hannah Lee",
+        email: "hannah.lee@example.com",
+        tenant: "CompanyD",
+        role: "Manager",
+        status: "Active",
+    },
+    {
+        name: "Ivan Petrov",
+        email: "ivan.petrov@example.com",
+        tenant: "CompanyB",
+        role: "User",
+        status: "Inactive",
+    },
+    {
+        name: "Julia Roberts",
+        email: "julia.roberts@example.com",
+        tenant: "CompanyD",
+        role: "Admin",
+        status: "Active",
     },
 ]

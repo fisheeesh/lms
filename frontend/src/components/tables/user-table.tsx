@@ -2,15 +2,15 @@ import LocalSearch from "@/components/shared/common-search";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ACTIONFILTER, dummyLogs, SEVERITYFILTER, SOURCEFILTER, TENANTFILTER, TSFILTER } from "@/lib/constants";
+import { dummyUsers, TENANTFILTER } from "@/lib/constants";
 import useUserStore from "@/store/user-store";
 import { MdFormatListBulletedAdd } from "react-icons/md";
+import ConfirmModal from "../modals/confirm-modal";
+import CreateLogModal from "../modals/create-log-modal";
 import CommonFilter from "../shared/common-filter";
 import { Button } from "../ui/button";
-import CreateLogModal from "../modals/create-log-modal";
-import ConfirmModal from "../modals/confirm-modal";
 
-export default function LogsTable() {
+export default function UserTable() {
     const { user } = useUserStore()
 
     const isAdmin = user.role === 'ADMIN'
@@ -20,14 +20,14 @@ export default function LogsTable() {
             <CardHeader className="space-y-2">
                 <div className="flex flex-col xl:flex-row gap-3 xl:gap-0 justify-between">
                     <div className="flex flex-col items-start gap-2 tracking-wide">
-                        <CardTitle className="text-xl md:text-2xl">Log Lists under Tenant A</CardTitle>
+                        <CardTitle className="text-xl md:text-2xl">All User Lists</CardTitle>
                         <CardDescription>Check them out</CardDescription>
                     </div>
                     {isAdmin && <div className="flex flex-col xl:flex-row xl:items-center gap-2">
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button className="bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 font-semibold hover:from-pink-500 hover:via-purple-500 hover:to-blue-400 transition-colors duration-300 w-fit min-h-[44px] text-white flex items-center gap-2 cursor-pointer">
-                                    <MdFormatListBulletedAdd className="size-5" /> Create a new log
+                                    <MdFormatListBulletedAdd className="size-5" /> Create a new user
                                 </Button>
                             </DialogTrigger>
                             <CreateLogModal />
@@ -35,32 +35,12 @@ export default function LogsTable() {
                     </div>}
                 </div>
                 <div className="flex flex-col xl:flex-row gap-2">
-                    <LocalSearch filterValue="key" />
+                    <LocalSearch filterValue="name" />
                     {isAdmin && <CommonFilter
-                        filterValue="tenant"
+                        filterValue="uTenant"
                         filters={TENANTFILTER}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />}
-                    <CommonFilter
-                        filterValue="action"
-                        filters={ACTIONFILTER}
-                        otherClasses="min-h-[44px] sm:min-w-[150px]"
-                    />
-                    <CommonFilter
-                        filterValue="source"
-                        filters={SOURCEFILTER}
-                        otherClasses="min-h-[44px] sm:min-w-[150px]"
-                    />
-                    <CommonFilter
-                        filterValue="severity"
-                        filters={SEVERITYFILTER}
-                        otherClasses="min-h-[44px] sm:min-w-[150px]"
-                    />
-                    <CommonFilter
-                        filterValue="ts"
-                        filters={TSFILTER}
-                        otherClasses="min-h-[44px] sm:min-w-[150px]"
-                    />
                 </div>
             </CardHeader>
 
@@ -68,49 +48,42 @@ export default function LogsTable() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="whitespace-nowrap">IP</TableHead>
-                            <TableHead className="whitespace-nowrap">User</TableHead>
+                            <TableHead className="whitespace-nowrap">Name</TableHead>
+                            <TableHead className="whitespace-nowrap">Email</TableHead>
                             <TableHead className="whitespace-nowrap">Tenant</TableHead>
-                            <TableHead className="whitespace-nowrap">Source</TableHead>
-                            <TableHead className="whitespace-nowrap">Type</TableHead>
-                            <TableHead className="whitespace-nowrap">SubType</TableHead>
-                            <TableHead className="whitespace-nowrap">Severity</TableHead>
+                            <TableHead className="whitespace-nowrap">Role</TableHead>
+                            <TableHead className="whitespace-nowrap">Status</TableHead>
                             <TableHead className="whitespace-nowrap">Action</TableHead>
-                            <TableHead className="whitespace-nowrap">TimeStamp</TableHead>
                         </TableRow>
                     </TableHeader>
 
                     <TableBody>
-                        {dummyLogs.map((log) => (
-                            <TableRow key={log.id}>
+                        {dummyUsers.map((log) => (
+                            <TableRow key={log.name}>
                                 <TableCell className="py-4">
-                                    <span className="whitespace-nowrap font-en">{log.ip}</span>
+                                    <span className="whitespace-nowrap">{log.name}</span>
                                 </TableCell>
                                 <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.user}</span>
+                                    <span className="whitespace-nowrap">{log.email}</span>
                                 </TableCell>
                                 <TableCell className="py-4">
                                     <span className="whitespace-nowrap">{log.tenant}</span>
                                 </TableCell>
                                 <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.source}</span>
+                                    <span className="whitespace-nowrap">{log.role}</span>
                                 </TableCell>
                                 <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.eventType}</span>
+                                    <span className="whitespace-nowrap">{log.status}</span>
                                 </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.eventSubtype}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap font-en">{log.severity}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.action}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap font-en">{log.ts.toDateString()}</span>
-                                </TableCell>
-                                {isAdmin && <TableCell className="py-4">
+                                {isAdmin && <TableCell className="py-4 space-x-2">
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button variant='outline' className="cursor-pointer">
+                                                Edit
+                                            </Button>
+                                        </DialogTrigger>
+                                        <CreateLogModal />
+                                    </Dialog>
                                     <Dialog>
                                         <DialogTrigger asChild>
                                             <Button className="cursor-pointer" variant='destructive'>
