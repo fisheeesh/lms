@@ -5,7 +5,7 @@ import { Action, LogSource } from "../../generated/prisma"
 import CacheQueue from "../../jobs/queues/cache-queue"
 import { getUserByEmail, getUserById } from "../../services/auth-services"
 import { createLog, deleteLogById, getLogById } from "../../services/log-services"
-import { createNewUser, deleteUserById } from "../../services/user-services"
+import { createNewUser, deleteUserById, updateUserById } from "../../services/user-services"
 import { checkModalIfExist, checkUserExit, checkUserIfNotExist, createHttpError } from "../../utils/check"
 import { generateHashedValue, generateToken } from "../../utils/generate"
 import { normalizeData } from "../../utils/normalize"
@@ -238,6 +238,53 @@ export const deleteAUser = [
         res.status(200).json({
             message: "Successfully deleted a user.",
             userId: deletedUser.id
+        })
+    }
+]
+
+export const updateAUser = [
+    body("id", "User ID is required.").notEmpty().isInt({ gt: 0 }),
+    body("firstName", "First name is required.").notEmpty().isString().trim(),
+    body("lastName", "Last name is required.").notEmpty().isString().trim(),
+    body("role", "Role is required.").notEmpty().isString().trim(),
+    body("tenant", "Tenant is required.").notEmpty().isString().trim(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true });
+        if (errors.length > 0) {
+            return next(
+                createHttpError({
+                    message: errors[0].msg,
+                    status: 400,
+                    code: errorCodes.invalid,
+                })
+            );
+        }
+
+        const { id, firstName, lastName, role, tenant } = req.body
+        const user = await getUserById(+id)
+        if (!user) return next(createHttpError({
+            message: 'There is no account with this ID in database.',
+            code: errorCodes.notFound,
+            status: 404
+        }))
+
+        const updatedUser = await updateUserById(user.id, {
+            firstName,
+            lastName,
+            role,
+            tenant
+        })
+
+        await CacheQueue.add("invalidate-user-cache", {
+            pattern: 'users:*'
+        }, {
+            jobId: `invalidate-${Date.now()}`,
+            priority: 1
+        })
+
+        res.status(200).json({
+            message: "Successfully updated a user.",
+            userId: updatedUser.id
         })
     }
 ]
