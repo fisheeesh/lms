@@ -24,7 +24,9 @@ export const auth = async (req: CustomRequest, res: Response, next: NextFunction
         try {
             decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as {
                 id: number,
-                phone: string
+                email: string,
+                role: string,
+                tenant: string
             }
         } catch (error) {
             return next(createHttpError({
@@ -51,7 +53,7 @@ export const auth = async (req: CustomRequest, res: Response, next: NextFunction
             }))
         }
 
-        if (user.email !== decoded.phone || user.rndToken !== refreshToken) {
+        if (user.email !== decoded.email || user.rndToken !== refreshToken) {
             return next(createHttpError({
                 message: 'You are not an authenticated user.',
                 code: errorCodes.unauthenticated,
@@ -75,7 +77,7 @@ export const auth = async (req: CustomRequest, res: Response, next: NextFunction
         )
 
         const userData = {
-            randToken: newRefreshToken
+            rndToken: newRefreshToken
         }
 
         await updateUser(user!.id, userData)

@@ -287,7 +287,7 @@ export const confirmPassword = [
         const newUser = await createUser(userData)
 
         const accessTokenPayload = { id: newUser.id }
-        const refreshTokenPayload = { id: newUser.id, email: newUser.email, role: newUser.role }
+        const refreshTokenPayload = { id: newUser.id, email: newUser.email, role: newUser.role, tenant: newUser.tenant }
 
         const accessToken = jwt.sign(
             accessTokenPayload,
@@ -393,7 +393,7 @@ export const login = [
 
         //* Authorization token
         const accessTokenPayload = { id: user!.id }
-        const refreshTokenPayload = { id: user!.id, email: user!.email, role: user!.role }
+        const refreshTokenPayload = { id: user!.id, email: user!.email, role: user!.role, tenant: user!.tenant }
 
         const accessToken = jwt.sign(
             accessTokenPayload,
@@ -445,7 +445,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     let decoded;
     try {
         decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as {
-            id: number, email: string, role: string
+            id: number, email: string, role: string, tenant: string
         }
     } catch (error) {
         return next(createHttpError({
@@ -766,7 +766,7 @@ export const authCheck = async (req: CustomRequest, res: Response, next: NextFun
     checkUserIfNotExist(user)
 
     res.status(200).json({
-        message: "You are authenticated.",
+        message: "You are authenticated user.",
         userId: user?.id,
         tenant: user?.tenant
     })
