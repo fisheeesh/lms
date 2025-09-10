@@ -35,19 +35,7 @@ export const ConfirmPasswordSchema = z.object({
     path: ["confirmPassword"]
 })
 
-export const ResetPasswordSchema = z.object({
-    password: z.string()
-        .min(1, { message: "Password is required" })
-        .min(8, { message: "Password must be at least 8 characters" })
-        .regex(/^\d+$/, "Password must be numbers"),
-    confirmPassword: z.string()
-        .min(1, { message: "Confirm password is required" })
-        .min(8, { message: "Confirm password must be at least 8 characters" })
-        .regex(/^\d+$/, "Password must be numbers")
-}).refine(data => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"]
-})
+export const ResetPasswordSchema = ConfirmPasswordSchema.omit({ firstName: true, lastName: true, tenant: true })
 
 const LOG_SOURCES = [
     "FIREWALL",
@@ -131,3 +119,17 @@ export const AdSchema = BASE_SCHEMA.extend({
     ip: z.string().min(1, { message: "Host is required" }),
     logon_type: z.number().min(1, { message: "Event ID is required" }),
 })
+
+export const CreateUserSchema = z.object({
+    firstName: z.string().min(1, { message: "First name is required" }),
+    lastName: z.string().min(1, { message: "Last name is required" }),
+    email: z.string().email({ message: 'Invalid email format' }),
+    password: z.string()
+        .min(1, { message: "Password is required" })
+        .min(8, { message: "Password must be at least 8 digit" })
+        .regex(/^\d+$/, "Password must be numbers"),
+    role: z.enum(["Admin", "User"], { message: "Role must be 'Admin' or 'User'" }),
+    tenant: z.string().min(1, { message: "Tenant is required" }),
+})
+
+export const EditUserSchema = CreateUserSchema.omit({ email: true, password: true })

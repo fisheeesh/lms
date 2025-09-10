@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { dummyUsers, TENANTFILTER } from "@/lib/constants";
+import { CreateUserSchema, EditUserSchema } from "@/lib/validators";
 import useUserStore from "@/store/user-store";
 import { MdFormatListBulletedAdd } from "react-icons/md";
 import ConfirmModal from "../modals/confirm-modal";
-import CreateLogModal from "../modals/create-log-modal";
+import CreateEditUserModal from "../modals/create-edit-user-modal";
 import CommonFilter from "../shared/common-filter";
 import { Button } from "../ui/button";
 
@@ -30,7 +31,18 @@ export default function UserTable() {
                                     <MdFormatListBulletedAdd className="size-5" /> Create a new user
                                 </Button>
                             </DialogTrigger>
-                            <CreateLogModal />
+                            <CreateEditUserModal
+                                formType="CREATE"
+                                schema={CreateUserSchema}
+                                defaultValues={{
+                                    firstName: '',
+                                    lastName: '',
+                                    email: 'syp@gmail.com',
+                                    password: '12345678',
+                                    role: 'User',
+                                    tenant: ""
+                                }}
+                            />
                         </Dialog>
                     </div>}
                 </div>
@@ -82,7 +94,16 @@ export default function UserTable() {
                                                 Edit
                                             </Button>
                                         </DialogTrigger>
-                                        <CreateLogModal />
+                                        <CreateEditUserModal
+                                            formType="EDIT"
+                                            schema={EditUserSchema}
+                                            defaultValues={{
+                                                firstName: 'Swam',
+                                                lastName: "Yi Phyo",
+                                                role: "Admin",
+                                                tenant: "tenantA"
+                                            }}
+                                        />
                                     </Dialog>
                                     <Dialog>
                                         <DialogTrigger asChild>
