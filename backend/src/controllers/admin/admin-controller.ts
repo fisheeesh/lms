@@ -39,6 +39,7 @@ export const createALog = [
     body("user").optional().isString(),
     body("host").optional().isString(),
     body("process").optional().isString(),
+    body("sha256").optional().isString(),
     body("src_ip").optional().isIP().withMessage("src_ip must be a valid IP."),
     body("src_port").optional().isInt({ min: 1, max: 65535 }),
     body("dst_ip").optional().isIP().withMessage("dst_ip must be a valid IP."),
@@ -46,7 +47,9 @@ export const createALog = [
     body("protocol").optional().isString(),
     body("url").optional().isURL().withMessage("url must be a valid URL."),
     body("http_method").optional().isString(),
-    body("status_code").optional().isInt({ min: 100, max: 599 }),
+    body("logonType").optional().isString(),
+    body("status").optional().isString(),
+    body("workload").optional().isString(),
     body("rule_name").optional().isString(),
     body("rule_id").optional().isString(),
     body("ip").optional().isIP(),
@@ -73,7 +76,7 @@ export const createALog = [
             );
         }
 
-        const tenant = req.user?.tenant || req.body.tenant;
+        const tenant = req.body.tenant || req.user?.tenant;
 
         const source = (req.body.source as LogSource) || LogSource.API;
         const payload = req.body;

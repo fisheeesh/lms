@@ -1,8 +1,42 @@
 import { LogSource, Prisma, Action } from "../generated/prisma";
 import { toAction, to0to10, num } from "./helpers";
 
-export function normalizeData(tenant: string, source: LogSource, payload: any): Prisma.LogCreateInput {
+function parseSyslogKV(line: string) {
+    // Example: <134>Aug 20 12:44:56 fw01 vendor=demo product=ngfw action=deny ...
+    const out: Record<string, any> = { original: line };
+
+    // PRI
+    const priMatch = line.match(/^<(\d+)>/);
+    if (priMatch) out.pri = Number(priMatch[1]);
+
+    // Timestamp + host (very rough; good enough for lab data)
+    const tsHostMatch = line.replace(/^<\d+>/, "").trim().split(/\s+/);
+    if (tsHostMatch.length >= 4) {
+        const month = tsHostMatch[0];
+        const day = tsHostMatch[1];
+        const time = tsHostMatch[2];
+        const host = tsHostMatch[3];
+        out.timestamp_str = `${month} ${day} ${time}`;
+        out.host = host;
+    }
+
+    // Key=Value pairs
+    const kv: Record<string, string> = {};
+    for (const m of line.matchAll(/(\w+)=([^\s]+)/g)) {
+        kv[m[1]] = m[2];
+    }
+    out.kv = kv;
+
+    return { raw: out, kv };
+}
+
+export function normalizeData(
+    tenant: string,
+    source: LogSource,
+    payload: any
+): Prisma.LogCreateInput {
     const now = new Date();
+
     const out: Prisma.LogCreateInput = {
         tenant,
         source,
@@ -29,33 +63,41 @@ export function normalizeData(tenant: string, source: LogSource, payload: any): 
         cloud_account_id: undefined,
         cloud_region: undefined,
         cloud_service: undefined,
-        raw: payload,
+        raw: (typeof payload === "object" ? payload : { value: String(payload) }) as Prisma.InputJsonValue,
         tags: [String(source).toLowerCase()],
     };
 
     switch (source) {
         case LogSource.API: {
-            out.ts = payload.ts ? new Date(payload.ts) : now;
-            out.user = payload.user;
-            out.eventType = payload.event ?? "application";
-            out.eventSubtype = payload.action;
-            out.action = toAction(payload.action);
-            out.severity = to0to10(payload.severity);
-            out.http_method = payload.http?.method;
-            out.url = payload.http?.path ?? payload.url;
-            out.status_code = num(payload.http?.status_code ?? payload.status_code);
-            out.src_ip = payload.network?.src_ip;
-            out.dst_ip = payload.network?.dst_ip;
+            out.ts = payload?.ts ? new Date(payload.ts) : now;
+            out.action = toAction(payload?.action);
+            out.eventType = payload?.eventType ?? "application";
+            out.user = payload?.user;
+            out.ip = payload?.ip;
+            out.reason = payload?.reason;
             break;
         }
 
         case LogSource.FIREWALL:
         case LogSource.NETWORK: {
             if (typeof payload === "string") {
+                // Parse syslog line -> object
+                const { raw, kv } = parseSyslogKV(payload);
+                out.raw = raw as Prisma.InputJsonValue;
                 out.eventType = "system";
                 out.eventSubtype = "syslog";
-                out.reason = payload;
+
+                // Map common kvs
+                out.src_ip = kv.src ?? kv.src_ip;
+                out.dst_ip = kv.dst ?? kv.dst_ip;
+                out.src_port = kv.spt ?? kv.src_port;
+                out.dst_port = kv.dpt ?? kv.dst_port;
+                out.protocol = kv.proto ?? kv.protocol;
+                out.action = toAction(kv.action) ?? Action.ALERT;
+                out.rule_name = kv.policy ?? kv.rule ?? out.rule_name;
+                out.reason = kv.msg ?? "syslog";
             } else {
+                // Structured firewall JSON
                 out.ts = payload.ts ? new Date(payload.ts) : now;
                 out.src_ip = payload.src_ip;
                 out.src_port = num(payload.src_port)?.toString();
@@ -72,46 +114,48 @@ export function normalizeData(tenant: string, source: LogSource, payload: any): 
         }
 
         case LogSource.AWS: {
-            out.ts = payload.eventTime ? new Date(payload.eventTime) : now;
-            out.eventType = "audit";
-            out.eventSubtype = payload.eventName;
-            out.user = payload.userIdentity?.userName ?? payload.userIdentity?.arn;
-            out.src_ip = payload.sourceIPAddress;
-            out.cloud_account_id = payload.recipientAccountId;
-            out.cloud_region = payload.awsRegion;
-            out.cloud_service = payload.eventSource;
+            out.ts = payload?.eventTime ? new Date(payload.eventTime) : now;
+            out.action = toAction(payload?.action);
+            out.severity = to0to10(payload?.severity);
+            out.eventType = payload?.eventType ?? "audit";
+            out.user = payload?.user;
             break;
         }
 
         case LogSource.M365: {
-            out.ts = payload.CreationTime ? new Date(payload.CreationTime) : now;
-            out.eventType = "audit";
-            out.eventSubtype = payload.Operation;
-            out.user = payload.UserId ?? payload.UserPrincipalName;
-            out.host = payload.Workload
+            out.ts = payload?.CreationTime ? new Date(payload.CreationTime) : now;
+            out.action = toAction(payload?.action);
+            out.severity = to0to10(payload?.severity);
+            out.eventType = payload?.eventType ?? "audit";
+            out.user = payload?.user;
+            out.ip = payload?.ip;
+            out.status_code = payload?.status;
+            out.process = payload?.workload;
             break;
         }
 
         case LogSource.AD: {
-            out.ts = payload.TimeCreated ? new Date(payload.TimeCreated) : now;
-            out.eventType = "authentication";
-            out.eventSubtype = "logon";
-            out.user = payload.TargetUserName ?? payload.user;
-            out.host = payload.ComputerName ?? payload.host;
-            out.src_ip = payload.IpAddress ?? payload.ip;
-            out.action = (String(payload.EventID ?? payload.event_id) === "4624") ? Action.LOGIN : Action.ALERT;
+            out.ts = payload?.TimeCreated ? new Date(payload.TimeCreated) : now;
+            out.action =
+                String(payload?.EventID ?? payload?.eventId) === "4624"
+                    ? Action.LOGIN
+                    : Action.ALERT;
+            out.severity = to0to10(payload?.severity);
+            out.eventType = payload?.eventType ?? "authentication";
+            out.user = payload?.user;
+            out.host = payload?.host;
+            out.ip = payload?.ip;
             break;
         }
 
         case LogSource.CROWDSTRIKE: {
-            out.ts = payload['@timestamp'] ? new Date(payload['@timestamp']) : (payload.timestamp ? new Date(payload.timestamp) : now);
-            out.eventType = payload.event_type ?? "alert";
-            out.eventSubtype = payload.event_action ?? payload.behavior;
-            out.action = toAction(payload.event_action ?? payload.behavior) ?? Action.ALERT;
-            out.severity = to0to10(payload.severity);
-            out.user = payload.user;
-            out.host = payload.hostname ?? payload.device_name;
-            out.src_ip = payload.local_ip;
+            const ts = payload?.["@timestamp"] ?? payload?.timestamp;
+            out.ts = ts ? new Date(ts) : now;
+            out.eventType = payload?.eventType ?? "alert";
+            out.host = payload?.host;
+            out.process = payload?.process;
+            out.action = toAction(payload?.event_action ?? payload?.behavior) ?? Action.ALERT;
+            out.severity = to0to10(payload?.severity);
             break;
         }
     }
