@@ -8,6 +8,10 @@ export const getLogById = async (id: number) => {
     })
 }
 
+export const createLog = async (data: any) => {
+    return await prisma.log.create({ data })
+}
+
 export const deleteLogById = async (id: number) => {
     return await prisma.log.delete({
         where: { id }

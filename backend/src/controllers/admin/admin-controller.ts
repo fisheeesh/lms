@@ -1,19 +1,19 @@
 import { NextFunction, Request, Response } from "express"
 import { body, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
-import { Action, LogSource, PrismaClient } from "../../generated/prisma"
-import { checkModalIfExist, checkUserIfNotExist, createHttpError } from "../../utils/check"
-import { normalizeData } from "../../utils/normalize"
-import { getUserById } from "../../services/auth-services"
-import { deleteLogById, getLogById } from "../../services/log-services"
+import { Action, LogSource } from "../../generated/prisma"
 import CacheQueue from "../../jobs/queues/cache-queue"
+import { getUserById } from "../../services/auth-services"
+import { createLog, deleteLogById, getLogById } from "../../services/log-services"
+import { createNewUser } from "../../services/user-services"
+import { checkModalIfExist, checkUserIfNotExist, createHttpError } from "../../utils/check"
+import { generateHashedValue, generateToken } from "../../utils/generate"
+import { normalizeData } from "../../utils/normalize"
 
 interface CustomRequest extends Request {
     userId?: number
     user?: any
 }
-
-const prisma = new PrismaClient()
 
 export const testAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
     res.status(200).json({
@@ -85,7 +85,7 @@ export const createALog = [
         const payload = req.body;
 
         const data = normalizeData(tenant, source, payload);
-        const log = await prisma.log.create({ data });
+        const log = await createLog(data);
 
         await CacheQueue.add("invalidate-log-cache", {
             pattern: 'logs:*'
@@ -138,3 +138,59 @@ export const deleteALog = [
         });
     }
 ]
+
+export const createAUser = [
+    body("firstName", "First name is required.").notEmpty().isString().trim(),
+    body("lastName", "Last name is required.").notEmpty().isString().trim(),
+    body("email", "Email is required.").notEmpty().isEmail().trim(),
+    body("password", "Password must be at least 8 digits.")
+        .trim()
+        .notEmpty()
+        .matches(/^[\d]+$/)
+        .isLength({ min: 8, max: 8 }),
+    body("role", "Role is required.").notEmpty().isString().trim(),
+    body("tenant", "Tenant is required.").notEmpty().isString().trim(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true });
+        if (errors.length > 0) {
+            return next(
+                createHttpError({
+                    message: errors[0].msg,
+                    status: 400,
+                    code: errorCodes.invalid,
+                })
+            );
+        }
+
+        const { email, password, firstName, lastName, role, tenant } = req.body
+
+        const otp = 123456
+        const hashPassword = await generateHashedValue(password)
+        const hashOTP = await generateHashedValue(otp.toString())
+
+        const userData = {
+            email,
+            password: hashPassword,
+            firstName,
+            lastName,
+            role,
+            tenant,
+            rndToken: ""
+        }
+
+        const otpData = {
+            email,
+            otp: hashOTP,
+            rememberToken: generateToken(),
+            count: 1
+        }
+
+        const newUser = await createNewUser(userData, otpData)
+
+        res.status(201).json({
+            message: "Successfully created a user.",
+            userId: newUser.id
+        })
+    }
+]
+
