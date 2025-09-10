@@ -94,7 +94,9 @@ export const confirmPasswordAction = async ({ request }: ActionFunctionArgs) => 
         email: authStore.email,
         token: authStore.token,
         password: formData.get("password"),
-        tenant: formData.get('tenant')
+        tenant: formData.get('tenant'),
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName')
     }
 
     try {

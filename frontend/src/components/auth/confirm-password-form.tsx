@@ -27,7 +27,9 @@ export function ConfirmPasswordForm({
         defaultValues: {
             password: '',
             confirmPassword: '',
-            tenant: ''
+            tenant: '',
+            firstName: '',
+            lastName: ''
         }
     })
 
@@ -56,6 +58,46 @@ export function ConfirmPasswordForm({
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" autoComplete="off">
                         <div className="flex flex-col gap-6">
                             <div className="grid gap-3">
+                                <div className="flex flex-col md:flex-row gap-3">
+                                    <FormField
+                                        control={form.control}
+                                        name="firstName"
+                                        render={({ field }) => (
+                                            <FormItem className="space-y-1 w-full md:w-1/2">
+                                                <FormLabel>First Name <span className="text-red-600">*</span></FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        className="min-h-[44px]"
+                                                        id="firstName"
+                                                        type='text'
+                                                        placeholder="Your First Name"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="lastName"
+                                        render={({ field }) => (
+                                            <FormItem className="space-y-1 w-full md:w-1/2">
+                                                <FormLabel>Last Name <span className="text-red-600">*</span></FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        className="min-h-[44px]"
+                                                        id="lastName"
+                                                        type='text'
+                                                        placeholder="Your Last Name"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                                 <FormField
                                     control={form.control}
                                     name="tenant"

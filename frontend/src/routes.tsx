@@ -13,6 +13,7 @@ import ErrorElement from './pages/not-found/error-element'
 import NotFoundPage from './pages/not-found/not-found'
 import { confirmPasswordLoader, homeLoader, loginLoader, OTPLoader, resetPasswordLoader, verifyOTPLoader } from './router/loaders'
 import { confirmPasswordAction, forgetPasswordAction, loginAction, OTPAction, registerAction, resetPasswordAction, verifyOTPAction } from './router/actions'
+import ManagementPage from './pages/dashboard/management-page'
 
 export default function Router() {
     const router = createBrowserRouter([
@@ -29,6 +30,10 @@ export default function Router() {
                     },
                     loader: homeLoader,
                 },
+                {
+                    path: 'management',
+                    Component: ManagementPage
+                }
             ]
         },
         {

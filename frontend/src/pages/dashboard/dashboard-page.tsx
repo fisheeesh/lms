@@ -1,4 +1,8 @@
 import { userDataQuery } from "@/api/query"
+import { LogsOverviewChart } from "@/components/charts/logs-overview-chart"
+import { SeverityOverviewChart } from "@/components/charts/severity-overview-chart"
+import { SourceComparisonChart } from "@/components/charts/source-comparison-chart"
+import LogsTable from "@/components/tables/logs-table"
 import useUserStore from "@/store/user-store"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { useEffect } from "react"
@@ -21,8 +25,15 @@ export default function DashboardPage() {
     }, [userData, setUser])
 
     return (
-        <div>
-            Dashboard
-        </div>
+        <section className="flex flex-col gap-4">
+            <LogsOverviewChart />
+            <div className="grid gap-4 lg:grid-cols-3 items-stretch">
+                <div className="lg:col-span-2">
+                    <SourceComparisonChart />
+                </div>
+                <SeverityOverviewChart />
+            </div>
+            <LogsTable />
+        </section>
     )
 }

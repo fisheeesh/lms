@@ -204,6 +204,12 @@ export const verifyOtp = [
 ]
 
 export const confirmPassword = [
+    body("firstName", "First name is required.")
+        .trim()
+        .notEmpty(),
+    body("lastName", "Last name is required.")
+        .trim()
+        .notEmpty(),
     body("email", "Invalid email format.")
         .trim()
         .notEmpty()
@@ -229,7 +235,7 @@ export const confirmPassword = [
             code: errorCodes.invalid,
         }))
 
-        const { email, password, token, tenant } = req.body
+        const { email, password, token, tenant, firstName, lastName } = req.body
 
         const user = await getUserByEmail(email)
         checkUserExit(user)
@@ -271,6 +277,8 @@ export const confirmPassword = [
         const rndToken = "@TODO://"
 
         const userData = {
+            firstName,
+            lastName,
             tenant,
             email,
             password: hashPassword,
