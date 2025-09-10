@@ -1,5 +1,7 @@
 import { Action } from "../generated/prisma"
 
+export const rentationDay = process.env.LOG_RETENTION_DAYS || 7
+
 export const authorize = (permission: boolean, userRole: string, ...roles: string[]) => {
     const result = roles.includes(userRole)
 

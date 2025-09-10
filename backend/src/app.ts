@@ -1,13 +1,14 @@
 import compression from "compression"
+import cookieParser from "cookie-parser"
 import cors from "cors"
 import express, { NextFunction, Request, Response } from "express"
 import helmet from "helmet"
 import morgan from "morgan"
-import { limiter } from "./middlewares/rate-limtter"
-import cookieParser from "cookie-parser"
 import cron from "node-cron"
+import { limiter } from "./middlewares/rate-limtter"
 
 import routes from './routes/v1'
+import { deleteLogsWhichAreOlderThan7Days } from "./services/log-services"
 
 export const app = express()
 
@@ -47,8 +48,8 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     })
 })
 
-//* cron job works on every specific time we set and use main thread
-//* For heavy tasks, it is ideal for worker thread
-cron.schedule("* 5 * * *", async () => {
-    console.log('Running a taks at every 5 minutes for testing purpose.')
+//* Run once a day at midnight 
+cron.schedule("* * * * *", async () => {
+    console.log("Running log retention job...")
+    await deleteLogsWhichAreOlderThan7Days()
 })
