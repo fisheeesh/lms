@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import CreateLogModal from "../modals/create-log-modal";
 import ConfirmModal from "../modals/confirm-modal";
 import { useState } from "react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export default function LogsTable() {
     const { user } = useUserStore()
@@ -70,12 +71,11 @@ export default function LogsTable() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="whitespace-nowrap">IP</TableHead>
                             <TableHead className="whitespace-nowrap">User</TableHead>
+                            <TableHead className="whitespace-nowrap">IP</TableHead>
                             <TableHead className="whitespace-nowrap">Tenant</TableHead>
                             <TableHead className="whitespace-nowrap">Source</TableHead>
                             <TableHead className="whitespace-nowrap">Type</TableHead>
-                            <TableHead className="whitespace-nowrap">SubType</TableHead>
                             <TableHead className="whitespace-nowrap">Severity</TableHead>
                             <TableHead className="whitespace-nowrap">Action</TableHead>
                             <TableHead className="whitespace-nowrap">TimeStamp</TableHead>
@@ -85,11 +85,17 @@ export default function LogsTable() {
                     <TableBody>
                         {dummyLogs.map((log) => (
                             <TableRow key={log.id}>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap font-en">{log.ip}</span>
+                                <TableCell>
+                                    <div className="flex items-center gap-2">
+                                        <Avatar className="size-9">
+                                            <AvatarImage src={""} alt={log.user!} />
+                                            <AvatarFallback>{log.user?.charAt(0).toUpperCase()}</AvatarFallback>
+                                        </Avatar>
+                                        <span className="whitespace-nowrap">{log.user}</span>
+                                    </div>
                                 </TableCell>
                                 <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.user}</span>
+                                    <span className="whitespace-nowrap font-en">{log.ip}</span>
                                 </TableCell>
                                 <TableCell className="py-4">
                                     <span className="whitespace-nowrap">{log.tenant}</span>
@@ -99,9 +105,6 @@ export default function LogsTable() {
                                 </TableCell>
                                 <TableCell className="py-4">
                                     <span className="whitespace-nowrap">{log.eventType}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.eventSubtype}</span>
                                 </TableCell>
                                 <TableCell className="py-4">
                                     <span className="whitespace-nowrap font-en">{log.severity}</span>

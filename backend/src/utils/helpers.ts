@@ -1,5 +1,9 @@
 import { Action } from "../generated/prisma"
 
+export const actions = ["ALLOW", "DENY", "CREATE", "DELETE", "LOGIN", "LOGOUT", "ALERT"]
+
+export const source = ["FIREWALL", "API", "CROWDSTRIKE", "AWS", "M365", "AD"]
+
 export const rentationDay = process.env.LOG_RETENTION_DAYS || 7
 
 export const authorize = (permission: boolean, userRole: string, ...roles: string[]) => {

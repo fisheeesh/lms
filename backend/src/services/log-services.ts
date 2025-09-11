@@ -215,3 +215,7 @@ export const getLogsSeverityOverview = async (tenant: string) => {
         console.log(error)
     }
 }
+
+export const getAllLogs = async (options: any) => {
+    return await prisma.log.findMany(options)
+}
