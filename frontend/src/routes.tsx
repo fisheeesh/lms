@@ -11,9 +11,8 @@ import VerifyOTPPage from './pages/auth/verify-otp-page'
 import DashboardRootLayout from './pages/dashboard/dashboard-root-layout'
 import ErrorElement from './pages/not-found/error-element'
 import NotFoundPage from './pages/not-found/not-found'
-import { confirmPasswordLoader, homeLoader, loginLoader, OTPLoader, resetPasswordLoader, verifyOTPLoader } from './router/loaders'
 import { confirmPasswordAction, forgetPasswordAction, loginAction, OTPAction, registerAction, resetPasswordAction, verifyOTPAction } from './router/actions'
-import ManagementPage from './pages/dashboard/management-page'
+import { confirmPasswordLoader, homeLoader, loginLoader, managementLoader, OTPLoader, resetPasswordLoader, verifyOTPLoader } from './router/loaders'
 
 export default function Router() {
     const router = createBrowserRouter([
@@ -32,7 +31,11 @@ export default function Router() {
                 },
                 {
                     path: 'management',
-                    Component: ManagementPage
+                    lazy: async () => {
+                        const { default: ManagementPage } = await import("@/pages/dashboard/management-page")
+                        return { Component: ManagementPage }
+                    },
+                    loader: managementLoader
                 }
             ]
         },

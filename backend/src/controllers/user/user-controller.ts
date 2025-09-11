@@ -124,7 +124,7 @@ export const getAllLogsInfinite = [
             code: errorCodes.invalid
         }))
 
-        const { limit = 7, cursor: lastCursor, kw, tenant, action, severity, source, ts = '7' } = req.query
+        const { limit = 7, cursor: lastCursor, kw, tenant, action, severity, source, ts = 'desc' } = req.query
         const userId = req.userId
         const user = await getUserById(userId!)
         checkUserIfNotExist(user)
@@ -157,22 +157,12 @@ export const getAllLogsInfinite = [
                 ? { source: source as LogSource }
                 : {};
 
-        const now = new Date();
-
-        const gap = +ts <= 7 ? 6 : +ts - 1
-        const start = startOfDay(subDays(now, gap))
-        const end = endOfDay(now)
-
         const options = {
             where: {
                 ...kwFilter,
                 ...tenantFilter,
                 ...actionFilter,
                 ...sourceFilter,
-                createdAt: {
-                    gte: start,
-                    lte: end
-                }
             },
             take: +limit + 1,
             skip: lastCursor ? 1 : 0,
@@ -190,7 +180,7 @@ export const getAllLogsInfinite = [
                 action: true
             },
             orderBy: {
-                createdAt: 'desc'
+                createdAt: ts === 'asc' ? 'asc' : 'desc'
             }
         }
 

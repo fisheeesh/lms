@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { SEVERITYFILTER, TSFILTER } from "@/lib/constants";
+import { SEVERITYFILTER, TIMEFILTER } from "@/lib/constants";
 import useFilterStore from "@/store/filter-store";
 import useUserStore from "@/store/user-store";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import ConfirmModal from "../modals/confirm-modal";
 import CreateLogModal from "../modals/create-log-modal";
 import CommonFilter from "../shared/common-filter";
 import CustomBadge, { type LabelType } from "../shared/custom-badge";
+import Empty from "../shared/empty";
 import { Button } from "../ui/button";
 
 interface Props {
@@ -75,7 +76,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                     />
                     <CommonFilter
                         filterValue="ts"
-                        filters={TSFILTER}
+                        filters={TIMEFILTER}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />
                 </div>
@@ -100,7 +101,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                         <div className="my-24 text-center font-medium">Loading...</div>
                         : status === 'error'
                             ? (<div className="my-24 text-center font-medium">Error: {error?.message}</div>)
-                            : <TableBody className="">
+                            : <TableBody>
                                 {data.map((log) => (
                                     <TableRow key={log.id}>
                                         <TableCell>
@@ -147,10 +148,11 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                                         </TableCell>}
                                     </TableRow>
                                 ))}
-                            </TableBody>}
+                            </TableBody>
+                    }
                 </Table>
-                <div className="my-4 flex items-center justify-center">
-                    <Button
+                <div className="my-4 flex flex-col items-center justify-center">
+                    {data.length > 0 ? <Button
                         className="cursor-pointer"
                         onClick={() => fetchNextPage()}
                         disabled={!hasNextPage || isFetchingNextPage}
@@ -161,7 +163,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                             : hasNextPage
                                 ? "Load More"
                                 : "Nothing more to load"}
-                    </Button>
+                    </Button> : <Empty label="No records found" classesName="w-[300px] h-[200px] " />}
                 </div>
 
                 <div className="my-4 flex items-center justify-center">

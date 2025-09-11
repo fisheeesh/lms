@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { QueryClient } from '@tanstack/react-query';
-import api from '.';
+import api, { adminApi } from '.';
 
 export const queryClient = new QueryClient({
     defaultOptions: {
@@ -98,4 +98,27 @@ const fetchAllFilters = async () => {
 export const filtersQuery = () => ({
     queryKey: ['filters'],
     queryFn: fetchAllFilters
+})
+
+const fetchLogsInfiniteAdmin = async ({ pageParam = null, kw = null, tenant = null, ts = null, source = null, action = null, severity = null }: {
+    pageParam?: number | null, kw?: string | null, tenant?: string | null, ts?: string | null, source?: string | null, action?: string | null, severity?: string | null
+}) => {
+    let query = pageParam ? `?limit=7&cursor=${pageParam}` : "?limit=7"
+    if (kw) query += `&kw=${kw}`
+    if (tenant) query += `&tenant=${tenant}`
+    if (ts) query += `&ts=${ts}`
+    if (source) query += `&source=${source}`
+    if (action) query += `&action=${action}`
+    if (severity) query += `&severity=${severity}`
+    const res = await adminApi.get(`admin/get-logs-infinite${query}`)
+
+    return res.data
+}
+
+export const logsInfiniteAdminQuery = (kw: string | null = null, tenant: string | null = null, ts: string | null = null, source: string | null = null, action: string | null = null, severity: string | null = null) => ({
+    queryKey: ['logs', 'infinite', kw ?? undefined, tenant ?? undefined, ts ?? undefined, source ?? undefined, action ?? undefined, severity ?? undefined],
+    queryFn: ({ pageParam = null }: { pageParam?: number | null }) => fetchLogsInfiniteAdmin({ pageParam, kw, tenant, ts, source, action, severity }),
+    initialPageParam: null,
+    // @ts-expect-error ignore type check
+    getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined
 })
