@@ -57,17 +57,24 @@ export const severityOverviewQuery = () => ({
     queryFn: fetchSeverityOverview
 })
 
-const fetchLogsInfinite = async ({ pageParam = null, kw = null }: { pageParam?: number | null, kw?: string | null }) => {
+const fetchLogsInfinite = async ({ pageParam = null, kw = null, tenant = null, ts = null, source = null, action = null, severity = null }: {
+    pageParam?: number | null, kw?: string | null, tenant?: string | null, ts?: string | null, source?: string | null, action?: string | null, severity?: string | null
+}) => {
     let query = pageParam ? `?limit=7&cursor=${pageParam}` : "?limit=7"
     if (kw) query += `&kw=${kw}`
+    if (tenant) query += `&tenant=${tenant}`
+    if (ts) query += `&ts=${ts}`
+    if (source) query += `&source=${source}`
+    if (action) query += `&action=${action}`
+    if (severity) query += `&severity=${severity}`
     const res = await api.get(`user/get-logs-infinite${query}`)
 
     return res.data
 }
 
-export const logsInfiniteQuery = (kw: string | null = null) => ({
-    queryKey: ['logs', 'infinite', kw ?? undefined],
-    queryFn: ({ pageParam = null }: { pageParam?: number | null }) => fetchLogsInfinite({ pageParam, kw }),
+export const logsInfiniteQuery = (kw: string | null = null, tenant: string | null = null, ts: string | null = null, source: string | null = null, action: string | null = null, severity: string | null = null) => ({
+    queryKey: ['logs', 'infinite', kw ?? undefined, tenant ?? undefined, ts ?? undefined, source ?? undefined, action ?? undefined, severity ?? undefined],
+    queryFn: ({ pageParam = null }: { pageParam?: number | null }) => fetchLogsInfinite({ pageParam, kw, tenant, ts, source, action, severity }),
     initialPageParam: null,
     // @ts-expect-error ignore type check
     getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined
@@ -81,3 +88,14 @@ export const invalidateLogsQueries = async () => {
         queryClient.invalidateQueries({ queryKey: ['severity-overview'] }),
     ]);
 };
+
+const fetchAllFilters = async () => {
+    const res = await api.get("user/filters")
+
+    return res.data
+}
+
+export const filtersQuery = () => ({
+    queryKey: ['filters'],
+    queryFn: fetchAllFilters
+})

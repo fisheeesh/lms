@@ -216,6 +216,12 @@ export const getLogsSeverityOverview = async (tenant: string) => {
     }
 }
 
-export const getAllLogs = async (options: any) => {
-    return await prisma.log.findMany(options)
+export const getAllLogs = async (options: any, severity: string) => {
+    const result = await prisma.log.findMany(options)
+
+    const filtered = typeof severity === 'string' && severity !== 'all'
+        ? result.filter(r => r.severityLabel.toLowerCase().includes(severity.toLowerCase()))
+        : result
+
+    return filtered
 }
