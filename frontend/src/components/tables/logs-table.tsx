@@ -3,15 +3,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ACTIONFILTER, SEVERITYFILTER, SOURCEFILTER, TENANTFILTER, TSFILTER } from "@/lib/constants";
+import { SEVERITYFILTER, TSFILTER } from "@/lib/constants";
+import useFilterStore from "@/store/filter-store";
 import useUserStore from "@/store/user-store";
 import { useState } from "react";
 import { MdFormatListBulletedAdd } from "react-icons/md";
 import ConfirmModal from "../modals/confirm-modal";
 import CreateLogModal from "../modals/create-log-modal";
 import CommonFilter from "../shared/common-filter";
-import { Button } from "../ui/button";
 import CustomBadge, { type LabelType } from "../shared/custom-badge";
+import { Button } from "../ui/button";
 
 interface Props {
     data: Log[]
@@ -26,6 +27,7 @@ interface Props {
 
 export default function LogsTable({ data, status, error, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage }: Props) {
     const { user } = useUserStore()
+    const { filters } = useFilterStore()
     const [open, setOpen] = useState(false);
 
     const isAdmin = user.role === 'ADMIN'
@@ -53,17 +55,17 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                     <LocalSearch filterValue="kw" />
                     {isAdmin && <CommonFilter
                         filterValue="tenant"
-                        filters={TENANTFILTER}
+                        filters={filters.tenants}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />}
                     <CommonFilter
                         filterValue="action"
-                        filters={ACTIONFILTER}
+                        filters={filters.actions}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />
                     <CommonFilter
                         filterValue="source"
-                        filters={SOURCEFILTER}
+                        filters={filters.sources}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />
                     <CommonFilter
@@ -95,9 +97,9 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                     </TableHeader>
 
                     {status === 'pending' ?
-                        <p className="my-24 text-center font-medium">Loading...</p>
+                        <div className="my-24 text-center font-medium">Loading...</div>
                         : status === 'error'
-                            ? (<p className="my-24 text-center font-medium">Error: {error?.message}</p>)
+                            ? (<div className="my-24 text-center font-medium">Error: {error?.message}</div>)
                             : <TableBody className="">
                                 {data.map((log) => (
                                     <TableRow key={log.id}>
@@ -140,7 +142,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                                                         Delete
                                                     </Button>
                                                 </DialogTrigger>
-                                                <ConfirmModal />
+                                                <ConfirmModal id={log.id} />
                                             </Dialog>
                                         </TableCell>}
                                     </TableRow>

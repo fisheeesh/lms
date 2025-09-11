@@ -21,6 +21,11 @@ export const TSFILTER = [
     { name: "Last 30 days", value: "30" },
 ]
 
+export const TIMEFILTER = [
+    { name: 'Recent', value: 'desc' },
+    { name: 'Oldest', value: 'asc' },
+]
+
 export const SOURCEFILTER = [
     { name: "All Sources", value: "all" },
     { name: "Firewall", value: "FIREWALL" },
@@ -54,8 +59,8 @@ export const ACTIONFILTER = [
 export const TENANTFILTER = [
     { name: "All Tenants", value: "all" },
     { name: "tenantA", value: "tenantA" },
-    { name: "tenantB", value: "tenantB" },
-    { name: "tenantC", value: "tenantC" }
+    { name: "companyA", value: "companyA" },
+    { name: "demoTenant", value: "demoTenant" }
 ]
 
 export const dummyLogs = [

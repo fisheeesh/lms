@@ -24,10 +24,10 @@ interface SeverityOverview {
 }
 
 interface Log{
+    id: number
     action: string
     createdAt: string
     eventType: string
-    id: number
     ip: string
     severity: number
     severityLabel: string

@@ -2,7 +2,7 @@ import { endOfDay, startOfDay, subDays } from "date-fns"
 import { NextFunction, Request, Response } from "express"
 import { query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
-import { Prisma, PrismaClient } from "../../generated/prisma"
+import { Action, LogSource, Prisma, PrismaClient } from "../../generated/prisma"
 import { getUserById } from "../../services/auth-services"
 import { getAllLogs, getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison } from "../../services/log-services"
 import { getUserdataById } from "../../services/user-services"
@@ -137,6 +137,26 @@ export const getAllLogsInfinite = [
             ] as Prisma.LogWhereInput[]
         } : {}
 
+        const tenantFilter: Prisma.LogWhereInput =
+            tenant && tenant !== 'all' ?
+                { tenant: { contains: tenant as string, mode: 'insensitive' } as Prisma.StringFilter }
+                : !tenant ? { tenant: { contains: user!.tenant, mode: 'insensitive' } as Prisma.StringFilter }
+                    : {}
+
+        const actionFilter: Prisma.LogWhereInput =
+            action &&
+                action !== "all" &&
+                Object.values(Action).includes(action as Action)
+                ? { action: action as Action }
+                : {};
+
+        const sourceFilter: Prisma.LogWhereInput =
+            source &&
+                source !== "all" &&
+                Object.values(LogSource).includes(source as LogSource)
+                ? { source: source as LogSource }
+                : {};
+
         const now = new Date();
 
         const gap = +ts <= 7 ? 6 : +ts - 1
@@ -146,7 +166,9 @@ export const getAllLogsInfinite = [
         const options = {
             where: {
                 ...kwFilter,
-                tenant: user!.tenant || tenant as string,
+                ...tenantFilter,
+                ...actionFilter,
+                ...sourceFilter,
                 createdAt: {
                     gte: start,
                     lte: end
@@ -172,7 +194,7 @@ export const getAllLogsInfinite = [
             }
         }
 
-        const logs = await getAllLogs(options)
+        const logs = await getAllLogs(options, severity as string)
 
         const hasNextPage = logs.length > +limit
 
@@ -191,3 +213,59 @@ export const getAllLogsInfinite = [
         })
     }
 ]
+
+export const getAllFilters = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.userId;
+        const user = await getUserById(userId!);
+        checkUserIfNotExist(user);
+
+        const tenantsRaw = await prismaClient.user.findMany({
+            distinct: ["tenant"],
+            select: { tenant: true },
+        });
+        const tenants = [
+            { name: "All Companies", value: "all" },
+            ...tenantsRaw.map((u) => ({
+                name: u.tenant,
+                value: u.tenant,
+            })),
+        ];
+
+
+        const sourcesRaw = await prismaClient.log.findMany({
+            distinct: ["source"],
+            select: { source: true },
+        });
+        const sources = [
+            { name: "All Sources", value: "all" },
+            ...sourcesRaw.map((l) => ({
+                name: l.source,
+                value: l.source,
+            })),
+        ];
+
+        const actionsRaw = await prismaClient.log.findMany({
+            distinct: ["action"],
+            select: { action: true },
+        });
+        const actions = [
+            { name: "All Actions", value: "all" },
+            ...actionsRaw.map((l) => ({
+                name: l.action,
+                value: l.action,
+            })),
+        ];
+
+        res.status(200).json({
+            message: "Here is All Filters data.",
+            data: {
+                tenants,
+                sources,
+                actions,
+            },
+        });
+    } catch (err) {
+        next(err);
+    }
+};
