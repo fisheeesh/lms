@@ -22,3 +22,16 @@ interface SeverityOverview {
     type: string,
     value: number
 }
+
+interface Log{
+    action: string
+    createdAt: string
+    eventType: string
+    id: number
+    ip: string
+    severity: number
+    severityLabel: string
+    source: string
+    tenant: string
+    user: string
+}

@@ -19,6 +19,7 @@ import { TbLogs } from "react-icons/tb"
 import { z } from "zod"
 import Spinner from "../shared/spinner"
 import { toast } from "sonner"
+import { invalidateLogsQueries } from "@/api/query"
 
 const ACTIONS = [
     "ALLOW",
@@ -54,6 +55,7 @@ const defaults = {
         source: "CROWDSTRIKE",
         action: "ALERT",
         severity: 8,
+        ip: "127.0.0.1",
         eventType: "malware_detected",
         host: "WIN10-01",
         process: "powershell.exe",
@@ -64,6 +66,7 @@ const defaults = {
         source: "AWS",
         action: "ALERT",
         severity: 4,
+        ip: "127.0.0.1",
         eventType: "CreateUser",
         user: "admin",
     },
@@ -130,7 +133,8 @@ export default function CreateLogModal({ onClose }: CreateLogModalProps) {
 
     const onSubmit = (values: z.infer<typeof currentSchema>) => {
         mutate(values as IngestPayload, {
-            onSuccess: () => {
+            onSuccess: async () => {
+                await invalidateLogsQueries()
                 toast.success('Success', {
                     description: "Your log has been ingested successfully.",
                 });

@@ -1,11 +1,11 @@
-import { logsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, userDataQuery } from "@/api/query"
+import { logsInfiniteQuery, logsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, userDataQuery } from "@/api/query"
 import { LogsOverviewChart } from "@/components/charts/logs-overview-chart"
 import { SeverityOverviewChart } from "@/components/charts/severity-overview-chart"
 import { SourceComparisonChart } from "@/components/charts/source-comparison-chart"
 import LogsTable from "@/components/tables/logs-table"
 import useTitle from "@/hooks/use-title"
 import useUserStore from "@/store/user-store"
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { useSearchParams } from "react-router"
 
@@ -16,13 +16,24 @@ export default function DashboardPage() {
     const [searchParams] = useSearchParams()
 
     const duration = searchParams.get("duration")
+    const kw = searchParams.get("kw")
 
     const { data: userData } = useSuspenseQuery(userDataQuery())
     const { data: logsOverviewData } = useSuspenseQuery(logsOverviewQuery())
     const { data: soureComparisonsData } = useSuspenseQuery(sourceCompaisonsQuery(duration))
     const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery())
 
-    console.log(severityOverviewData)
+    const {
+        status,
+        data,
+        error,
+        isFetching,
+        isFetchingNextPage,
+        fetchNextPage,
+        hasNextPage,
+    } = useInfiniteQuery(logsInfiniteQuery(kw))
+
+    const allLogs = data?.pages.flatMap(page => page.data) ?? []
 
     useEffect(() => {
         if (userData) {
@@ -45,7 +56,15 @@ export default function DashboardPage() {
                 </div>
                 <SeverityOverviewChart data={severityOverviewData.data} />
             </div>
-            <LogsTable />
+            <LogsTable
+                data={allLogs}
+                status={status}
+                error={error}
+                isFetching={isFetching}
+                isFetchingNextPage={isFetchingNextPage}
+                fetchNextPage={fetchNextPage}
+                hasNextPage={hasNextPage}
+            />
         </section>
     )
 }

@@ -1,5 +1,5 @@
 import { authApi } from "@/api"
-import { logsOverviewQuery, queryClient, severityOverviewQuery, sourceCompaisonsQuery, userDataQuery } from "@/api/query"
+import { logsInfiniteQuery, logsOverviewQuery, queryClient, severityOverviewQuery, sourceCompaisonsQuery, userDataQuery } from "@/api/query"
 import useAuthStore, { Status } from "@/store/auth-store"
 import { redirect } from "react-router"
 
@@ -8,7 +8,8 @@ export const homeLoader = async () => {
         queryClient.ensureQueryData(userDataQuery()),
         queryClient.ensureQueryData(logsOverviewQuery()),
         queryClient.ensureQueryData(sourceCompaisonsQuery()),
-        queryClient.ensureQueryData(severityOverviewQuery())
+        queryClient.ensureQueryData(severityOverviewQuery()),
+        queryClient.ensureInfiniteQueryData(logsInfiniteQuery())
     ])
 
     return null

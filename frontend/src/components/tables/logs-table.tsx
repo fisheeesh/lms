@@ -1,18 +1,30 @@
 import LocalSearch from "@/components/shared/common-search";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ACTIONFILTER, dummyLogs, SEVERITYFILTER, SOURCEFILTER, TENANTFILTER, TSFILTER } from "@/lib/constants";
+import { ACTIONFILTER, SEVERITYFILTER, SOURCEFILTER, TENANTFILTER, TSFILTER } from "@/lib/constants";
 import useUserStore from "@/store/user-store";
+import { useState } from "react";
 import { MdFormatListBulletedAdd } from "react-icons/md";
+import ConfirmModal from "../modals/confirm-modal";
+import CreateLogModal from "../modals/create-log-modal";
 import CommonFilter from "../shared/common-filter";
 import { Button } from "../ui/button";
-import CreateLogModal from "../modals/create-log-modal";
-import ConfirmModal from "../modals/confirm-modal";
-import { useState } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import CustomBadge, { type LabelType } from "../shared/custom-badge";
 
-export default function LogsTable() {
+interface Props {
+    data: Log[]
+    status: "error" | 'success' | 'pending',
+    error: Error | null,
+    isFetching: boolean,
+    isFetchingNextPage: boolean,
+    fetchNextPage: () => void,
+    hasNextPage: boolean
+}
+
+
+export default function LogsTable({ data, status, error, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage }: Props) {
     const { user } = useUserStore()
     const [open, setOpen] = useState(false);
 
@@ -38,7 +50,7 @@ export default function LogsTable() {
                     </div>}
                 </div>
                 <div className="flex flex-col xl:flex-row gap-2">
-                    <LocalSearch filterValue="key" />
+                    <LocalSearch filterValue="kw" />
                     {isAdmin && <CommonFilter
                         filterValue="tenant"
                         filters={TENANTFILTER}
@@ -82,53 +94,77 @@ export default function LogsTable() {
                         </TableRow>
                     </TableHeader>
 
-                    <TableBody>
-                        {dummyLogs.map((log) => (
-                            <TableRow key={log.id}>
-                                <TableCell>
-                                    <div className="flex items-center gap-2">
-                                        <Avatar className="size-9">
-                                            <AvatarImage src={""} alt={log.user!} />
-                                            <AvatarFallback>{log.user?.charAt(0).toUpperCase()}</AvatarFallback>
-                                        </Avatar>
-                                        <span className="whitespace-nowrap">{log.user}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap font-en">{log.ip}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.tenant}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.source}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.eventType}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap font-en">{log.severity}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.action}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap font-en">{log.ts.toDateString()}</span>
-                                </TableCell>
-                                {isAdmin && <TableCell className="py-4">
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button className="cursor-pointer" variant='destructive'>
-                                                Delete
-                                            </Button>
-                                        </DialogTrigger>
-                                        <ConfirmModal />
-                                    </Dialog>
-                                </TableCell>}
-                            </TableRow>
-                        ))}
-                    </TableBody>
+                    {status === 'pending' ?
+                        <p className="my-24 text-center font-medium">Loading...</p>
+                        : status === 'error'
+                            ? (<p className="my-24 text-center font-medium">Error: {error?.message}</p>)
+                            : <TableBody className="">
+                                {data.map((log) => (
+                                    <TableRow key={log.id}>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <Avatar className="size-9">
+                                                    <AvatarImage src={""} alt={log.user!} />
+                                                    <AvatarFallback>{log.user?.charAt(0).toUpperCase() ?? 'A'}</AvatarFallback>
+                                                </Avatar>
+                                                <span className="whitespace-nowrap">{log.user ?? 'Anonymous'}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap font-en">{log.ip}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap">{log.tenant}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap">{log.source}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap">{log.eventType}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap font-en">
+                                                <CustomBadge label={log.severityLabel as LabelType} />
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap">{log.action}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap font-en">{log.createdAt}</span>
+                                        </TableCell>
+                                        {isAdmin && <TableCell className="py-4">
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                    <Button className="cursor-pointer" variant='destructive'>
+                                                        Delete
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <ConfirmModal />
+                                            </Dialog>
+                                        </TableCell>}
+                                    </TableRow>
+                                ))}
+                            </TableBody>}
                 </Table>
+                <div className="my-4 flex items-center justify-center">
+                    <Button
+                        className="cursor-pointer"
+                        onClick={() => fetchNextPage()}
+                        disabled={!hasNextPage || isFetchingNextPage}
+                        variant={!hasNextPage ? "ghost" : "secondary"}
+                    >
+                        {isFetchingNextPage
+                            ? "Loading more..."
+                            : hasNextPage
+                                ? "Load More"
+                                : "Nothing more to load"}
+                    </Button>
+                </div>
+
+                <div className="my-4 flex items-center justify-center">
+                    {isFetching && !isFetchingNextPage ? "Background Updating..." : null}
+                </div>
             </CardContent>
         </Card>
     )

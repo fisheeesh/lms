@@ -62,6 +62,7 @@ export const BASE_SCHEMA = z.object({
     source: z.enum(LOG_SOURCES, { message: "Source is required" }),
     action: z.enum(ACTIONS, { message: "Action is required" }),
     severity: z.number().int().min(0, { message: "Severity is required" }).max(10, { message: "Severity must be between 0 and 10" }),
+    ip: z.string().min(1, { message: "IP is required" }),
 })
 
 export const HTTPSchema = BASE_SCHEMA.extend({
@@ -69,7 +70,6 @@ export const HTTPSchema = BASE_SCHEMA.extend({
     action: z.literal("ALERT"),
     eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().min(1, { message: "User is required" }),
-    ip: z.string().min(1, { message: "IP is required" }),
     reason: z.string().min(1, { message: "Reason is required" }),
 })
 
@@ -104,7 +104,6 @@ export const M365Schema = BASE_SCHEMA.extend({
     action: z.literal("ALERT"),
     eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().min(1, { message: "User is required" }),
-    ip: z.string().min(1, { message: "IP is required" }),
     status: z.string().min(1, { message: "Status is required" }),
     workload: z.string().min(1, { message: "Workload is required" }),
 })
@@ -116,7 +115,6 @@ export const AdSchema = BASE_SCHEMA.extend({
     eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().min(1, { message: "User is required" }),
     host: z.string().min(1, { message: "Host is required" }),
-    ip: z.string().min(1, { message: "Host is required" }),
     logonType: z.string().min(1, { message: "Event ID is required" }),
 })
 

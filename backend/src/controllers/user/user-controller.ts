@@ -115,7 +115,7 @@ export const getAllLogsInfinite = [
     query("action", "Invalid Action.").trim().escape().optional(),
     query("severity", "Invalid Severity.").trim().escape().optional(),
     query("source", "Invalid Source.").trim().escape().optional(),
-    query("duration", "Invalid Duration.").trim().escape().optional(),
+    query("ts", "Invalid Timestamp.").trim().escape().optional(),
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const errors = validationResult(req).array({ onlyFirstError: true })
         if (errors.length > 0) return next(createHttpError({
@@ -124,7 +124,7 @@ export const getAllLogsInfinite = [
             code: errorCodes.invalid
         }))
 
-        const { limit = 7, cursor: lastCursor, kw, tenant, action, severity, source, duration = '7' } = req.query
+        const { limit = 7, cursor: lastCursor, kw, tenant, action, severity, source, ts = '7' } = req.query
         const userId = req.userId
         const user = await getUserById(userId!)
         checkUserIfNotExist(user)
@@ -139,7 +139,7 @@ export const getAllLogsInfinite = [
 
         const now = new Date();
 
-        const gap = +duration <= 7 ? 6 : +duration - 1
+        const gap = +ts <= 7 ? 6 : +ts - 1
         const start = startOfDay(subDays(now, gap))
         const end = endOfDay(now)
 
