@@ -6,7 +6,7 @@ import { dummyUsers, TENANTFILTER } from "@/lib/constants";
 import { CreateUserSchema, EditUserSchema } from "@/lib/validators";
 import useUserStore from "@/store/user-store";
 import { MdFormatListBulletedAdd } from "react-icons/md";
-import ConfirmModal from "../modals/confirm-modal";
+// import ConfirmModal from "../modals/confirm-modal";
 import CreateEditUserModal from "../modals/create-edit-user-modal";
 import CommonFilter from "../shared/common-filter";
 import { Button } from "../ui/button";
@@ -111,7 +111,7 @@ export default function UserTable() {
                                                 Delete
                                             </Button>
                                         </DialogTrigger>
-                                        <ConfirmModal />
+                                        {/* <ConfirmModal /> */}
                                     </Dialog>
                                 </TableCell>}
                             </TableRow>
