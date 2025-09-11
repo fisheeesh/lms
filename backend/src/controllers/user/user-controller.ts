@@ -140,8 +140,8 @@ export const getAllLogsInfinite = [
         const tenantFilter: Prisma.LogWhereInput =
             tenant && tenant !== 'all' ?
                 { tenant: { contains: tenant as string, mode: 'insensitive' } as Prisma.StringFilter }
-                : !tenant ? { tenant: { contains: user!.tenant, mode: 'insensitive' } as Prisma.StringFilter }
-                    : {}
+                : !tenant && user?.role !== 'ADMIN' ? { tenant: { contains: user!.tenant, mode: 'insensitive' } as Prisma.StringFilter }
+                    : tenant && user?.role !== 'ADMIN' ? { tenant: { contains: user!.tenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
 
         const actionFilter: Prisma.LogWhereInput =
             action &&
@@ -180,7 +180,7 @@ export const getAllLogsInfinite = [
                 action: true
             },
             orderBy: {
-                createdAt: ts === 'asc' ? 'asc' : 'desc'
+                createdAt: ts
             }
         }
 
@@ -195,7 +195,7 @@ export const getAllLogsInfinite = [
         const nextCursor = logs.length > 0 ? logs[logs.length - 1].id : null
 
         res.status(200).json({
-            message: "Here is All Logs data with infinite scorll.",
+            message: "Here is all logs data with infinite scroll.",
             hasNextPage,
             nextCursor,
             prevCursor: lastCursor || undefined,

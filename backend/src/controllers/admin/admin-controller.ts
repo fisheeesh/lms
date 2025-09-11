@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express"
 import { body, query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
-import { Action, LogSource, Prisma } from "../../generated/prisma"
+import { Action, LogSource, Prisma, Role, Status } from "../../generated/prisma"
 import CacheQueue from "../../jobs/queues/cache-queue"
 import { getUserByEmail, getUserById } from "../../services/auth-services"
 import { createLog, deleteLogById, getAllLogs, getLogById } from "../../services/log-services"
-import { createNewUser, deleteUserById, updateUserById } from "../../services/user-services"
+import { createNewUser, deleteUserById, getAllUsers, updateUserById } from "../../services/user-services"
 import { checkModalIfExist, checkUserExit, checkUserIfNotExist, createHttpError } from "../../utils/check"
 import { generateHashedValue, generateToken } from "../../utils/generate"
 import { normalizeData } from "../../utils/normalize"
@@ -286,6 +286,100 @@ export const updateAUser = [
             message: "Successfully updated a user.",
             userId: updatedUser.id
         })
+    }
+]
+
+export const getAllUsersInfinite = [
+    query("limit", "Limit must be LogId.").isInt({ gt: 6 }).optional(),
+    query("cursor", "Limit must be unsigned integer.").isInt({ gt: 0 }).optional(),
+    query("kw", "Invalid Keyword.").trim().escape().optional(),
+    query("tenant", "Invalid Tenant.").trim().escape().optional(),
+    query("role", "Invalid Role.").trim().escape().optional(),
+    query("status", "Invalid Status.").trim().escape().optional(),
+    query("ts", "Invalid Timestamp.").trim().escape().optional(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid
+        }))
+        const { limit = 7, cursor: lastCursor, kw, tenant, role, status, ts = "desc" } = req.query
+        const userId = req.userId
+        const user = await getUserById(userId!)
+        checkUserIfNotExist(user)
+
+        const kwFilter: Prisma.UserWhereInput = kw ? {
+            OR: [
+                { firstName: { contains: kw, mode: 'insensitive' } },
+                { lastName: { contains: kw, mode: 'insensitive' } },
+                { email: { contains: kw, mode: 'insensitive' } },
+            ] as Prisma.UserWhereInput[]
+        } : {}
+
+
+        const tenantFilter: Prisma.LogWhereInput =
+            tenant && tenant !== 'all' ?
+                { tenant: { contains: tenant as string, mode: 'insensitive' } as Prisma.StringFilter }
+                : tenant && user?.role !== 'ADMIN' ? { tenant: { contains: user!.tenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+
+        const roleFilter: Prisma.UserWhereInput =
+            role &&
+                role !== "all" &&
+                Object.values(Role).includes(role as Role)
+                ? { role: role as Role }
+                : {};
+
+        const statusFilter: Prisma.UserWhereInput =
+            status &&
+                status !== "all" &&
+                Object.values(Status).includes(status as Status)
+                ? { status: status as Status }
+                : {};
+
+        const options = {
+            where: {
+                ...kwFilter,
+                ...tenantFilter,
+                ...roleFilter,
+                ...statusFilter,
+            },
+            take: +limit + 1,
+            skip: lastCursor ? 1 : 0,
+            cursor: lastCursor ? { id: +lastCursor } : undefined,
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                fullName: true,
+                email: true,
+                role: true,
+                tenant: true,
+                status: true
+            },
+            orderBy: {
+                createdAt: ts
+            }
+        }
+
+        const users = await getAllUsers(options)
+
+        const hasNextPage = users.length > +limit
+
+        if (hasNextPage) {
+            users.pop()
+        }
+
+        const nextCursor = users.length > 0 ? users[users.length - 1].id : null
+
+        res.status(200).json({
+            message: "Here is all users data with infinite scroll.",
+            hasNextPage,
+            nextCursor,
+            prevCursor: lastCursor || undefined,
+            data: users
+        })
+
     }
 ]
 

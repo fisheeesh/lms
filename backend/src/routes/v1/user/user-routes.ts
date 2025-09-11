@@ -9,7 +9,6 @@ router.get("/source-comparisons", getSourceComparisons)
 router.get("/severity-overview", getSeverityOverview)
 router.get("/get-logs-infinite", getAllLogsInfinite)
 router.get("/filters", getAllFilters)
-
 router.get("/user-data", getUserData)
 
 export default router

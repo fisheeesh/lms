@@ -64,3 +64,7 @@ export const updateUserById = async (id: number, data: any) => {
         data
     })
 }
+
+export const getAllUsers = async (options: any) => {
+    return await prisma.user.findMany(options)
+}
