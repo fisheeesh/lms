@@ -1,45 +1,36 @@
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
-
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle
+    Card, CardContent, CardDescription, CardHeader, CardTitle
 } from "@/components/ui/card"
 import {
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-    type ChartConfig,
+    ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig
 } from "@/components/ui/chart"
 import CommonFilter from "../shared/common-filter"
 import { TSFILTER } from "@/lib/constants"
 
-export const description = "A line chart"
+export const description = "Logs' Source Comparison Line Chart"
 
-const chartData = [
-    { month: "January", desktop: 186 },
-    { month: "February", desktop: 305 },
-    { month: "March", desktop: 237 },
-    { month: "April", desktop: 73 },
-    { month: "May", desktop: 209 },
-    { month: "June", desktop: 214 },
-]
+interface Props {
+    data: SourceComparisons[]
+}
 
 const chartConfig = {
-    desktop: {
-        label: "Desktop",
-        color: "var(--chart-1)",
-    },
+    api: { label: "API", color: "var(--chart-1)" },
+    firewall: { label: "Firewall", color: "var(--chart-2)" },
+    crowdstrike: { label: "CrowdStrike", color: "var(--chart-3)" },
+    aws: { label: "AWS", color: "var(--chart-4)" },
+    m365: { label: "M365", color: "var(--chart-5)" },
+    ad: { label: "AD", color: "var(--chart-6)" },
 } satisfies ChartConfig
 
-export function SourceComparisonChart() {
+export function SourceComparisonChart({ data }: Props) {
+    const seriesKeys = Object.keys(chartConfig) as (keyof typeof chartConfig)[]
+
     return (
         <Card className="h-full">
             <CardHeader className="pb-2 flex lg:items-center flex-col lg:flex-row justify-between gap-4">
                 <div>
-                    <CardTitle className="text-xl md:text-2xl">Logs' Source Comparison Chart</CardTitle>
+                    <CardTitle className="text-xl md:text-2xl">Logs' Source Comparison</CardTitle>
                     <CardDescription>Comparison of different log sources</CardDescription>
                 </div>
                 <CommonFilter
@@ -48,28 +39,37 @@ export function SourceComparisonChart() {
                     otherClasses="min-h-[44px] sm:min-w-[150px]"
                 />
             </CardHeader>
+
             <CardContent className="h-[320px]">
                 <ChartContainer config={chartConfig} className="h-full w-full">
-                    <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
+                    <LineChart data={data} margin={{ left: 12, right: 12 }}>
                         <CartesianGrid vertical={false} />
                         <XAxis
-                            dataKey="month"
+                            dataKey="date"
                             tickLine={false}
                             axisLine={false}
                             tickMargin={8}
-                            tickFormatter={(value) => value.slice(0, 3)}
                         />
                         <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
+                            content={
+                                <ChartTooltipContent
+                                    labelKey="date"
+                                />
+                            }
                         />
-                        <Line
-                            dataKey="desktop"
-                            type="natural"
-                            stroke="var(--color-desktop)"
-                            strokeWidth={2}
-                            dot={false}
-                        />
+
+                        {seriesKeys.map((k) => (
+                            <Line
+                                key={k}
+                                type="monotone"
+                                dataKey={k}
+                                stroke={`var(--color-${k})`}
+                                strokeWidth={2}
+                                dot={false}
+                                isAnimationActive={false}
+                            />
+                        ))}
                     </LineChart>
                 </ChartContainer>
             </CardContent>
