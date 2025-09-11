@@ -44,3 +44,14 @@ export const sourceCompaisonsQuery = (q?: string | null) => ({
     queryKey: ['source-comparisons', q],
     queryFn: () => fetchSourceComparisons(q)
 })
+
+export const fetchSeverityOverview = async () => {
+    const res = await api.get("user/severity-overview")
+
+    return res.data
+}
+
+export const severityOverviewQuery = () => ({
+    queryKey: ['severity-overview'],
+    queryFn: fetchSeverityOverview
+})

@@ -1,4 +1,4 @@
-import { logsOverviewQuery, sourceCompaisonsQuery, userDataQuery } from "@/api/query"
+import { logsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, userDataQuery } from "@/api/query"
 import { LogsOverviewChart } from "@/components/charts/logs-overview-chart"
 import { SeverityOverviewChart } from "@/components/charts/severity-overview-chart"
 import { SourceComparisonChart } from "@/components/charts/source-comparison-chart"
@@ -20,6 +20,9 @@ export default function DashboardPage() {
     const { data: userData } = useSuspenseQuery(userDataQuery())
     const { data: logsOverviewData } = useSuspenseQuery(logsOverviewQuery())
     const { data: soureComparisonsData } = useSuspenseQuery(sourceCompaisonsQuery(duration))
+    const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery())
+
+    console.log(severityOverviewData)
 
     useEffect(() => {
         if (userData) {
@@ -40,7 +43,7 @@ export default function DashboardPage() {
                 <div className="lg:col-span-2">
                     <SourceComparisonChart data={soureComparisonsData.data} />
                 </div>
-                <SeverityOverviewChart />
+                <SeverityOverviewChart data={severityOverviewData.data} />
             </div>
             <LogsTable />
         </section>

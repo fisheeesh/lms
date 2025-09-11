@@ -17,3 +17,8 @@ interface SourceComparisons {
     firewall: number
     m365: number
 }
+
+interface SeverityOverview {
+    type: string,
+    value: number
+}
