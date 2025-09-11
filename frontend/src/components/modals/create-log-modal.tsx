@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import api from "@/api"
 import { Button } from "@/components/ui/button"
 import {
     DialogContent,
@@ -10,16 +9,14 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import useCreateLog from "@/hooks/use-create-log"
 import { AdSchema, AwsSchema, CrowdStrikeSchema, HTTPSchema, M365Schema } from "@/lib/validators"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { TbLogs } from "react-icons/tb"
 import { z } from "zod"
 import Spinner from "../shared/spinner"
-import { toast } from "sonner"
-import { invalidateLogsQueries } from "@/api/query"
 
 const ACTIONS = [
     "ALLOW",
@@ -110,6 +107,7 @@ interface CreateLogModalProps {
 
 export default function CreateLogModal({ onClose }: CreateLogModalProps) {
     const [template, setTemplate] = useState<TemplateKey>("http")
+    const { createLog, isPending } = useCreateLog()
 
     const currentSchema = useMemo(() => schemas[template], [template])
     const currentDefaults = useMemo(() => defaults[template], [template])
@@ -120,34 +118,12 @@ export default function CreateLogModal({ onClose }: CreateLogModalProps) {
         mode: "onBlur",
     })
 
-    const { mutate, isPending } = useMutation({
-        mutationFn: async (payload: IngestPayload) => {
-            const { data } = await api.post("admin/ingest", payload, { withCredentials: true });
-            return data;
-        },
-    });
-
     useEffect(() => {
         form.reset(currentDefaults as any);
     }, [template, currentDefaults, form]);
 
     const onSubmit = (values: z.infer<typeof currentSchema>) => {
-        mutate(values as IngestPayload, {
-            onSuccess: async () => {
-                await invalidateLogsQueries()
-                toast.success('Success', {
-                    description: "Your log has been ingested successfully.",
-                });
-            },
-            onError: (err: any) => {
-                const msg =
-                    err?.response?.data?.message ||
-                    err?.message ||
-                    "Failed to ingest log. Please try again.";
-                toast.error('Error', {
-                    description: msg,
-                });
-            },
+        createLog(values as IngestPayload, {
             onSettled: () => {
                 form.reset(currentDefaults as any);
                 onClose?.();

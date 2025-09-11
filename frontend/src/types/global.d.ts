@@ -23,7 +23,7 @@ interface SeverityOverview {
     value: number
 }
 
-interface Log{
+interface Log {
     id: number
     action: string
     createdAt: string
@@ -34,4 +34,15 @@ interface Log{
     source: string
     tenant: string
     user: string
+}
+
+interface User {
+    id: number,
+    firstName: string,
+    lastName: string,
+    fullName: string
+    email: string,
+    role: string
+    tenant: string
+    status: string
 }

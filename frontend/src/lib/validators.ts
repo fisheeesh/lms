@@ -126,7 +126,7 @@ export const CreateUserSchema = z.object({
         .min(1, { message: "Password is required" })
         .min(8, { message: "Password must be at least 8 digit" })
         .regex(/^\d+$/, "Password must be numbers"),
-    role: z.enum(["Admin", "User"], { message: "Role must be 'Admin' or 'User'" }),
+    role: z.enum(["ADMIN", "USER"], { message: "Role must be 'ADMIN' or 'USER'" }),
     tenant: z.string().min(1, { message: "Tenant is required" }),
 })
 

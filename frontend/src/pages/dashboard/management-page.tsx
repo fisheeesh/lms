@@ -1,4 +1,4 @@
-import { logsInfiniteAdminQuery } from "@/api/query";
+import { logsInfiniteAdminQuery, userInfiniteQuery } from "@/api/query";
 import LogsTable from "@/components/tables/logs-table";
 import UserTable from "@/components/tables/user-table";
 import useTitle from "@/hooks/use-title";
@@ -10,12 +10,20 @@ export default function AdminDashboardPage() {
 
     const [searchParams] = useSearchParams()
 
+    //* For logs
     const kw = searchParams.get("kw")
     const tenant = searchParams.get("tenant")
     const ts = searchParams.get("ts")
     const source = searchParams.get("source")
     const action = searchParams.get("action")
     const severity = searchParams.get("severity")
+
+    //* For users
+    const uName = searchParams.get("uName")
+    const uTenant = searchParams.get("uTenant")
+    const role = searchParams.get("role")
+    const uStatus = searchParams.get("status")
+    const uTs = searchParams.get("uTs")
 
     const {
         status,
@@ -27,7 +35,20 @@ export default function AdminDashboardPage() {
         hasNextPage,
     } = useInfiniteQuery(logsInfiniteAdminQuery(kw, tenant, ts, source, action, severity))
 
+    const {
+        status: userStatus,
+        data: userData,
+        error: userError,
+        isFetching: isUserFetching,
+        isFetchingNextPage: isUserFetchingNextPage,
+        fetchNextPage: fetchUserNextPage,
+        hasNextPage: hasUserNextPage,
+    } = useInfiniteQuery(userInfiniteQuery(uName, uTenant, role, uStatus, uTs))
+
+
     const allLogs = data?.pages.flatMap(page => page.data) ?? []
+
+    const allUsers = userData?.pages.flatMap(page => page.data) ?? []
 
     return (
         <section className="flex flex-col gap-4">
@@ -40,7 +61,15 @@ export default function AdminDashboardPage() {
                 fetchNextPage={fetchNextPage}
                 hasNextPage={hasNextPage}
             />
-            <UserTable />
+            <UserTable
+                data={allUsers}
+                status={userStatus}
+                error={userError}
+                isFetching={isUserFetching}
+                isFetchingNextPage={isUserFetchingNextPage}
+                fetchNextPage={fetchUserNextPage}
+                hasNextPage={hasUserNextPage}
+            />
         </section>
     )
 }

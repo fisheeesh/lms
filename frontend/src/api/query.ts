@@ -122,3 +122,29 @@ export const logsInfiniteAdminQuery = (kw: string | null = null, tenant: string 
     // @ts-expect-error ignore type check
     getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined
 })
+
+const fetchUserInfinite = async ({ pageParam = null, kw = null, tenant = null, role = null, status = null, ts = null }: {
+    pageParam?: number | null, kw?: string | null, tenant?: string | null, role?: string | null, status?: string | null, ts?: string | null
+}) => {
+    let query = pageParam ? `?limit=7&cursor=${pageParam}` : "?limit=7"
+    if (kw) query += `&kw=${kw}`
+    if (tenant) query += `&tenant=${tenant}`
+    if (role) query += `&role=${role}`
+    if (status) query += `&status=${status}`
+    if (ts) query += `&ts=${ts}`
+    const res = await adminApi.get(`admin/users${query}`)
+
+    return res.data
+}
+
+export const userInfiniteQuery = (kw: string | null = null, tenant: string | null = null, role: string | null = null, status: string | null = null, ts: string | null = null) => ({
+    queryKey: ['users', 'infinite', kw ?? undefined, tenant ?? undefined, role ?? undefined, status ?? undefined, ts ?? undefined],
+    queryFn: ({ pageParam = null }: { pageParam?: number | null }) => fetchUserInfinite({ pageParam, kw, tenant, role, status, ts }),
+    initialPageParam: null,
+    // @ts-expect-error ignore type check
+    getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined
+})
+
+export const invalidateUserQueries = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['users', 'infinite'], exact: false })
+};

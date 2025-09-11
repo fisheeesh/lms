@@ -1,19 +1,19 @@
 import { adminApi } from "@/api"
-import { invalidateLogsQueries } from "@/api/query"
+import { invalidateUserQueries } from "@/api/query"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-const useLogDelete = () => {
-    const { mutate: deleteLog, isPending: logLoading } = useMutation({
+const useDeleteUser = () => {
+    const { mutate: deleteUser, isPending: userLoading } = useMutation({
         mutationFn: async (id: number) => {
-            const res = await adminApi.delete("admin/logs", { data: { id } })
+            const res = await adminApi.delete("admin/users", { data: { id } })
 
             return res.data
         },
         onSuccess: async () => {
-            await invalidateLogsQueries()
+            await invalidateUserQueries()
             toast.success("Success", {
-                description: `Log has been deleted successfully.`
+                description: `User has been deleted successfully.`
             })
         },
         onError: (error) => {
@@ -23,7 +23,7 @@ const useLogDelete = () => {
         }
     })
 
-    return { deleteLog, logLoading }
+    return { deleteUser, userLoading }
 }
 
-export default useLogDelete
+export default useDeleteUser

@@ -2,19 +2,32 @@ import LocalSearch from "@/components/shared/common-search";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { dummyUsers, TENANTFILTER } from "@/lib/constants";
+import { ROLEFILTER, STATUSFILTER, TIMEFILTER } from "@/lib/constants";
 import { CreateUserSchema, EditUserSchema } from "@/lib/validators";
-import useUserStore from "@/store/user-store";
+import useFilterStore from "@/store/filter-store";
+import { useState } from "react";
 import { MdFormatListBulletedAdd } from "react-icons/md";
-// import ConfirmModal from "../modals/confirm-modal";
+import ConfirmModal from "../modals/confirm-modal";
 import CreateEditUserModal from "../modals/create-edit-user-modal";
 import CommonFilter from "../shared/common-filter";
 import { Button } from "../ui/button";
+import Empty from "../shared/empty";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-export default function UserTable() {
-    const { user } = useUserStore()
+interface Props {
+    data: User[]
+    status: "error" | 'success' | 'pending',
+    error: Error | null,
+    isFetching: boolean,
+    isFetchingNextPage: boolean,
+    fetchNextPage: () => void,
+    hasNextPage: boolean
+}
 
-    const isAdmin = user.role === 'ADMIN'
+export default function UserTable({ data, status, error, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage }: Props) {
+    const { filters } = useFilterStore()
+    const [createOpen, setCreateOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
 
     return (
         <Card className="rounded-md flex flex-col gap-5">
@@ -24,35 +37,51 @@ export default function UserTable() {
                         <CardTitle className="text-xl md:text-2xl">All User Lists</CardTitle>
                         <CardDescription>View and manage every user in the system</CardDescription>
                     </div>
-                    {isAdmin && <div className="flex flex-col xl:flex-row xl:items-center gap-2">
-                        <Dialog>
+                    <div className="flex flex-col xl:flex-row xl:items-center gap-2">
+                        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                             <DialogTrigger asChild>
                                 <Button className="bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 font-semibold hover:from-pink-500 hover:via-purple-500 hover:to-blue-400 transition-colors duration-300 w-fit min-h-[44px] text-white flex items-center gap-2 cursor-pointer">
                                     <MdFormatListBulletedAdd className="size-5" /> Create a new user
                                 </Button>
                             </DialogTrigger>
-                            <CreateEditUserModal
+                            {createOpen && <CreateEditUserModal
                                 formType="CREATE"
                                 schema={CreateUserSchema}
                                 defaultValues={{
-                                    firstName: '',
-                                    lastName: '',
-                                    email: 'syp@gmail.com',
+                                    firstName: 'new',
+                                    lastName: 'user',
+                                    email: 'newUser@gmail.com',
                                     password: '12345678',
-                                    role: 'User',
-                                    tenant: ""
+                                    role: 'USER',
+                                    tenant: "tenantA"
                                 }}
-                            />
+                                onClose={() => setCreateOpen(false)}
+                            />}
                         </Dialog>
-                    </div>}
+                    </div>
                 </div>
                 <div className="flex flex-col xl:flex-row gap-2">
-                    <LocalSearch filterValue="name" />
-                    {isAdmin && <CommonFilter
+                    <LocalSearch filterValue="uName" />
+                    <CommonFilter
                         filterValue="uTenant"
-                        filters={TENANTFILTER}
+                        filters={filters.tenants}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
-                    />}
+                    />
+                    <CommonFilter
+                        filterValue="role"
+                        filters={ROLEFILTER}
+                        otherClasses="min-h-[44px] sm:min-w-[150px]"
+                    />
+                    <CommonFilter
+                        filterValue="status"
+                        filters={STATUSFILTER}
+                        otherClasses="min-h-[44px] sm:min-w-[150px]"
+                    />
+                    <CommonFilter
+                        filterValue="uTs"
+                        filters={TIMEFILTER}
+                        otherClasses="min-h-[44px] sm:min-w-[150px]"
+                    />
                 </div>
             </CardHeader>
 
@@ -69,55 +98,102 @@ export default function UserTable() {
                         </TableRow>
                     </TableHeader>
 
-                    <TableBody>
-                        {dummyUsers.map((log) => (
-                            <TableRow key={log.name}>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.name}</span>
+                    {status === 'pending' ?
+                        <TableBody>
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center py-10">
+                                    Loading...
                                 </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.email}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.tenant}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.role}</span>
-                                </TableCell>
-                                <TableCell className="py-4">
-                                    <span className="whitespace-nowrap">{log.status}</span>
-                                </TableCell>
-                                {isAdmin && <TableCell className="py-4 space-x-2">
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant='outline' className="cursor-pointer">
+                            </TableRow>
+                        </TableBody>
+                        : status === 'error'
+                            ? <TableBody>
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-10">
+                                        Error: {error?.message}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                            :
+                            <TableBody>
+                                {data.map((user) => (
+                                    <TableRow key={user.id}>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <Avatar className="size-9">
+                                                    <AvatarImage src={""} alt={user.fullName!} />
+                                                    <AvatarFallback>{user.firstName?.charAt(0).toUpperCase()}{user.lastName?.charAt(0).toUpperCase()}</AvatarFallback>
+                                                </Avatar>
+                                                <span className="whitespace-nowrap">{user.fullName ?? 'Anonymous'}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap">{user.email}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap">{user.tenant}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap">{user.role}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className="whitespace-nowrap">{user.status}</span>
+                                        </TableCell>
+                                        <TableCell className="py-4 space-x-2">
+                                            <Button
+                                                variant="outline"
+                                                className="cursor-pointer"
+                                                onClick={() => setEditingUser(user)}
+                                            >
                                                 Edit
                                             </Button>
-                                        </DialogTrigger>
+
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                    <Button className="cursor-pointer" variant="destructive">Delete</Button>
+                                                </DialogTrigger>
+                                                <ConfirmModal type="user" id={user.id} />
+                                            </Dialog>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                <Dialog open={!!editingUser} onOpenChange={(o) => !o && setEditingUser(null)}>
+                                    {editingUser && (
                                         <CreateEditUserModal
                                             formType="EDIT"
+                                            userId={editingUser.id}
                                             schema={EditUserSchema}
+                                            key={editingUser.id}
                                             defaultValues={{
-                                                firstName: 'Swam',
-                                                lastName: "Yi Phyo",
-                                                role: "Admin",
-                                                tenant: "tenantA"
+                                                firstName: editingUser.firstName,
+                                                lastName: editingUser.lastName,
+                                                role: editingUser.role as "ADMIN" | "USER",
+                                                tenant: editingUser.tenant,
                                             }}
+                                            onClose={() => setEditingUser(null)}
                                         />
-                                    </Dialog>
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button className="cursor-pointer" variant='destructive'>
-                                                Delete
-                                            </Button>
-                                        </DialogTrigger>
-                                        {/* <ConfirmModal /> */}
-                                    </Dialog>
-                                </TableCell>}
-                            </TableRow>
-                        ))}
-                    </TableBody>
+                                    )}
+                                </Dialog>
+                            </TableBody>}
                 </Table>
+                <div className="my-4 flex flex-col items-center justify-center">
+                    {data.length > 0 ? <Button
+                        className="cursor-pointer"
+                        onClick={() => fetchNextPage()}
+                        disabled={!hasNextPage || isFetchingNextPage}
+                        variant={!hasNextPage ? "ghost" : "secondary"}
+                    >
+                        {isFetchingNextPage
+                            ? "Loading more..."
+                            : hasNextPage
+                                ? "Load More"
+                                : "Nothing more to load"}
+                    </Button> : <Empty label="No records found" classesName="w-[300px] h-[200px] " />}
+                </div>
+
+                <div className="my-4 flex items-center justify-center">
+                    {isFetching && !isFetchingNextPage ? "Background Updating..." : null}
+                </div>
             </CardContent>
         </Card>
     )

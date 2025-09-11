@@ -98,9 +98,21 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                     </TableHeader>
 
                     {status === 'pending' ?
-                        <div className="my-24 text-center font-medium">Loading...</div>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-10">
+                                    Loading...
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
                         : status === 'error'
-                            ? (<div className="my-24 text-center font-medium">Error: {error?.message}</div>)
+                            ? <TableBody>
+                                <TableRow>
+                                    <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-10">
+                                        Error: {error?.message}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
                             : <TableBody>
                                 {data.map((log) => (
                                     <TableRow key={log.id}>
@@ -143,7 +155,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                                                         Delete
                                                     </Button>
                                                 </DialogTrigger>
-                                                <ConfirmModal id={log.id} />
+                                                <ConfirmModal type="log" id={log.id} />
                                             </Dialog>
                                         </TableCell>}
                                     </TableRow>

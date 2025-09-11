@@ -7,27 +7,39 @@ import {
 } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import useCreateUser from "@/hooks/use-create-user"
+import useEditUser from "@/hooks/use-edit-user"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, type ControllerRenderProps, type DefaultValues, type Path, type SubmitHandler, } from "react-hook-form"
+import { FaUserPen, FaUserPlus } from "react-icons/fa6"
 import type z from "zod"
 import Spinner from "../shared/spinner"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
-import { FaUserPen, FaUserPlus } from "react-icons/fa6";
+import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react"
 
 interface CreateEditUserModalProps<T extends z.ZodType<any, any, any>> {
     formType: "CREATE" | "EDIT",
+    userId?: number,
     schema: T,
     defaultValues: z.infer<T>,
+    onClose?: () => void;
 }
 
 export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>({
     formType,
+    userId,
     schema,
     defaultValues,
+    onClose,
     ...props
 }: CreateEditUserModalProps<T>) {
+    const { createUser, userCreating } = useCreateUser()
+    const { editUser, userEditing } = useEditUser()
     type FormData = z.infer<T>
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const form = useForm({
         resolver: zodResolver(schema) as any,
@@ -35,13 +47,29 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
     })
 
     const handleSubmit: SubmitHandler<FormData> = async (values) => {
-        console.log(values)
+        if (formType === 'CREATE') {
+            createUser(values, {
+                onSettled: () => {
+                    form.reset();
+                    onClose?.();
+                }
+            })
+        } else {
+            editUser({
+                id: userId,
+                ...values
+            }, {
+                onSettled: () => {
+                    form.reset();
+                    onClose?.();
+                }
+            })
+        }
     }
 
     const buttonText = formType === 'CREATE' ? 'Create' : 'Edit'
 
-    const isWorking = form.formState.isSubmitting
-
+    const isWorking = form.formState.isSubmitting || userCreating || userEditing
 
     return (
         <DialogContent className="w-full mx-auto max-h-[90vh] overflow-y-auto sm:max-w-[800px] no-scrollbar" {...props}>
@@ -82,18 +110,31 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
                                                             <SelectValue placeholder="Select role" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="Admin">Admin</SelectItem>
-                                                            <SelectItem value="User">User</SelectItem>
+                                                            <SelectItem value="ADMIN">Admin</SelectItem>
+                                                            <SelectItem value="USER">User</SelectItem>
                                                         </SelectContent>
                                                     </Select>
                                                 ) : (
-                                                    <Input
-                                                        className={`min-h-[44px] ${field.name === 'password' ? 'font-en' : ''}`}
-                                                        placeholder={`Enter ${field.name}`}
-                                                        disabled={isWorking}
-                                                        type={field.name === 'password' ? 'password' : 'text'}
-                                                        {...field}
-                                                    />
+                                                    <div className="relative">
+                                                        <Input
+                                                            className={`min-h-[44px] ${field.name === 'password' ? 'font-en' : ''}`}
+                                                            placeholder={`Enter ${field.name}`}
+                                                            disabled={isWorking}
+                                                            type={field.name === 'password' ? showPassword ? 'text' : 'password' : 'text'}
+                                                            {...field}
+                                                        />
+                                                        {(field.name === 'password' || field.name === 'confirmPassword') && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setShowPassword(prev => !prev)
+                                                                }
+                                                                className="absolute cursor-pointer right-3 top-4 text-muted-foreground"
+                                                            >
+                                                                {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </FormControl>
                                             <FormMessage />
