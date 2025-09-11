@@ -18,10 +18,12 @@ export const authorize = (permission: boolean, userRole: string, ...roles: strin
 }
 
 export function num(v: any): number | undefined {
-    const n = Number(v); return Number.isFinite(n) ? n : undefined;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
 }
 export function to0to10(v: any): number | undefined {
-    const n = num(v); if (n == null) return undefined;
+    const n = num(v);
+    if (n == null) return undefined;
     return Math.max(0, Math.min(10, n));
 }
 export function toAction(a: any): Action | undefined {

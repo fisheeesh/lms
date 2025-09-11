@@ -21,3 +21,26 @@ export const userDataQuery = () => ({
     queryKey: ['user-data'],
     queryFn: fetchUserData
 })
+
+const fetchLogsOverview = async () => {
+    const res = await api.get("user/logs-overview")
+
+    return res.data
+}
+
+export const logsOverviewQuery = () => ({
+    queryKey: ['logs-overview'],
+    queryFn: fetchLogsOverview
+})
+
+const fetchSourceComparisons = async (q?: string | null) => {
+    const query = q ? `?duration=${q}` : ''
+    const res = await api.get(`user/source-comparisons${query}`)
+
+    return res.data
+}
+
+export const sourceCompaisonsQuery = (q?: string | null) => ({
+    queryKey: ['source-comparisons', q],
+    queryFn: () => fetchSourceComparisons(q)
+})
