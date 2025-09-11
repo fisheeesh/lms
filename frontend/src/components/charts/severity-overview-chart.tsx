@@ -55,7 +55,7 @@ export function SeverityOverviewChart() {
         <Card className="h-full">
             <CardHeader className="items-center pb-2">
                 <CardTitle className="text-xl md:text-2xl">Severity Overview</CardTitle>
-                <CardDescription>Log severity summary</CardDescription>
+                <CardDescription>Log severity summary of this month</CardDescription>
             </CardHeader>
             <CardContent className="h-[320px]">
                 <ChartContainer config={chartConfig} className="h-full w-full">

@@ -4,7 +4,7 @@ import { query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { PrismaClient } from "../../generated/prisma"
 import { getUserById } from "../../services/auth-services"
-import { getLogsOverviewFor60days, getLogsSourceComparison } from "../../services/log-services"
+import { getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison } from "../../services/log-services"
 import { getUserdataById } from "../../services/user-services"
 import { checkUserIfNotExist, createHttpError } from "../../utils/check"
 
@@ -12,7 +12,7 @@ interface CustomRequest extends Request {
     userId?: number
 }
 
-const prisma = new PrismaClient()
+const prismaClient = new PrismaClient()
 
 export const testUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
     res.status(200).json({
@@ -93,3 +93,17 @@ export const getSourceComparisons = [
         })
     }
 ]
+
+export const getSeverityOverview = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const userId = req.userId
+    const user = await getUserById(userId!)
+    checkUserIfNotExist(user)
+
+    // ? Desired format : [{type: "error", value: 100}, ...]
+    const result = await getLogsSeverityOverview(user!.tenant)
+
+    res.status(200).json({
+        message: "Here is your severity data.",
+        data: result
+    })
+}

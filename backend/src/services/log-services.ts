@@ -1,12 +1,13 @@
-import { eachDayOfInterval, format } from "date-fns";
+import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
 import { PrismaClient } from "../generated/prisma";
 import CacheQueue from "../jobs/queues/cache-queue";
 import { rentationDay } from "../utils/helpers";
+import { prisma } from "../config/prisma-client";
 
-const prisma = new PrismaClient()
+const prismaClient = new PrismaClient()
 
 export const getLogById = async (id: number) => {
-    return await prisma.log.findUnique({
+    return await prismaClient.log.findUnique({
         where: { id }
     })
 }
@@ -16,7 +17,7 @@ export const deleteLogsWhichAreOlderThan7Days = async () => {
         const cutoff = new Date()
         cutoff.setDate(cutoff.getDate() - +rentationDay!)
 
-        await prisma.$transaction(async (tx) => {
+        await prismaClient.$transaction(async (tx) => {
             const oldLogs = await tx.log.findMany({
                 where: {
                     createdAt: {
@@ -52,18 +53,18 @@ export const deleteLogsWhichAreOlderThan7Days = async () => {
 }
 
 export const createLog = async (data: any) => {
-    return await prisma.log.create({ data })
+    return await prismaClient.log.create({ data })
 }
 
 export const deleteLogById = async (id: number) => {
-    return await prisma.log.delete({
+    return await prismaClient.log.delete({
         where: { id }
     })
 }
 
 export const getLogsOverviewFor60days = async (tenant: string, start: Date, end: Date) => {
     try {
-        const allLogs = await prisma.log.findMany({
+        const allLogs = await prismaClient.log.findMany({
             where: {
                 tenant,
                 createdAt: {
@@ -111,7 +112,7 @@ export const getLogsOverviewFor60days = async (tenant: string, start: Date, end:
 
 export const getLogsSourceComparison = async (tenant: string, start: Date, end: Date) => {
     try {
-        const allLogs = await prisma.log.findMany({
+        const allLogs = await prismaClient.log.findMany({
             where: {
                 tenant,
                 createdAt: {
@@ -164,6 +165,48 @@ export const getLogsSourceComparison = async (tenant: string, start: Date, end: 
                 aws: dayMap[key]?.aws ?? 0,
                 m365: dayMap[key]?.m365 ?? 0,
                 ad: dayMap[key]?.ad ?? 0,
+            }
+        })
+
+        return result
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const getLogsSeverityOverview = async (tenant: string) => {
+    try {
+        const allLogs = await prisma.log.findMany({
+            where: {
+                tenant,
+                createdAt: {
+                    gte: startOfMonth(new Date()),
+                    lte: endOfMonth(new Date())
+                }
+            },
+            select: {
+                severityLabel: true
+            }
+        })
+
+        const dataType: Record<string,
+            { value: number }
+        > = {}
+
+        for (const log of allLogs) {
+            if (dataType[log.severityLabel]) {
+                dataType[log.severityLabel].value += 1
+            } else {
+                dataType[log.severityLabel] = {
+                    value: 1
+                }
+            }
+        }
+
+        const result = Object.keys(dataType).map(key => {
+            return {
+                type: key,
+                value: dataType[key].value
             }
         })
 
