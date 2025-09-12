@@ -3,8 +3,9 @@ import { body, query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource, Prisma, Role, Status } from "../../generated/prisma"
 import CacheQueue from "../../jobs/queues/cache-queue"
+import { createNewAlertRule, deleteAlertRuleById, getRuleById, getRuleByFields, updateAlertRuleById } from "../../services/alert-services"
 import { getUserByEmail, getUserById } from "../../services/auth-services"
-import { createLog, deleteLogById, getAllLogs, getLogById } from "../../services/log-services"
+import { createLog, deleteLogById, getLogById } from "../../services/log-services"
 import { createNewUser, deleteUserById, getAllUsers, updateUserById } from "../../services/user-services"
 import { checkModalIfExist, checkUserExit, checkUserIfNotExist, createHttpError } from "../../utils/check"
 import { generateHashedValue, generateToken } from "../../utils/generate"
@@ -381,6 +382,130 @@ export const getAllUsersInfinite = [
             data: users
         })
 
+    }
+]
+
+export const createAlertRule = [
+    body("tenant", "Tenant is required.").trim().notEmpty().escape(),
+    body("name", "Rule Name is required.").trim().notEmpty().escape(),
+    body("condition", "Rule Condition is required.").trim().notEmpty().escape(),
+    body("threshold", "Rule Threshold is required.").notEmpty().isInt({ gt: 0 }).escape(),
+    body("windowSeconds", "Invalid Window Seconds.").trim().isInt({ gt: -1 }).escape().optional(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid
+        }))
+
+        const userId = req.userId
+        const user = await getUserById(userId!)
+        checkUserIfNotExist(user)
+
+        const { tenant, name, condition, threshold, windowSeconds } = req.body
+
+        const existingRule = await getRuleByFields({ tenant, name, condition })
+        if (existingRule) return next(createHttpError({
+            message: "Rule already exists. Try another one.",
+            status: 400,
+            code: errorCodes.invalid
+        }))
+
+        const data = {
+            tenant,
+            name,
+            condition,
+            threshold: +threshold,
+            windowSeconds: +windowSeconds,
+        }
+
+        const newRule = await createNewAlertRule(data)
+
+        res.status(201).json({
+            message: "Rule created successfully.",
+            ruleId: newRule.id
+        })
+    }
+]
+
+export const deleteAlertRule = [
+    body("id", "Rule Id is required.").trim().notEmpty().escape(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid
+        }))
+
+        const userId = req.userId
+        const user = await getUserById(userId!)
+        checkUserIfNotExist(user)
+
+        const { id } = req.body
+
+        const existingRule = await getRuleById(id)
+        if (!existingRule) return next(createHttpError({
+            message: "There is no such rule with this id in the database.",
+            status: 400,
+            code: errorCodes.invalid
+        }))
+
+        const deletedRule = await deleteAlertRuleById(id)
+
+        res.status(200).json({
+            message: "Rule deleted successfully.",
+            ruleId: deletedRule.id
+        })
+    }
+]
+
+export const updateAlertRule = [
+    body("id", "Rule Id is required.").trim().notEmpty().escape(),
+    body("tenant", "Tenant is required.").trim().notEmpty().escape(),
+    body("name", "Rule Name is required.").trim().notEmpty().escape(),
+    body("condition", "Rule Condition is required.").trim().notEmpty().escape(),
+    body("threshold", "Rule Threshold is required.").notEmpty().isInt({ gt: 0 }).escape(),
+    body("windowSeconds", "Invalid Window Seconds.").trim().isInt({ gt: -1 }).escape().optional(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid
+        }))
+
+        const { id, tenant, name, condition, threshold, windowSeconds } = req.body
+
+        const existingRule = await getRuleById(id)
+        if (!existingRule) return next(createHttpError({
+            message: "There is no such rule with this id in the database.",
+            status: 400,
+            code: errorCodes.invalid
+        }))
+
+        const existAlertRule = await getRuleByFields({ tenant, name, condition, threshold: +threshold, windowSeconds: +windowSeconds })
+        if (existAlertRule) return next(createHttpError({
+            message: "Rule already exists. Try another one.",
+            status: 400,
+            code: errorCodes.invalid
+        }))
+
+        const data = {
+            tenant,
+            name,
+            condition,
+            threshold: +threshold,
+            windowSeconds: +windowSeconds,
+        }
+
+        const updatedRule = await updateAlertRuleById(id, data)
+
+        res.status(200).json({
+            message: "Rule updated successfully.",
+            ruleId: updatedRule.id,
+        })
     }
 ]
 
