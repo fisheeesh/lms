@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
+import Empty from "../shared/empty"
 
 interface Props {
     data: IP[]
@@ -20,7 +21,7 @@ export default function TopIPsCard({ data }: Props) {
                             <TableHead className="whitespace-nowrap">Counts</TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    {data.length > 0 && <TableBody>
                         {
                             data.map(item => (
                                 <TableRow key={item.ip}>
@@ -33,8 +34,11 @@ export default function TopIPsCard({ data }: Props) {
                                 </TableRow>
                             ))
                         }
-                    </TableBody>
+                    </TableBody>}
                 </Table>
+                {data.length === 0 && <div className="my-4 flex flex-col items-center justify-center">
+                    <Empty label="No records found" classesName="w-[300px] h-[200px] " />
+                </div>}
             </CardContent>
         </Card>
     )

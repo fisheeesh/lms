@@ -3,6 +3,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../ui/table"
 import CommonFilter from "../shared/common-filter"
 import useFilterStore from "@/store/filter-store"
+import Empty from "../shared/empty"
+import useUserStore from "@/store/user-store"
 
 interface Props {
     data: Alert[]
@@ -10,6 +12,7 @@ interface Props {
 
 export default function TriggeredAlertsCard({ data }: Props) {
     const { filters } = useFilterStore()
+    const { user } = useUserStore()
 
     return (
         <Card className="min-h-[475px]">
@@ -20,11 +23,11 @@ export default function TriggeredAlertsCard({ data }: Props) {
                         List of alerts generated based on log severity and predefined rules.
                     </CardDescription>
                 </div>
-                <CommonFilter
+                {user.role === "ADMIN" && <CommonFilter
                     filterValue="aTenant"
                     filters={filters.lTenants}
                     otherClasses="min-h-[44px] sm:min-w-[150px]"
-                />
+                />}
             </CardHeader>
             <CardContent>
                 <Table>
@@ -37,7 +40,7 @@ export default function TriggeredAlertsCard({ data }: Props) {
                             <TableHead className="whitespace-nowrap">TriggeredAt</TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    {data.length > 0 && <TableBody>
                         {data.map((alert) => (
                             <TableRow key={alert.id}>
                                 <TableCell className="py-5">{formatId(alert.id)}</TableCell>
@@ -49,8 +52,11 @@ export default function TriggeredAlertsCard({ data }: Props) {
                                 })}</TableCell>
                             </TableRow>
                         ))}
-                    </TableBody>
+                    </TableBody>}
                 </Table>
+                {data.length === 0 && <div className="my-4 flex flex-col items-center justify-center">
+                    <Empty label="No records found" classesName="w-[300px] h-[200px] " />
+                </div>}
             </CardContent>
         </Card>
     )
