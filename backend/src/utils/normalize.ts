@@ -2,14 +2,11 @@ import { LogSource, Prisma, Action } from "../generated/prisma";
 import { toAction, to0to10, num } from "./helpers";
 
 function parseSyslogKV(line: string) {
-    // Example: <134>Aug 20 12:44:56 fw01 vendor=demo product=ngfw action=deny ...
     const out: Record<string, any> = { original: line };
 
-    // PRI
     const priMatch = line.match(/^<(\d+)>/);
     if (priMatch) out.pri = Number(priMatch[1]);
 
-    // Timestamp + host (very rough; good enough for lab data)
     const tsHostMatch = line.replace(/^<\d+>/, "").trim().split(/\s+/);
     if (tsHostMatch.length >= 4) {
         const month = tsHostMatch[0];
@@ -20,7 +17,6 @@ function parseSyslogKV(line: string) {
         out.host = host;
     }
 
-    // Key=Value pairs
     const kv: Record<string, string> = {};
     for (const m of line.matchAll(/(\w+)=([^\s]+)/g)) {
         kv[m[1]] = m[2];
@@ -81,13 +77,13 @@ export function normalizeData(
         case LogSource.FIREWALL:
         case LogSource.NETWORK: {
             if (typeof payload === "string") {
-                // Parse syslog line -> object
+                //* Parse syslog line -> object
                 const { raw, kv } = parseSyslogKV(payload);
                 out.raw = raw as Prisma.InputJsonValue;
                 out.eventType = "system";
                 out.eventSubtype = "syslog";
 
-                // Map common kvs
+                //* Map common kvs
                 out.src_ip = kv.src ?? kv.src_ip;
                 out.dst_ip = kv.dst ?? kv.dst_ip;
                 out.src_port = kv.spt ?? kv.src_port;
@@ -97,7 +93,7 @@ export function normalizeData(
                 out.rule_name = kv.policy ?? kv.rule ?? out.rule_name;
                 out.reason = kv.msg ?? "syslog";
             } else {
-                // Structured firewall JSON
+                //* Structured firewall JSON
                 out.ts = payload.ts ? new Date(payload.ts) : now;
                 out.src_ip = payload.src_ip;
                 out.src_port = num(payload.src_port)?.toString();
@@ -119,6 +115,15 @@ export function normalizeData(
             out.severity = to0to10(payload?.severity);
             out.eventType = payload?.eventType ?? "audit";
             out.user = payload?.user;
+            out.ip = payload?.ip;
+            out.status_code = payload?.status;
+            out.process = payload?.workload;
+
+            if (payload?.cloud) {
+                out.cloud_service = payload.cloud.service;
+                out.cloud_account_id = payload.cloud.account_id;
+                out.cloud_region = payload.cloud.region;
+            }
             break;
         }
 

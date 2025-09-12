@@ -29,6 +29,10 @@ model User {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  @@index([tenant, createdAt(sort: Desc)])
+  @@index([role, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([tenant, role, status, createdAt(sort: Desc)])
   @@map("users")
 }
 
@@ -85,6 +89,12 @@ model Log {
   @@index([ts])
   @@index([tenant, user])
   @@index([tenant, ip])
+  @@index([createdAt(sort: Desc)])
+  @@index([tenant, createdAt(sort: Desc)])
+  @@index([tenant, source, createdAt(sort: Desc)])
+  @@index([tenant, action, createdAt(sort: Desc)])
+  @@index([tenant, eventType, createdAt(sort: Desc)])
+  @@index([tenant, ip, createdAt(sort: Desc)])
   @@map("logs")
 }
 

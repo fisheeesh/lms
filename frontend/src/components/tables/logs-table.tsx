@@ -56,7 +56,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                     <LocalSearch filterValue="kw" />
                     {isAdmin && <CommonFilter
                         filterValue="tenant"
-                        filters={filters.tenants}
+                        filters={filters?.lTenants}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />}
                     <CommonFilter

@@ -210,18 +210,28 @@ export const getAllFilters = async (req: CustomRequest, res: Response, next: Nex
         const user = await getUserById(userId!);
         checkUserIfNotExist(user);
 
-        const tenantsRaw = await prismaClient.user.findMany({
+        const uTenantsRaw = await prismaClient.user.findMany({
             distinct: ["tenant"],
             select: { tenant: true },
         });
-        const tenants = [
+        const uTenants = [
             { name: "All Companies", value: "all" },
-            ...tenantsRaw.map((u) => ({
+            ...uTenantsRaw.map((u) => ({
                 name: u.tenant,
                 value: u.tenant,
             })),
         ];
-
+        const lTenantsRaw = await prismaClient.log.findMany({
+            distinct: ["tenant"],
+            select: { tenant: true },
+        });
+        const lTenants = [
+            { name: "All Companies", value: "all" },
+            ...lTenantsRaw.map((u) => ({
+                name: u.tenant,
+                value: u.tenant,
+            })),
+        ];
 
         const sourcesRaw = await prismaClient.log.findMany({
             distinct: ["source"],
@@ -250,7 +260,8 @@ export const getAllFilters = async (req: CustomRequest, res: Response, next: Nex
         res.status(200).json({
             message: "Here is All Filters data.",
             data: {
-                tenants,
+                uTenants,
+                lTenants,
                 sources,
                 actions,
             },
@@ -259,3 +270,32 @@ export const getAllFilters = async (req: CustomRequest, res: Response, next: Nex
         next(err);
     }
 };
+
+export const getTopIps = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const userId = req.userId;
+    const user = await getUserById(userId!);
+    checkUserIfNotExist(user);
+
+    const results = await prismaClient.log.groupBy({
+        by: ["ip"],
+        _count: {
+            ip: true,
+        },
+        orderBy: {
+            _count: {
+                ip: "desc",
+            },
+        },
+        take: 7,
+    });
+
+    const filtered = results.filter(r => r.ip !== null).map((r) => ({
+        ip: r.ip,
+        count: r._count.ip,
+    }));
+
+    res.status(200).json({
+        message: "Here is Top IPs data.",
+        data: filtered
+    })
+}

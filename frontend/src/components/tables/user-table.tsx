@@ -64,7 +64,7 @@ export default function UserTable({ data, status, error, isFetching, isFetchingN
                     <LocalSearch filterValue="uName" />
                     <CommonFilter
                         filterValue="uTenant"
-                        filters={filters.tenants}
+                        filters={filters?.uTenants}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />
                     <CommonFilter

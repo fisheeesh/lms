@@ -85,18 +85,13 @@ export const CrowdStrikeSchema = BASE_SCHEMA.extend({
 export const AwsSchema = BASE_SCHEMA.extend({
     source: z.literal("AWS"),
     action: z.literal("ALERT"),
-    eventType: z.string(),
+    eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().optional(),
-    // cloud: z.object({
-    //     service: z.string(),
-    //     account_id: z.string(),
-    //     region: z.string(),
-    // }),
-    // raw: z.object({
-    //     eventName: z.string(),
-    //     requestParameters: z.string(),
-    //     userName: z.string()
-    // }),
+    cloud: z.object({
+        service: z.string().min(1, { message: "Service is required" }),
+        account_id: z.string().min(1, { message: "Account ID is required" }),
+        region: z.string().min(1, { message: "Region is required" }),
+    }),
 })
 
 export const M365Schema = BASE_SCHEMA.extend({

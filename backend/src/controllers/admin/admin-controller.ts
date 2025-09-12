@@ -57,9 +57,10 @@ export const createALog = [
     body("rule_id").optional().isString(),
     body("ip").optional().isIP(),
     body("reason").optional().isString(),
-    body("cloud_account_id").optional().isString(),
-    body("cloud_region").optional().isString(),
-    body("cloud_service").optional().isString(),
+    body("cloud").optional().isObject().withMessage("cloud must be an object"),
+    body("cloud.service").optional().isString(),
+    body("cloud.account_id").optional().isString(),
+    body("cloud.region").optional().isString(),
     body("raw").optional().isObject(),
     body("tags", "Tag is invalid.").optional({ nullable: true }).customSanitizer((value) => {
         if (value) {
@@ -318,7 +319,7 @@ export const getAllUsersInfinite = [
         } : {}
 
 
-        const tenantFilter: Prisma.LogWhereInput =
+        const tenantFilter: Prisma.UserWhereInput =
             tenant && tenant !== 'all' ?
                 { tenant: { contains: tenant as string, mode: 'insensitive' } as Prisma.StringFilter }
                 : tenant && user?.role !== 'ADMIN' ? { tenant: { contains: user!.tenant, mode: 'insensitive' } as Prisma.StringFilter } : {}

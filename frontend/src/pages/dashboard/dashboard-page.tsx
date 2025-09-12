@@ -3,6 +3,8 @@ import { LogsOverviewChart } from "@/components/charts/logs-overview-chart"
 import { SeverityOverviewChart } from "@/components/charts/severity-overview-chart"
 import { SourceComparisonChart } from "@/components/charts/source-comparison-chart"
 import LogsTable from "@/components/tables/logs-table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import useTitle from "@/hooks/use-title"
 import useFilterStore from "@/store/filter-store"
 import useUserStore from "@/store/user-store"
@@ -46,7 +48,8 @@ export default function DashboardPage() {
     useEffect(() => {
         if (filtersData) {
             setFilters({
-                tenants: filtersData.data.tenants,
+                uTenants: filtersData.data.uTenants,
+                lTenants: filtersData.data.lTenants,
                 sources: filtersData.data.sources,
                 actions: filtersData.data.actions
             })
@@ -80,6 +83,39 @@ export default function DashboardPage() {
                 fetchNextPage={fetchNextPage}
                 hasNextPage={hasNextPage}
             />
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
+                <div className="w-full lg:w-1/3">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-xl md:text-2xl">Top IPs</CardTitle>
+                            <CardDescription>See which IPs are making the most logs</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="whitespace-nowrap">IP Name</TableHead>
+                                        <TableHead className="whitespace-nowrap">Counts</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="py-5">
+                                            127.0.0.1
+                                        </TableCell>
+                                        <TableCell className="py-5">
+                                            10
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="w-full lg:w-2/3">
+
+                </div>
+            </div>
         </section>
     )
 }

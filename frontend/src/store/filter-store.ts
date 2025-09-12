@@ -3,7 +3,8 @@ import { immer } from "zustand/middleware/immer";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 interface Filters {
-    tenants: Filter[],
+    uTenants: Filter[],
+    lTenants: Filter[],
     sources: Filter[],
     actions: Filter[]
 }
@@ -19,7 +20,8 @@ interface Actions {
 
 const initialState: State = {
     filters: {
-        tenants: [],
+        uTenants: [],
+        lTenants: [],
         sources: [],
         actions: []
     }

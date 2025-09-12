@@ -66,6 +66,11 @@ const defaults = {
         ip: "127.0.0.1",
         eventType: "CreateUser",
         user: "admin",
+        cloud: {
+            service: "iam",
+            account_id: "123456789012",
+            region: "ap-southeast-1",
+        },
     },
     m365: {
         tenant: "demoTenant",
@@ -155,6 +160,49 @@ export default function CreateLogModal({ onClose }: CreateLogModalProps) {
                         </FormItem>
                     )}
                 />
+            )
+        }
+
+        if (name === "cloud") {
+            return (
+                <>
+                    <FormField
+                        key="cloud.service"
+                        control={form.control}
+                        name={"cloud.service" as any}
+                        render={({ field }) => (
+                            <FormItem className="grid gap-2">
+                                <FormLabel>Cloud Service</FormLabel>
+                                <FormControl><Input className="min-h-[44px]" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        key="cloud.account_id"
+                        control={form.control}
+                        name={"cloud.account_id" as any}
+                        render={({ field }) => (
+                            <FormItem className="grid gap-2">
+                                <FormLabel>Cloud Account ID</FormLabel>
+                                <FormControl><Input className="min-h-[44px] font-en" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        key="cloud.region"
+                        control={form.control}
+                        name={"cloud.region" as any}
+                        render={({ field }) => (
+                            <FormItem className="grid gap-2">
+                                <FormLabel>Cloud Region</FormLabel>
+                                <FormControl><Input className="min-h-[44px]" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </>
             )
         }
 
