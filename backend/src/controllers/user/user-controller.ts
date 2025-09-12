@@ -3,8 +3,8 @@ import { NextFunction, Request, Response } from "express"
 import { query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource, Prisma, PrismaClient } from "../../generated/prisma"
-import { getUserById } from "../../services/auth-services"
-import { getAllLogs, getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison } from "../../services/log-services"
+import { getOTPByEmail, getUserById } from "../../services/auth-services"
+import { getAllLogs, getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison, getTopIPsData } from "../../services/log-services"
 import { getUserdataById } from "../../services/user-services"
 import { checkUserIfNotExist, createHttpError } from "../../utils/check"
 
@@ -53,7 +53,7 @@ export const getLogsOverview = [
         const end = endOfDay(now)
 
         //? Desired format: [ { date: "2024-04-01", value: 222}, ...]
-        const result = await getLogsOverviewFor60days(user!.tenant, start, end)
+        const result = await getLogsOverviewFor60days(user!.tenant, user!.role, start, end)
 
         res.status(200).json({
             message: 'Here is your logs.',
@@ -84,7 +84,7 @@ export const getSourceComparisons = [
         const end = endOfDay(now)
 
         // ? Desired format: [{date: 'Sep 01', api: 100, ... }, ...]
-        const result = await getLogsSourceComparison(user!.tenant, start, end)
+        const result = await getLogsSourceComparison(user!.tenant, user!.role, start, end)
 
         res.status(200).json({
             message: "Here is Log's Source Comparison data.",
@@ -99,7 +99,7 @@ export const getSeverityOverview = async (req: CustomRequest, res: Response, nex
     checkUserIfNotExist(user)
 
     // ? Desired format : [{type: "error", value: 100}, ...]
-    const result = await getLogsSeverityOverview(user!.tenant)
+    const result = await getLogsSeverityOverview(user!.tenant, user!.role)
 
     res.status(200).json({
         message: "Here is your severity data.",
@@ -276,26 +276,10 @@ export const getTopIps = async (req: CustomRequest, res: Response, next: NextFun
     const user = await getUserById(userId!);
     checkUserIfNotExist(user);
 
-    const results = await prismaClient.log.groupBy({
-        by: ["ip"],
-        _count: {
-            ip: true,
-        },
-        orderBy: {
-            _count: {
-                ip: "desc",
-            },
-        },
-        take: 7,
-    });
-
-    const filtered = results.filter(r => r.ip !== null).map((r) => ({
-        ip: r.ip,
-        count: r._count.ip,
-    }));
+    const result = await getTopIPsData(user!.tenant, user!.role)
 
     res.status(200).json({
         message: "Here is Top IPs data.",
-        data: filtered
+        data: result
     })
 }

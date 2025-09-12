@@ -1,4 +1,5 @@
 import LocalSearch from "@/components/shared/common-search";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,13 +7,12 @@ import { ROLEFILTER, STATUSFILTER, TIMEFILTER } from "@/lib/constants";
 import { CreateUserSchema, EditUserSchema } from "@/lib/validators";
 import useFilterStore from "@/store/filter-store";
 import { useState } from "react";
-import { MdFormatListBulletedAdd } from "react-icons/md";
+import { TiUserAdd } from "react-icons/ti";
 import ConfirmModal from "../modals/confirm-modal";
 import CreateEditUserModal from "../modals/create-edit-user-modal";
 import CommonFilter from "../shared/common-filter";
-import { Button } from "../ui/button";
 import Empty from "../shared/empty";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "../ui/button";
 
 interface Props {
     data: User[]
@@ -41,7 +41,7 @@ export default function UserTable({ data, status, error, isFetching, isFetchingN
                         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                             <DialogTrigger asChild>
                                 <Button className="bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 font-semibold hover:from-pink-500 hover:via-purple-500 hover:to-blue-400 transition-colors duration-300 w-fit min-h-[44px] text-white flex items-center gap-2 cursor-pointer">
-                                    <MdFormatListBulletedAdd className="size-5" /> Create a new user
+                                    <TiUserAdd className="size-5" /> Create a new user
                                 </Button>
                             </DialogTrigger>
                             {createOpen && <CreateEditUserModal

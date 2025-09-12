@@ -46,3 +46,8 @@ interface User {
     tenant: string
     status: string
 }
+
+interface IP {
+    ip: string
+    count: number
+}

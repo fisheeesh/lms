@@ -86,6 +86,7 @@ export const invalidateLogsQueries = async () => {
         queryClient.invalidateQueries({ queryKey: ['logs', 'infinite'], exact: false }),
         queryClient.invalidateQueries({ queryKey: ['logs-overview'] }),
         queryClient.invalidateQueries({ queryKey: ['severity-overview'] }),
+        queryClient.invalidateQueries({ queryKey: ['top-ips'] }),
     ]);
 };
 
@@ -148,3 +149,14 @@ export const userInfiniteQuery = (kw: string | null = null, tenant: string | nul
 export const invalidateUserQueries = async () => {
     await queryClient.invalidateQueries({ queryKey: ['users', 'infinite'], exact: false })
 };
+
+const fetchTopIps = async () => {
+    const res = api.get("user/top-ips")
+
+    return (await res).data
+}
+
+export const topIpsQuery = () => ({
+    queryKey: ['top-ips'],
+    queryFn: fetchTopIps
+})

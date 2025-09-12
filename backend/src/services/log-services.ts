@@ -1,5 +1,5 @@
 import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
-import { PrismaClient } from "../generated/prisma";
+import { Prisma, PrismaClient } from "../generated/prisma";
 import CacheQueue from "../jobs/queues/cache-queue";
 import { rentationDay } from "../utils/helpers";
 import { prisma } from "../config/prisma-client";
@@ -62,11 +62,14 @@ export const deleteLogById = async (id: number) => {
     })
 }
 
-export const getLogsOverviewFor60days = async (tenant: string, start: Date, end: Date) => {
+export const getLogsOverviewFor60days = async (uTenant: string, role: string, start: Date, end: Date) => {
     try {
+        const tenantFilter: Prisma.LogWhereInput =
+            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+
         const allLogs = await prismaClient.log.findMany({
             where: {
-                tenant,
+                ...tenantFilter,
                 createdAt: {
                     gte: start,
                     lte: end
@@ -110,11 +113,14 @@ export const getLogsOverviewFor60days = async (tenant: string, start: Date, end:
     }
 }
 
-export const getLogsSourceComparison = async (tenant: string, start: Date, end: Date) => {
+export const getLogsSourceComparison = async (uTenant: string, role: string, start: Date, end: Date) => {
     try {
+        const tenantFilter: Prisma.LogWhereInput =
+            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+
         const allLogs = await prismaClient.log.findMany({
             where: {
-                tenant,
+                ...tenantFilter,
                 createdAt: {
                     gte: start,
                     lte: end
@@ -174,11 +180,14 @@ export const getLogsSourceComparison = async (tenant: string, start: Date, end: 
     }
 }
 
-export const getLogsSeverityOverview = async (tenant: string) => {
+export const getLogsSeverityOverview = async (uTenant: string, role: string) => {
     try {
+        const tenantFilter: Prisma.LogWhereInput =
+            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+
         const allLogs = await prisma.log.findMany({
             where: {
-                tenant,
+                ...tenantFilter,
                 createdAt: {
                     gte: startOfMonth(new Date()),
                     lte: endOfMonth(new Date())
@@ -224,4 +233,36 @@ export const getAllLogs = async (options: any, severity: string) => {
         : result
 
     return filtered
+}
+
+export const getTopIPsData = async (uTenant: string, role: string) => {
+    try {
+        const tenantFilter: Prisma.LogWhereInput =
+            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+
+        const results = await prismaClient.log.groupBy({
+            where: {
+                ...tenantFilter
+            },
+            by: ["ip"],
+            _count: {
+                ip: true,
+            },
+            orderBy: {
+                _count: {
+                    ip: "desc",
+                },
+            },
+            take: 7,
+        });
+
+        const filtered = results.filter(r => r.ip !== null).map((r) => ({
+            ip: r.ip,
+            count: r._count.ip,
+        }));
+
+        return filtered
+    } catch (error) {
+        console.log(error)
+    }
 }

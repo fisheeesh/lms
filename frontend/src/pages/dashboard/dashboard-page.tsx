@@ -1,10 +1,10 @@
-import { filtersQuery, logsInfiniteQuery, logsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, userDataQuery } from "@/api/query"
+import { filtersQuery, logsInfiniteQuery, logsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, topIpsQuery, userDataQuery } from "@/api/query"
+import TopIPsCard from "@/components/cards/top-ips-card"
+import TriggeredAlertsCard from "@/components/cards/triggered-alerts-card"
 import { LogsOverviewChart } from "@/components/charts/logs-overview-chart"
 import { SeverityOverviewChart } from "@/components/charts/severity-overview-chart"
 import { SourceComparisonChart } from "@/components/charts/source-comparison-chart"
 import LogsTable from "@/components/tables/logs-table"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import useTitle from "@/hooks/use-title"
 import useFilterStore from "@/store/filter-store"
 import useUserStore from "@/store/user-store"
@@ -32,6 +32,9 @@ export default function DashboardPage() {
     const { data: soureComparisonsData } = useSuspenseQuery(sourceCompaisonsQuery(duration))
     const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery())
     const { data: filtersData } = useSuspenseQuery(filtersQuery())
+    const { data: topIpsData } = useSuspenseQuery(topIpsQuery())
+
+    console.log(topIpsData)
 
     const {
         status,
@@ -85,35 +88,10 @@ export default function DashboardPage() {
             />
             <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
                 <div className="w-full lg:w-1/3">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-xl md:text-2xl">Top IPs</CardTitle>
-                            <CardDescription>See which IPs are making the most logs</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="whitespace-nowrap">IP Name</TableHead>
-                                        <TableHead className="whitespace-nowrap">Counts</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell className="py-5">
-                                            127.0.0.1
-                                        </TableCell>
-                                        <TableCell className="py-5">
-                                            10
-                                        </TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+                    <TopIPsCard data={topIpsData.data} />
                 </div>
                 <div className="w-full lg:w-2/3">
-
+                    <TriggeredAlertsCard />
                 </div>
             </div>
         </section>

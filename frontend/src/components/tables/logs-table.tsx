@@ -38,7 +38,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
             <CardHeader className="space-y-2">
                 <div className="flex flex-col xl:flex-row gap-3 xl:gap-0 justify-between">
                     <div className="flex flex-col items-start gap-2 tracking-wide">
-                        <CardTitle className="text-xl md:text-2xl">Detailed list of logs under {user.tenant}</CardTitle>
+                        <CardTitle className="text-xl md:text-2xl">Detailed list of logs</CardTitle>
                         <CardDescription>Search and filter logs for easier navigation</CardDescription>
                     </div>
                     {isAdmin && <div className="flex flex-col xl:flex-row xl:items-center gap-2">
