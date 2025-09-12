@@ -6,40 +6,36 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import useCreateUser from "@/hooks/use-create-user"
 import useEditUser from "@/hooks/use-edit-user"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, type ControllerRenderProps, type DefaultValues, type Path, type SubmitHandler, } from "react-hook-form"
-import { FaUserPen, FaUserPlus } from "react-icons/fa6"
+import { GiFlyingFlag } from "react-icons/gi"
+import { TbFilterEdit } from "react-icons/tb"
 import type z from "zod"
 import Spinner from "../shared/spinner"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
-import { Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
 
-interface CreateEditUserModalProps<T extends z.ZodType<any, any, any>> {
+interface CreateEditAlertRuleModalProps<T extends z.ZodType<any, any, any>> {
     formType: "CREATE" | "EDIT",
-    userId?: number,
+    ruleId?: string,
     schema: T,
     defaultValues: z.infer<T>,
     onClose?: () => void;
 }
 
-export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>({
+export default function CreateEditAlertRuleModal<T extends z.ZodType<any, any, any>>({
     formType,
-    userId,
+    ruleId,
     schema,
     defaultValues,
     onClose,
     ...props
-}: CreateEditUserModalProps<T>) {
+}: CreateEditAlertRuleModalProps<T>) {
     const { createUser, userCreating } = useCreateUser()
     const { editUser, userEditing } = useEditUser()
     type FormData = z.infer<T>
-
-    const [showPassword, setShowPassword] = useState(false);
 
     const form = useForm({
         resolver: zodResolver(schema) as any,
@@ -56,7 +52,7 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
             })
         } else {
             editUser({
-                id: userId,
+                id: ruleId,
                 ...values
             }, {
                 onSettled: () => {
@@ -67,7 +63,7 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
         }
     }
 
-    const buttonText = formType === 'CREATE' ? 'Create New User' : 'Save Changes'
+    const buttonText = formType === 'CREATE' ? 'Create New Rule' : 'Save Changes'
 
     const isWorking = form.formState.isSubmitting || userCreating || userEditing
 
@@ -75,11 +71,11 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
         <DialogContent className="w-full mx-auto max-h-[90vh] overflow-y-auto sm:max-w-[800px] no-scrollbar" {...props}>
             <DialogHeader>
                 <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                    {formType === 'CREATE' ? <FaUserPlus /> : <FaUserPen />}
-                    {formType === 'CREATE' ? 'Create a new User' : "Edit User"}
+                    {formType === 'CREATE' ? <GiFlyingFlag /> : <TbFilterEdit />}
+                    {formType === 'CREATE' ? 'Create a new Rule' : "Edit Rule"}
                 </DialogTitle>
                 <DialogDescription>
-                    {formType === 'CREATE' ? 'Fill in the details to add a new user.' : "Update the user information and save changes."}
+                    {formType === 'CREATE' ? 'Fill in the details to add a new rule.' : "Update the rule information and save changes."}
                 </DialogDescription>
             </DialogHeader>
 
@@ -97,45 +93,17 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
                                             <div className="flex items-center gap-1 justify-between">
                                                 <FormLabel>
                                                     {field.name.charAt(0).toUpperCase() + field.name.slice(1)}
-                                                    <span className="text-red-600"> *</span>
+                                                    {field.name !== 'windowSeconds' && <span className="text-red-600"> *</span>}
                                                 </FormLabel>
                                             </div>
                                             <FormControl>
-                                                {field.name === "role" ? (
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        defaultValue={field.value}
-                                                    >
-                                                        <SelectTrigger className="min-h-[44px] w-full">
-                                                            <SelectValue placeholder="Select role" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="ADMIN">Admin</SelectItem>
-                                                            <SelectItem value="USER">User</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                ) : (
-                                                    <div className="relative">
-                                                        <Input
-                                                            className={`min-h-[44px] ${field.name === 'password' ? 'font-en' : ''}`}
-                                                            placeholder={`Enter ${field.name}`}
-                                                            disabled={isWorking}
-                                                            type={field.name === 'password' ? showPassword ? 'text' : 'password' : 'text'}
-                                                            {...field}
-                                                        />
-                                                        {(field.name === 'password' || field.name === 'confirmPassword') && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    setShowPassword(prev => !prev)
-                                                                }
-                                                                className="absolute cursor-pointer right-3 top-4 text-muted-foreground"
-                                                            >
-                                                                {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                )}
+                                                <Input
+                                                    className={`min-h-[44px] ${field.name === 'password' ? 'font-en' : ''}`}
+                                                    placeholder={`Enter ${field.name}`}
+                                                    disabled={isWorking}
+                                                    type={['threshold', 'windowSeconds'].includes(field.name) ? 'number' : 'text'}
+                                                    {...field}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -152,7 +120,7 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
                         >
                             <Spinner
                                 isLoading={isWorking}
-                                label={buttonText === 'Create New User' ? 'Creating...' : 'Editing...'}>
+                                label={buttonText === 'Create New Rule' ? 'Creating...' : 'Editing...'}>
                                 {buttonText}
                             </Spinner>
                         </Button>

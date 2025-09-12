@@ -1,5 +1,5 @@
 import express from "express"
-import { createAlertRule, createALog, createAUser, deleteAlertRule, deleteALog, deleteAUser, getAllUsersInfinite, testAdmin, updateAlertRule, updateAUser } from "../../../controllers/admin/admin-controller"
+import { createAlertRule, createALog, createAUser, deleteAlertRule, deleteALog, deleteAUser, getAllRules, getAllUsersInfinite, testAdmin, updateAlertRule, updateAUser } from "../../../controllers/admin/admin-controller"
 import { getAllLogsInfinite } from "../../../controllers/user/user-controller"
 
 const router = express.Router()
@@ -20,5 +20,6 @@ router.get("/users", getAllUsersInfinite)
 router.post("/alert-rules", createAlertRule)
 router.patch("/alert-rules", updateAlertRule)
 router.delete("/alert-rules", deleteAlertRule)
+router.get("/alert-rules", getAllRules)
 
 export default router

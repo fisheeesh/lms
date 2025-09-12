@@ -37,5 +37,15 @@ export const prisma = new PrismaClient().$extends({
                 },
             },
         },
+        alertRule: {
+            createdAt: {
+                needs: { createdAt: true },
+                compute(log) {
+                    return log.createdAt.toLocaleDateString("en-US", {
+                        year: "numeric", month: "long", day: "numeric"
+                    })
+                },
+            },
+        }
     },
 })

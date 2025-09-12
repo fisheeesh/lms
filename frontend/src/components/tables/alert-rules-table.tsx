@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import CommonFilter from "../shared/common-filter";
 import useFilterStore from "@/store/filter-store";
 import { TIMEFILTER } from "@/lib/constants";
+import CreateEditAlertRuleModal from "../modals/create-edit-alert-rule-modal";
+import { CreateEditAlertRuleSchema } from "@/lib/validators";
 
 const dummyAlertRules = [
     {
@@ -79,13 +81,24 @@ export default function AlertRulesTable() {
                                     <GiFlyingFlag className="size-5" /> Create a new rule
                                 </Button>
                             </DialogTrigger>
+                            <CreateEditAlertRuleModal
+                                formType="CREATE"
+                                schema={CreateEditAlertRuleSchema}
+                                defaultValues={{
+                                    tenant: "tenantA",
+                                    name: "High Severity",
+                                    condition: "SEVERITY_GTE",
+                                    threshold: 8,
+                                    windowSeconds: 0
+                                }}
+                            />
                         </Dialog>
                     </div>
                 </div>
                 <div className="flex flex-col xl:flex-row gap-2">
                     <LocalSearch filterValue="aName" />
                     <CommonFilter
-                        filterValue="uTenant"
+                        filterValue="aTenant"
                         filters={filters?.uTenants}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />

@@ -126,3 +126,11 @@ export const CreateUserSchema = z.object({
 })
 
 export const EditUserSchema = CreateUserSchema.omit({ email: true, password: true })
+
+export const CreateEditAlertRuleSchema = z.object({
+    tenant: z.string().min(1, { message: "Tenant is required" }),
+    name: z.string().min(1, { message: "Name is required" }),
+    condition: z.string().min(1, { message: "Condition is required" }),
+    threshold: z.number().int().min(1, { message: "Threshold is required" }),
+    windowSeconds: z.number().int().optional(),
+})

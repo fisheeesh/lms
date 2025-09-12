@@ -3,7 +3,7 @@ import { body, query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource, Prisma, Role, Status } from "../../generated/prisma"
 import CacheQueue from "../../jobs/queues/cache-queue"
-import { createNewAlertRule, deleteAlertRuleById, getRuleById, getRuleByFields, updateAlertRuleById } from "../../services/alert-services"
+import { createNewAlertRule, deleteAlertRuleById, getRuleById, getRuleByFields, updateAlertRuleById, getAllAlertRules } from "../../services/alert-services"
 import { getUserByEmail, getUserById } from "../../services/auth-services"
 import { createLog, deleteLogById, getLogById } from "../../services/log-services"
 import { createNewUser, deleteUserById, getAllUsers, updateUserById } from "../../services/user-services"
@@ -505,6 +505,65 @@ export const updateAlertRule = [
         res.status(200).json({
             message: "Rule updated successfully.",
             ruleId: updatedRule.id,
+        })
+    }
+]
+
+export const getAllRules = [
+    query("tenant", "Invalid Tenant.").trim().escape().optional(),
+    query("kw", "Invalid Keyword.").trim().escape().optional(),
+    query("ts", "Invalid Timestamp.").trim().escape().optional(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid
+        }))
+
+        const userId = req.userId
+        const user = await getUserById(userId!)
+        checkUserIfNotExist(user)
+
+        const { tenant, kw, ts = 'desc' } = req.query
+
+        const kwFilter: Prisma.AlertRuleWhereInput = kw ? {
+            OR: [
+                { name: { contains: kw, mode: 'insensitive' } },
+                { condition: { contains: kw, mode: 'insensitive' } },
+            ] as Prisma.AlertRuleWhereInput[]
+        } : {}
+
+
+        const tenantFilter: Prisma.AlertRuleWhereInput =
+            tenant && tenant !== 'all' ?
+                { tenant: { contains: tenant as string, mode: 'insensitive' } as Prisma.StringFilter }
+                : tenant && user?.role !== 'ADMIN' ? { tenant: { contains: user!.tenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+
+        const options = {
+            where: {
+                ...kwFilter,
+                ...tenantFilter,
+            },
+            select: {
+                id: true,
+                tenant: true,
+                name: true,
+                condition: true,
+                threshold: true,
+                windowSeconds: true,
+                createdAt: true
+            },
+            orderBy: {
+                createdAt: ts
+            }
+        }
+
+        const result = await getAllAlertRules(options)
+
+        res.status(200).json({
+            message: "Here is all rules.",
+            data: result
         })
     }
 ]

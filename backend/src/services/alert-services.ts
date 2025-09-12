@@ -1,3 +1,4 @@
+import { prisma } from "../config/prisma-client";
 import { PrismaClient } from "../generated/prisma";
 
 const prismaClient = new PrismaClient()
@@ -29,4 +30,8 @@ export const updateAlertRuleById = async (id: string, data: any) => {
         where: { id },
         data
     })
+}
+
+export const getAllAlertRules = async (options: any) => {
+    return await prisma.alertRule.findMany(options)
 }
