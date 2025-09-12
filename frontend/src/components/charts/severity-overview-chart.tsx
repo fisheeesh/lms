@@ -1,6 +1,7 @@
 import { Pie, PieChart, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import SeverityLegend from "../shared/custom-legends";
 
 export const description = "A donut chart";
 
@@ -44,6 +45,7 @@ export function SeverityOverviewChart({ data }: Props) {
                     </ResponsiveContainer>
                 </ChartContainer>
             </CardContent>
+            <SeverityLegend type="row" />
         </Card>
     );
 }

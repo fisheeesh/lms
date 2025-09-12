@@ -36,7 +36,7 @@ export function SourceComparisonChart({ data }: Props) {
                 />
             </CardHeader>
 
-            <CardContent className="h-[320px] min-w-0 overflow-hidden"> {/* important */}
+            <CardContent className="h-[370px] min-w-0 overflow-hidden">
                 <ChartContainer config={chartConfig} className="h-full w-full min-w-0">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data} margin={{ left: 12, right: 12 }}>

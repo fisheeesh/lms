@@ -73,11 +73,11 @@ export default function DashboardPage() {
         <section className="flex flex-col gap-4 min-w-0">
             <LogsOverviewChart data={logsOverviewData.data} />
 
-            <div className="grid gap-4 lg:grid-cols-3 items-stretch min-w-0">
-                <div className="lg:col-span-2 min-w-0">
+            <div className="grid gap-4 lg:grid-cols-5 items-stretch min-w-0">
+                <div className="lg:col-span-3 min-w-0">
                     <SourceComparisonChart data={soureComparisonsData.data} />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 lg:col-span-2">
                     <SeverityOverviewChart data={severityOverviewData.data} />
                 </div>
             </div>
