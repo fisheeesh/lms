@@ -1,4 +1,3 @@
-// src/workers/email-worker.ts
 import { Worker } from "bullmq";
 import { redis } from "../../config/redis-client";
 import { Resend } from "resend";
@@ -6,11 +5,12 @@ import { RECIEVER_EMAIL, SENDER_EMAIL } from "../../utils/helpers";
 
 require("dotenv").config()
 
-const resend = new Resend(process.env.RESEND_API_KEY! || "re_RLJk3CRF_8tLonariQ6V5TyWUVdm6ZaEF");
+const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = SENDER_EMAIL;
-const TO = RECIEVER_EMAIL;
+// const TO = RECIEVER_EMAIL;
 
 type JobPayload = {
+    to: string,
     alertId: string;
     tenant: string;
     ruleName: string;
@@ -25,9 +25,7 @@ const emailWorker = new Worker<JobPayload>(
     async (job) => {
         if (job.name !== "send-alert-email") return;
 
-        console.log('email syp')
-
-        const { alertId, tenant, ruleName, severity, logId, source, eventType } = job.data;
+        const { to, alertId, tenant, ruleName, severity, logId, source, eventType } = job.data;
         const subject = `[ALERT][${tenant}] ${ruleName} (sev ${severity ?? "-"})`;
 
         const html = `
@@ -41,11 +39,9 @@ const emailWorker = new Worker<JobPayload>(
         ${logId ? `<p><b>Log ID:</b> ${logId}</p>` : ""}
     `;
 
-        const toList = TO.split(",").map(s => s.trim()).filter(Boolean);
-
         await resend.emails.send({
             from: FROM,
-            to: toList,
+            to,
             subject,
             html,
         });

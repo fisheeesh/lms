@@ -8,11 +8,10 @@ import { getUserByEmail, getUserById } from "../../services/auth-services"
 import { createLog, deleteLogById, getLogById } from "../../services/log-services"
 import { createNewUser, deleteUserById, getAllUsers, updateUserById } from "../../services/user-services"
 import { checkModalIfExist, checkUserExit, checkUserIfNotExist, createHttpError } from "../../utils/check"
-import { generateHashedValue, generateToken } from "../../utils/generate"
+import { generateHashedValue, generateOTP, generateToken } from "../../utils/generate"
 import { normalizeData } from "../../utils/normalize"
 import { prisma } from "../../config/prisma-client"
 import { enqueueAlertEmail } from "../../utils/helpers"
-import EmailQueue from "../../jobs/queues/email-queue"
 
 interface CustomRequest extends Request {
     userId?: number
@@ -20,10 +19,12 @@ interface CustomRequest extends Request {
 }
 
 export const testAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const otp = generateOTP()
     res.status(200).json({
         message: "You are allowed to see this resources.",
         userId: req.userId,
-        role: req.user?.role
+        role: req.user?.role,
+        otp
     })
 }
 
@@ -84,6 +85,10 @@ export const createALog = [
             );
         }
 
+        const userId = req.userId
+        const user = await getUserById(userId!)
+        checkUserIfNotExist(user)
+
         const tenant = req.body.tenant || req.user?.tenant;
 
         const source = (req.body.source as LogSource) || LogSource.API;
@@ -105,6 +110,7 @@ export const createALog = [
                 if (severity >= rule.threshold) {
                     const alert = await createAlert(tenant, rule.name);
                     await enqueueAlertEmail({
+                        to: user!.email as string,
                         alertId: alert.id,
                         tenant,
                         ruleName: rule.name,
@@ -121,6 +127,7 @@ export const createALog = [
                 if (count >= rule.threshold && severity >= rule.threshold) {
                     const alert = await createAlert(tenant, rule.name);
                     enqueueAlertEmail({
+                        to: user!.email as string,
                         alertId: alert.id,
                         tenant,
                         ruleName: rule.name,

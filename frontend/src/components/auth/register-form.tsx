@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 import { Link, useActionData, useNavigation, useSubmit } from "react-router"
 import type { z } from "zod"
 import Spinner from "../shared/spinner"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import Logo from "../shared/logo"
 
 export function RegisterForm({
@@ -71,6 +71,7 @@ export function RegisterForm({
                                                     {...field}
                                                 />
                                             </FormControl>
+                                            <FormDescription className="text-xs">ONLY Goolge-register emails can get email alerts and OTP.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}

@@ -50,6 +50,7 @@ export function toAction(a: any): Action | undefined {
 }
 
 export type AlertEmailJob = {
+    to: string;
     alertId: string;
     tenant: string;
     ruleName: string;

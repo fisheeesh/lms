@@ -69,7 +69,7 @@ const fetchSourceComparisons = async (q?: string | null) => {
 }
 
 export const sourceCompaisonsQuery = (q?: string | null) => ({
-    queryKey: ['source-comparisons', q],
+    queryKey: ['source-comparisons', q ?? undefined],
     queryFn: () => fetchSourceComparisons(q)
 })
 
@@ -201,13 +201,14 @@ export const summaryQuery = () => ({
     queryFn: fetchSummary
 })
 
-const fetchAllAlerts = async () => {
-    const res = await api.get("user/all-alerts")
+const fetchAllAlerts = async (tenant?: string | null) => {
+    const query = tenant ? `?tenant=${tenant}` : ''
+    const res = await api.get(`user/all-alerts${query}`)
 
     return res.data
 }
 
-export const allAlertsQuery = () => ({
-    queryKey: ['all-alerts'],
-    queryFn: fetchAllAlerts
+export const allAlertsQuery = (tenant?: string | null) => ({
+    queryKey: ['all-alerts', tenant ?? undefined],
+    queryFn: () => fetchAllAlerts(tenant)
 })

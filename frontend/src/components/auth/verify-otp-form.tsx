@@ -23,6 +23,7 @@ import { REGEXP_ONLY_DIGITS } from "input-otp"
 import { useActionData, useNavigation, useSubmit } from "react-router"
 import Logo from "../shared/logo"
 import Spinner from "../shared/spinner"
+import ResendOTPBtn from "./resend-otp-btn"
 
 export function OTPForm({
     className,
@@ -56,6 +57,7 @@ export function OTPForm({
                 <div className="flex flex-col items-center gap-2">
                     <Logo />
                     <h1 className="text-muted-foreground text-center mt-5">Please enter the OTP sent to your phone.</h1>
+                    <span className="text-sm text-muted-foreground italic">(Check in your spam folder if you don&apos;t see it in your inbox.)</span>
                 </div>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6 flex items-center justify-center flex-col mx-auto">
@@ -91,6 +93,7 @@ export function OTPForm({
                                 Verifty
                             </Spinner>
                         </Button>
+                        <ResendOTPBtn type="register" />
                     </form>
                 </Form>
             </div>

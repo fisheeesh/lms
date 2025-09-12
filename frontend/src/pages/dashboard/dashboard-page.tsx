@@ -26,6 +26,7 @@ export default function DashboardPage() {
     const source = searchParams.get("source")
     const action = searchParams.get("action")
     const severity = searchParams.get("severity")
+    const aTenant = searchParams.get("aTenant")
 
     const { data: userData } = useSuspenseQuery(userDataQuery())
     const { data: logsOverviewData } = useSuspenseQuery(logsOverviewQuery())
@@ -33,7 +34,7 @@ export default function DashboardPage() {
     const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery())
     const { data: filtersData } = useSuspenseQuery(filtersQuery())
     const { data: topIpsData } = useSuspenseQuery(topIpsQuery())
-    const { data: alertsData } = useSuspenseQuery(allAlertsQuery())
+    const { data: alertsData } = useSuspenseQuery(allAlertsQuery(aTenant))
 
     const {
         status,

@@ -267,10 +267,13 @@ export const getTopIPsData = async (uTenant: string, role: string) => {
     }
 }
 
-export const getAllAlertsData = async (uTenant: string, role: string) => {
+export const getAllAlertsData = async (uTenant: string, qTenant: string, role: string) => {
     try {
         const tenantFilter: Prisma.AlertWhereInput =
-            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+            qTenant && qTenant !== 'all' ?
+                { tenant: { contains: qTenant as string, mode: 'insensitive' } as Prisma.StringFilter }
+                : !qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter }
+                    : qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
 
         const results = await prismaClient.alert.findMany({
             where: {

@@ -5,9 +5,10 @@ import jwt from 'jsonwebtoken'
 import moment from 'moment'
 
 import { errorCodes } from '../../config/error-codes'
-import { checkOTPErrorIfSameDate, checkOTPRow, checkUserExit, checkUserIfNotExist, createHttpError } from '../../utils/check'
-import { generateHashedValue, generateToken } from '../../utils/generate'
+import OTPQueue from '../../jobs/queues/otp-queue'
 import { createOTP, createUser, getOTPByEmail, getUserByEmail, getUserById, updateOTP, updateUser } from '../../services/auth-services'
+import { checkOTPErrorIfSameDate, checkOTPRow, checkUserExit, checkUserIfNotExist, createHttpError } from '../../utils/check'
+import { generateHashedValue, generateOTP, generateToken } from '../../utils/generate'
 
 interface CustomRequest extends Request {
     userId?: number
@@ -34,8 +35,7 @@ export const register = [
         checkUserExit(user)
 
         //* Genereate OTP & call OTP sending API
-        const otp = 123456 //? For testing
-        // const otp = generateOTP()
+        const otp = generateOTP()
         const hashOtp = await generateHashedValue(otp.toString())
         const token = generateToken()
 
@@ -92,6 +92,20 @@ export const register = [
                 }
             }
         }
+        await OTPQueue.add(
+            "send-otp-email",
+            {
+                to: email,
+                otp: otp.toString(),
+                token,
+                expiresIn: 120,
+            },
+            {
+                jobId: `otp:${email}:${Date.now()}`
+            }
+        );
+
+
 
         res.status(200).json({
             message: `We are sending OTP to ${result.email}.`,
@@ -521,7 +535,7 @@ export const forgotPassword = [
             }))
         }
 
-        const otp = 123456
+        const otp = generateOTP()
         const hashOtp = await generateHashedValue(otp.toString())
         const token = generateToken()
 
@@ -561,6 +575,19 @@ export const forgotPassword = [
                 result = await updateOTP(otpRow!.id, otpData)
             }
         }
+
+        await OTPQueue.add(
+            "send-otp-email",
+            {
+                to: email,
+                otp: otp.toString(),
+                token,
+                expiresIn: 120,
+            },
+            {
+                jobId: `otp:${email}:${Date.now()}`,
+            }
+        );
 
         res.status(200).json({
             message: `We are sending OTP to ${result.email} to reset password.`,

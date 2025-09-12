@@ -8,7 +8,7 @@ import z from "zod";
 import Logo from "../shared/logo";
 import Spinner from "../shared/spinner";
 import { Button } from "../ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 
 export default function ForgetPasswordForm({
@@ -69,6 +69,7 @@ export default function ForgetPasswordForm({
                                                     {...field}
                                                 />
                                             </FormControl>
+                                            <FormDescription className="text-xs">ONLY Goolge-register emails can get email alerts and OTP.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
