@@ -50,15 +50,15 @@ export const userDataQuery = () => ({
     queryFn: fetchUserData
 })
 
-const fetchLogsOverview = async () => {
-    const res = await api.get("user/logs-overview")
+const fetchLogsAlertsOverview = async () => {
+    const res = await api.get("user/logs-alerts-overview")
 
     return res.data
 }
 
-export const logsOverviewQuery = () => ({
-    queryKey: ['logs-overview'],
-    queryFn: fetchLogsOverview
+export const logsAlertsOverviewQuery = () => ({
+    queryKey: ['logs-alerts-overview'],
+    queryFn: fetchLogsAlertsOverview
 })
 
 const fetchSourceComparisons = async (q?: string | null) => {

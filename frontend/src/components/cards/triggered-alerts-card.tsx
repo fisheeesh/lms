@@ -47,9 +47,7 @@ export default function TriggeredAlertsCard({ data }: Props) {
                                 <TableCell className="py-5">{alert.tenant}</TableCell>
                                 <TableCell className="py-5">{alert.ruleName}</TableCell>
                                 <TableCell className="py-5">{alert.status}</TableCell>
-                                <TableCell className="py-5">{new Date(alert.triggeredAt).toLocaleDateString("en-US", {
-                                    year: "numeric", month: "long", day: "numeric"
-                                })}</TableCell>
+                                <TableCell className="py-5">{alert.triggeredAt}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>}

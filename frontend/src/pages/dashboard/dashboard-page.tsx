@@ -1,7 +1,7 @@
-import { allAlertsQuery, filtersQuery, logsInfiniteQuery, logsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, topIpsQuery, userDataQuery } from "@/api/query"
+import { allAlertsQuery, filtersQuery, logsInfiniteQuery, logsAlertsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, topIpsQuery, userDataQuery } from "@/api/query"
 import TopIPsCard from "@/components/cards/top-ips-card"
 import TriggeredAlertsCard from "@/components/cards/triggered-alerts-card"
-import { LogsOverviewChart } from "@/components/charts/logs-overview-chart"
+import { LogsAlertsOverviewChart } from "@/components/charts/logs-alerts-overview-chart"
 import { SeverityOverviewChart } from "@/components/charts/severity-overview-chart"
 import { SourceComparisonChart } from "@/components/charts/source-comparison-chart"
 import LogsTable from "@/components/tables/logs-table"
@@ -30,7 +30,7 @@ export default function DashboardPage() {
     const lDate = searchParams.get("lDate")
 
     const { data: userData } = useSuspenseQuery(userDataQuery())
-    const { data: logsOverviewData } = useSuspenseQuery(logsOverviewQuery())
+    const { data: logsAlertsOverviewData } = useSuspenseQuery(logsAlertsOverviewQuery())
     const { data: soureComparisonsData } = useSuspenseQuery(sourceCompaisonsQuery(duration))
     const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery())
     const { data: filtersData } = useSuspenseQuery(filtersQuery())
@@ -69,9 +69,10 @@ export default function DashboardPage() {
         }
     }, [userData, setUser, setFilters, filtersData])
 
+
     return (
         <section className="flex flex-col gap-4 min-w-0">
-            <LogsOverviewChart data={logsOverviewData.data} />
+            <LogsAlertsOverviewChart data={logsAlertsOverviewData.data} />
 
             <div className="grid gap-4 lg:grid-cols-5 items-stretch min-w-0">
                 <div className="lg:col-span-3 min-w-0">

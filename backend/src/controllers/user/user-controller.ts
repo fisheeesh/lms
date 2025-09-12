@@ -4,9 +4,10 @@ import { query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource, Prisma, PrismaClient } from "../../generated/prisma"
 import { getUserById } from "../../services/auth-services"
-import { getAllAlertsData, getAllLogs, getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison, getTopIPsData } from "../../services/log-services"
+import { getAllLogs, getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison, getTopIPsData } from "../../services/log-services"
 import { getUserdataById } from "../../services/user-services"
 import { checkUserIfNotExist, createHttpError } from "../../utils/check"
+import { getAllAlertsData } from "../../services/alert-services"
 
 interface CustomRequest extends Request {
     userId?: number
@@ -34,7 +35,7 @@ export const getUserData = async (req: CustomRequest, res: Response, next: NextF
     })
 }
 
-export const getLogsOverview = [
+export const getLogsAndAlertsOverview = [
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const errors = validationResult(req).array({ onlyFirstError: true })
         if (errors.length > 0) return next(createHttpError({
@@ -52,12 +53,12 @@ export const getLogsOverview = [
         const start = startOfDay(subDays(now, 59))
         const end = endOfDay(now)
 
-        //? Desired format: [ { date: "2024-04-01", value: 222}, ...]
-        const result = await getLogsOverviewFor60days(user!.tenant, user!.role, start, end)
+        //? Desired format: [ { date: "2024-04-01", logs: 222, alerts: 12}, ...]
+        const results = await getLogsOverviewFor60days(user!.tenant, user!.role, start, end)
 
         res.status(200).json({
             message: 'Here is your logs.',
-            data: result
+            data: results
         })
     }
 ]

@@ -3,9 +3,10 @@ interface Filter {
     value: string
 }
 
-interface LogsOverview {
+interface LogsAlertsOverview {
     date: string
-    value: number
+    logs: number
+    alerts: number
 }
 
 interface SourceComparisons {

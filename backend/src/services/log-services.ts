@@ -62,56 +62,71 @@ export const deleteLogById = async (id: number) => {
     })
 }
 
-export const getLogsOverviewFor60days = async (uTenant: string, role: string, start: Date, end: Date) => {
+type DailyOverview = {
+    date: string;
+    logs: number;
+    alerts: number;
+};
+
+export const getLogsOverviewFor60days = async (
+    uTenant: string,
+    role: string,
+    start: Date,
+    end: Date
+): Promise<DailyOverview[]> => {
     try {
         const tenantFilter: Prisma.LogWhereInput =
-            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+            role !== "ADMIN"
+                ? ({ tenant: { contains: uTenant, mode: "insensitive" } } as Prisma.StringFilter as any)
+                : {};
 
-        const allLogs = await prismaClient.log.findMany({
+        const logs = await prismaClient.log.findMany({
             where: {
-                ...tenantFilter,
-                createdAt: {
-                    gte: start,
-                    lte: end
-                }
+                ...(tenantFilter as any),
+                createdAt: { gte: start, lte: end },
             },
-            select: {
-                createdAt: true
-            }
-        })
+            select: { createdAt: true },
+        });
 
-        const dayMap: Record<
-            string,
-            { value: number }
-        > = {}
+        const alerts = await prismaClient.alert.findMany({
+            where: {
+                ...(role !== "ADMIN"
+                    ? ({ tenant: { contains: uTenant, mode: "insensitive" } } as Prisma.StringFilter as any)
+                    : {}),
+                triggeredAt: { gte: start, lte: end },
+            },
+            select: { triggeredAt: true },
+        });
 
-        for (const log of allLogs) {
-            const date = format(log.createdAt, "yyyy-MM-dd")
-            if (dayMap[date]) {
-                dayMap[date].value += 1
-            } else {
-                dayMap[date] = {
-                    value: 1
-                }
-            }
+        const logsByDay: Record<string, number> = {};
+        for (const l of logs) {
+            const key = format(l.createdAt, "yyyy-MM-dd");
+            logsByDay[key] = (logsByDay[key] ?? 0) + 1;
         }
 
-        //* Also set values to interval days to avoid jump data in the chart
-        const days = eachDayOfInterval({ start, end })
+        const alertsByDay: Record<string, number> = {};
+        for (const a of alerts) {
+            const key = format(a.triggeredAt, "yyyy-MM-dd");
+            alertsByDay[key] = (alertsByDay[key] ?? 0) + 1;
+        }
 
-        const result = days.map(day => {
-            const key = format(day, "yyyy-MM-dd")
+        const days = eachDayOfInterval({ start, end });
+
+        const result: DailyOverview[] = days.map((day) => {
+            const key = format(day, "yyyy-MM-dd");
             return {
                 date: key,
-                value: dayMap[key] ? dayMap[key].value : 0
-            }
-        })
+                logs: logsByDay[key] ?? 0,
+                alerts: alertsByDay[key] ?? 0,
+            };
+        });
 
-        return result
+        return result;
     } catch (error) {
-        console.log(error)
+        console.error(error);
+        return [];
     }
-}
+};
 
 export const getLogsSourceComparison = async (uTenant: string, role: string, start: Date, end: Date) => {
     try {
@@ -262,30 +277,6 @@ export const getTopIPsData = async (uTenant: string, role: string) => {
         }));
 
         return filtered
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-export const getAllAlertsData = async (uTenant: string, qTenant: string, role: string) => {
-    try {
-        const tenantFilter: Prisma.AlertWhereInput =
-            qTenant && qTenant !== 'all' ?
-                { tenant: { contains: qTenant as string, mode: 'insensitive' } as Prisma.StringFilter }
-                : !qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter }
-                    : qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
-
-        const results = await prismaClient.alert.findMany({
-            where: {
-                ...tenantFilter
-            },
-            orderBy: {
-                triggeredAt: "desc",
-            },
-            take: 5
-        })
-
-        return results
     } catch (error) {
         console.log(error)
     }

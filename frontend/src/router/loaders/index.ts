@@ -1,12 +1,12 @@
 import { authApi } from "@/api"
-import { alertRulesQuery, allAlertsQuery, filtersQuery, logsInfiniteAdminQuery, logsInfiniteQuery, logsOverviewQuery, queryClient, severityOverviewQuery, sourceCompaisonsQuery, summaryQuery, topIpsQuery, userDataQuery, userInfiniteQuery } from "@/api/query"
+import { alertRulesQuery, allAlertsQuery, filtersQuery, logsInfiniteAdminQuery, logsInfiniteQuery, logsAlertsOverviewQuery, queryClient, severityOverviewQuery, sourceCompaisonsQuery, summaryQuery, topIpsQuery, userDataQuery, userInfiniteQuery } from "@/api/query"
 import useAuthStore, { Status } from "@/store/auth-store"
 import { redirect } from "react-router"
 
 export const homeLoader = async () => {
     await Promise.all([
         queryClient.ensureQueryData(userDataQuery()),
-        queryClient.ensureQueryData(logsOverviewQuery()),
+        queryClient.ensureQueryData(logsAlertsOverviewQuery()),
         queryClient.ensureQueryData(sourceCompaisonsQuery()),
         queryClient.ensureQueryData(severityOverviewQuery()),
         queryClient.ensureInfiniteQueryData(logsInfiniteQuery()),

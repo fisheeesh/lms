@@ -620,7 +620,6 @@ export const getAllRules = [
 ]
 
 export const getSummary = async (req: CustomRequest, res: Response, next: NextFunction) => {
-
     const allLogs = await prisma.log.count()
     const allUsers = await prisma.user.count()
     const allAlerts = await prisma.alert.count()
@@ -638,7 +637,7 @@ export const getSummary = async (req: CustomRequest, res: Response, next: NextFu
             allLogs,
             allUsers,
             allAlerts,
-            allTenants: allTenants.map(t => ({ count: t._count.tenant })).reduce((a, b) => a + b.count, 0)
+            allTenants: allTenants.length
         }
     })
 }

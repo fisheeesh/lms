@@ -46,6 +46,16 @@ export const prisma = new PrismaClient().$extends({
                     })
                 },
             },
+        },
+        alert: {
+            triggeredAt: {
+                needs: { triggeredAt: true },
+                compute(log) {
+                    return log.triggeredAt.toLocaleDateString("en-US", {
+                        year: "numeric", month: "long", day: "numeric"
+                    })
+                },
+            }
         }
     },
 })
