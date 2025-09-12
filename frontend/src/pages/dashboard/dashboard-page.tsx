@@ -69,14 +69,18 @@ export default function DashboardPage() {
     }, [userData, setUser, setFilters, filtersData])
 
     return (
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-4 min-w-0">
             <LogsOverviewChart data={logsOverviewData.data} />
-            <div className="grid gap-4 lg:grid-cols-3 items-stretch">
-                <div className="lg:col-span-2">
+
+            <div className="grid gap-4 lg:grid-cols-3 items-stretch min-w-0">
+                <div className="lg:col-span-2 min-w-0">
                     <SourceComparisonChart data={soureComparisonsData.data} />
                 </div>
-                <SeverityOverviewChart data={severityOverviewData.data} />
+                <div className="min-w-0">
+                    <SeverityOverviewChart data={severityOverviewData.data} />
+                </div>
             </div>
+
             <LogsTable
                 data={allLogs}
                 status={status}
@@ -86,11 +90,12 @@ export default function DashboardPage() {
                 fetchNextPage={fetchNextPage}
                 hasNextPage={hasNextPage}
             />
-            <div className="flex flex-col lg:flex-row gap-4">
-                <div className="w-full lg:w-1/3">
+
+            <div className="flex flex-col lg:flex-row gap-4 min-w-0">
+                <div className="w-full lg:w-1/3 min-w-0">
                     <TopIPsCard data={topIpsData.data} />
                 </div>
-                <div className="w-full lg:w-2/3">
+                <div className="w-full lg:w-2/3 min-w-0">
                     <TriggeredAlertsCard data={alertsData.data} />
                 </div>
             </div>

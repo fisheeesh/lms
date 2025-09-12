@@ -1,17 +1,13 @@
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
-import {
-    Card, CardContent, CardDescription, CardHeader, CardTitle
-} from "@/components/ui/card"
-import {
-    ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig
-} from "@/components/ui/chart"
-import CommonFilter from "../shared/common-filter"
-import { TSFILTER } from "@/lib/constants"
+import { CartesianGrid, Line, LineChart, XAxis, ResponsiveContainer } from "recharts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import CommonFilter from "../shared/common-filter";
+import { TSFILTER } from "@/lib/constants";
 
-export const description = "Logs' Source Comparison Line Chart"
+export const description = "Logs' Source Comparison Line Chart";
 
 interface Props {
-    data: SourceComparisons[]
+    data: SourceComparisons[];
 }
 
 const chartConfig = {
@@ -21,13 +17,13 @@ const chartConfig = {
     aws: { label: "AWS", color: "var(--chart-4)" },
     m365: { label: "M365", color: "var(--chart-5)" },
     ad: { label: "AD", color: "var(--chart-6)" },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 export function SourceComparisonChart({ data }: Props) {
-    const seriesKeys = Object.keys(chartConfig) as (keyof typeof chartConfig)[]
+    const seriesKeys = Object.keys(chartConfig) as (keyof typeof chartConfig)[];
 
     return (
-        <Card className="h-full">
+        <Card className="h-full overflow-hidden">
             <CardHeader className="pb-2 flex lg:items-center flex-col lg:flex-row justify-between gap-4">
                 <div>
                     <CardTitle className="text-xl md:text-2xl">Logs' Source Comparison</CardTitle>
@@ -40,39 +36,38 @@ export function SourceComparisonChart({ data }: Props) {
                 />
             </CardHeader>
 
-            <CardContent className="h-[320px]">
-                <ChartContainer config={chartConfig} className="h-full w-full">
-                    <LineChart data={data} margin={{ left: 12, right: 12 }}>
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="date"
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={8}
-                        />
-                        <ChartTooltip
-                            cursor={false}
-                            content={
-                                <ChartTooltipContent
-                                    labelKey="date"
-                                />
-                            }
-                        />
-
-                        {seriesKeys.map((k) => (
-                            <Line
-                                key={k}
-                                type="monotone"
-                                dataKey={k}
-                                stroke={`var(--color-${k})`}
-                                strokeWidth={2}
-                                dot={false}
-                                isAnimationActive={false}
+            <CardContent className="h-[320px] min-w-0 overflow-hidden"> {/* important */}
+                <ChartContainer config={chartConfig} className="h-full w-full min-w-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={data} margin={{ left: 12, right: 12 }}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                                dataKey="date"
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                                interval="preserveStartEnd"
+                                minTickGap={12}
                             />
-                        ))}
-                    </LineChart>
+                            <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent labelKey="date" />}
+                            />
+                            {seriesKeys.map((k) => (
+                                <Line
+                                    key={k}
+                                    type="monotone"
+                                    dataKey={k}
+                                    stroke={`var(--color-${k})`}
+                                    strokeWidth={2}
+                                    dot={false}
+                                    isAnimationActive={false}
+                                />
+                            ))}
+                        </LineChart>
+                    </ResponsiveContainer>
                 </ChartContainer>
             </CardContent>
         </Card>
-    )
+    );
 }
