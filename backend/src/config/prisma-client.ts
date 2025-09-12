@@ -23,9 +23,9 @@ export const prisma = new PrismaClient().$extends({
                     const score = log.severity ?? 0
 
                     if (score <= 2) return "Info"
-                    if (score <= 4) return "Warn"
-                    if (score <= 7) return "Error"
-                    return "Critical"
+                    else if (score <= 4) return "Warn"
+                    else if (score <= 7) return "Error"
+                    else return "Critical"
                 },
             },
             createdAt: {

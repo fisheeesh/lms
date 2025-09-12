@@ -3,7 +3,7 @@ import { body, query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource, Prisma, Role, Status } from "../../generated/prisma"
 import CacheQueue from "../../jobs/queues/cache-queue"
-import { createNewAlertRule, deleteAlertRuleById, getRuleById, getRuleByFields, updateAlertRuleById, getAllAlertRules } from "../../services/alert-services"
+import { createNewAlertRule, deleteAlertRuleById, getRuleById, getRuleByFields, updateAlertRuleById, getAllAlertRules, getEnabledRulesForTenant, createAlert, countLogsSince } from "../../services/alert-services"
 import { getUserByEmail, getUserById } from "../../services/auth-services"
 import { createLog, deleteLogById, getLogById } from "../../services/log-services"
 import { createNewUser, deleteUserById, getAllUsers, updateUserById } from "../../services/user-services"
@@ -11,6 +11,8 @@ import { checkModalIfExist, checkUserExit, checkUserIfNotExist, createHttpError 
 import { generateHashedValue, generateToken } from "../../utils/generate"
 import { normalizeData } from "../../utils/normalize"
 import { prisma } from "../../config/prisma-client"
+import { enqueueAlertEmail } from "../../utils/helpers"
+import EmailQueue from "../../jobs/queues/email-queue"
 
 interface CustomRequest extends Request {
     userId?: number
@@ -89,6 +91,47 @@ export const createALog = [
 
         const data = normalizeData(tenant, source, payload);
         const log = await createLog(data);
+
+        const severity = typeof log.severity === "number" ? log.severity : 0;
+        console.log(typeof log.severity)
+        const rules = await getEnabledRulesForTenant(tenant);
+
+        const candidates = rules.filter(r => r.condition === "SEVERITY_GTE");
+
+        for (const rule of candidates) {
+            const win = rule.windowSeconds ?? 0;
+
+            if (win <= 0) {
+                if (severity >= rule.threshold) {
+                    const alert = await createAlert(tenant, rule.name);
+                    await enqueueAlertEmail({
+                        alertId: alert.id,
+                        tenant,
+                        ruleName: rule.name,
+                        severity,
+                        logId: log.id as any,
+                        source: (log as any).source ?? null,
+                        eventType: (log as any).eventType ?? null,
+                    }).catch(err => console.error("enqueueAlertEmail error:", err));
+                }
+            } else {
+                const since = new Date(Date.now() - win * 1000);
+                const count = await countLogsSince(tenant, rule.threshold, since);
+
+                if (count >= rule.threshold && severity >= rule.threshold) {
+                    const alert = await createAlert(tenant, rule.name);
+                    enqueueAlertEmail({
+                        alertId: alert.id,
+                        tenant,
+                        ruleName: rule.name,
+                        severity,
+                        logId: log.id as any,
+                        source: (log as any).source ?? null,
+                        eventType: (log as any).eventType ?? null,
+                    }).catch(err => console.error("enqueueAlertEmail error:", err));
+                }
+            }
+        }
 
         await CacheQueue.add("invalidate-log-cache", {
             pattern: 'logs:*'

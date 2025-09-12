@@ -1,0 +1,64 @@
+// src/workers/email-worker.ts
+import { Worker } from "bullmq";
+import { redis } from "../../config/redis-client";
+import { Resend } from "resend";
+import { RECIEVER_EMAIL, SENDER_EMAIL } from "../../utils/helpers";
+
+require("dotenv").config()
+
+const resend = new Resend(process.env.RESEND_API_KEY! || "re_RLJk3CRF_8tLonariQ6V5TyWUVdm6ZaEF");
+const FROM = SENDER_EMAIL;
+const TO = RECIEVER_EMAIL;
+
+type JobPayload = {
+    alertId: string;
+    tenant: string;
+    ruleName: string;
+    severity?: number | null;
+    logId?: string | number;
+    source?: string | null;
+    eventType?: string | null;
+};
+
+const emailWorker = new Worker<JobPayload>(
+    "email-send",
+    async (job) => {
+        if (job.name !== "send-alert-email") return;
+
+        console.log('email syp')
+
+        const { alertId, tenant, ruleName, severity, logId, source, eventType } = job.data;
+        const subject = `[ALERT][${tenant}] ${ruleName} (sev ${severity ?? "-"})`;
+
+        const html = `
+        <h2>New Alert</h2>
+        <p><b>Tenant:</b> ${tenant}</p>
+        <p><b>Rule:</b> ${ruleName}</p>
+        <p><b>Severity:</b> ${severity ?? "-"}</p>
+        <p><b>Source:</b> ${source ?? "-"}</p>
+        <p><b>Event Type:</b> ${eventType ?? "-"}</p>
+        <p><b>Alert ID:</b> ${alertId}</p>
+        ${logId ? `<p><b>Log ID:</b> ${logId}</p>` : ""}
+    `;
+
+        const toList = TO.split(",").map(s => s.trim()).filter(Boolean);
+
+        await resend.emails.send({
+            from: FROM,
+            to: toList,
+            subject,
+            html,
+        });
+    },
+    { connection: redis, concurrency: 5 }
+);
+
+emailWorker.on("completed", (job) => {
+    console.log(`Job: ${job.id} completed`);
+});
+
+emailWorker.on("failed", (job, err) => {
+    console.log(`Job: ${job?.id} failed`, err);
+});
+
+export default emailWorker;

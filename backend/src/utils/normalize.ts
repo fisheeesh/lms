@@ -67,6 +67,7 @@ export function normalizeData(
         case LogSource.API: {
             out.ts = payload?.ts ? new Date(payload.ts) : now;
             out.action = toAction(payload?.action);
+            out.severity = to0to10(payload?.severity);
             out.eventType = payload?.eventType ?? "application";
             out.user = payload?.user;
             out.ip = payload?.ip;
