@@ -1,4 +1,4 @@
-import { filtersQuery, logsInfiniteQuery, logsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, topIpsQuery, userDataQuery } from "@/api/query"
+import { allAlertsQuery, filtersQuery, logsInfiniteQuery, logsOverviewQuery, severityOverviewQuery, sourceCompaisonsQuery, topIpsQuery, userDataQuery } from "@/api/query"
 import TopIPsCard from "@/components/cards/top-ips-card"
 import TriggeredAlertsCard from "@/components/cards/triggered-alerts-card"
 import { LogsOverviewChart } from "@/components/charts/logs-overview-chart"
@@ -33,6 +33,7 @@ export default function DashboardPage() {
     const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery())
     const { data: filtersData } = useSuspenseQuery(filtersQuery())
     const { data: topIpsData } = useSuspenseQuery(topIpsQuery())
+    const { data: alertsData } = useSuspenseQuery(allAlertsQuery())
 
     const {
         status,
@@ -84,12 +85,12 @@ export default function DashboardPage() {
                 fetchNextPage={fetchNextPage}
                 hasNextPage={hasNextPage}
             />
-            <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
+            <div className="flex flex-col lg:flex-row gap-4">
                 <div className="w-full lg:w-1/3">
                     <TopIPsCard data={topIpsData.data} />
                 </div>
                 <div className="w-full lg:w-2/3">
-                    <TriggeredAlertsCard />
+                    <TriggeredAlertsCard data={alertsData.data} />
                 </div>
             </div>
         </section>

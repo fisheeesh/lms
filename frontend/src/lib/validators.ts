@@ -67,7 +67,6 @@ export const BASE_SCHEMA = z.object({
 
 export const HTTPSchema = BASE_SCHEMA.extend({
     source: z.literal("API"),
-    action: z.literal("ALERT"),
     eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().min(1, { message: "User is required" }),
     reason: z.string().min(1, { message: "Reason is required" }),
@@ -78,13 +77,11 @@ export const CrowdStrikeSchema = BASE_SCHEMA.extend({
     eventType: z.string().min(1, { message: "Event type is required" }),
     host: z.string().min(1, { message: "Host is required" }),
     process: z.string().min(1, { message: "Process is required" }),
-    action: z.literal("ALERT"),
     sha256: z.string().min(1, { message: "SHA256 is required" }),
 })
 
 export const AwsSchema = BASE_SCHEMA.extend({
     source: z.literal("AWS"),
-    action: z.literal("ALERT"),
     eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().optional(),
     cloud: z.object({
@@ -96,7 +93,6 @@ export const AwsSchema = BASE_SCHEMA.extend({
 
 export const M365Schema = BASE_SCHEMA.extend({
     source: z.literal("M365"),
-    action: z.literal("ALERT"),
     eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().min(1, { message: "User is required" }),
     status: z.string().min(1, { message: "Status is required" }),
@@ -105,7 +101,6 @@ export const M365Schema = BASE_SCHEMA.extend({
 
 export const AdSchema = BASE_SCHEMA.extend({
     source: z.literal("AD"),
-    action: z.literal("ALERT"),
     eventId: z.string().min(1, { message: "Event ID is required" }),
     eventType: z.string().min(1, { message: "Event type is required" }),
     user: z.string().min(1, { message: "User is required" }),

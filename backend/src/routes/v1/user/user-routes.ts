@@ -1,5 +1,5 @@
 import express from "express"
-import { getAllFilters, getAllLogsInfinite, getLogsOverview, getSeverityOverview, getSourceComparisons, getTopIps, getUserData, testUser } from "../../../controllers/user/user-controller"
+import { getAllAlerts, getAllFilters, getAllLogsInfinite, getLogsOverview, getSeverityOverview, getSourceComparisons, getTopIps, getUserData, testUser } from "../../../controllers/user/user-controller"
 
 const router = express.Router()
 
@@ -11,5 +11,6 @@ router.get("/get-logs-infinite", getAllLogsInfinite)
 router.get("/filters", getAllFilters)
 router.get("/user-data", getUserData)
 router.get("/top-ips", getTopIps)
+router.get("/all-alerts", getAllAlerts)
 
 export default router

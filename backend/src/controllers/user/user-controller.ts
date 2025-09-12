@@ -3,8 +3,8 @@ import { NextFunction, Request, Response } from "express"
 import { query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource, Prisma, PrismaClient } from "../../generated/prisma"
-import { getOTPByEmail, getUserById } from "../../services/auth-services"
-import { getAllLogs, getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison, getTopIPsData } from "../../services/log-services"
+import { getUserById } from "../../services/auth-services"
+import { getAllAlertsData, getAllLogs, getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison, getTopIPsData } from "../../services/log-services"
 import { getUserdataById } from "../../services/user-services"
 import { checkUserIfNotExist, createHttpError } from "../../utils/check"
 
@@ -280,6 +280,19 @@ export const getTopIps = async (req: CustomRequest, res: Response, next: NextFun
 
     res.status(200).json({
         message: "Here is Top IPs data.",
+        data: result
+    })
+}
+
+export const getAllAlerts = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const userId = req.userId;
+    const user = await getUserById(userId!);
+    checkUserIfNotExist(user);
+
+    const result = await getAllAlertsData(user!.tenant, user!.role)
+
+    res.status(200).json({
+        message: "Here is All Alerts data.",
         data: result
     })
 }

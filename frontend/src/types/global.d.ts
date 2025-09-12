@@ -68,3 +68,11 @@ interface AlretRule {
     threshold: number
     windowSeconds: number
 }
+
+interface Alert {
+    id: string
+    tenant: string
+    ruleName: string
+    status: string
+    triggeredAt: string
+}

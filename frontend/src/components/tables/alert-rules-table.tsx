@@ -45,8 +45,8 @@ export default function AlertRulesTable({ data }: Props) {
                                     tenant: "tenantA",
                                     name: "High Severity",
                                     condition: "SEVERITY_GTE",
-                                    threshold: 8,
-                                    windowSeconds: undefined,
+                                    threshold: 7,
+                                    windowSeconds: 0,
                                 }}
                                 onClose={() => setCreateOpen(false)}
                             />}

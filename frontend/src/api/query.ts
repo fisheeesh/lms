@@ -19,7 +19,8 @@ export const invalidateLogsQueries = async () => {
         queryClient.invalidateQueries({ queryKey: ['logs-overview'] }),
         queryClient.invalidateQueries({ queryKey: ['severity-overview'] }),
         queryClient.invalidateQueries({ queryKey: ['top-ips'] }),
-        queryClient.invalidateQueries({ queryKey: ['summary'] })
+        queryClient.invalidateQueries({ queryKey: ['summary'] }),
+        queryClient.invalidateQueries({ queryKey: ['all-alerts'] })
     ]);
 };
 
@@ -198,4 +199,15 @@ const fetchSummary = async () => {
 export const summaryQuery = () => ({
     queryKey: ['summary'],
     queryFn: fetchSummary
+})
+
+const fetchAllAlerts = async () => {
+    const res = await api.get("user/all-alerts")
+
+    return res.data
+}
+
+export const allAlertsQuery = () => ({
+    queryKey: ['all-alerts'],
+    queryFn: fetchAllAlerts
 })

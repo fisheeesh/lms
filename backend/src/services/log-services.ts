@@ -253,7 +253,7 @@ export const getTopIPsData = async (uTenant: string, role: string) => {
                     ip: "desc",
                 },
             },
-            take: 7,
+            take: 5,
         });
 
         const filtered = results.filter(r => r.ip !== null).map((r) => ({
@@ -262,6 +262,27 @@ export const getTopIPsData = async (uTenant: string, role: string) => {
         }));
 
         return filtered
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const getAllAlertsData = async (uTenant: string, role: string) => {
+    try {
+        const tenantFilter: Prisma.AlertWhereInput =
+            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+
+        const results = await prismaClient.alert.findMany({
+            where: {
+                ...tenantFilter
+            },
+            orderBy: {
+                triggeredAt: "desc",
+            },
+            take: 5
+        })
+
+        return results
     } catch (error) {
         console.log(error)
     }

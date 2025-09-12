@@ -7,7 +7,7 @@ interface Props {
 
 export default function TopIPsCard({ data }: Props) {
     return (
-        <Card>
+        <Card className="min-h-[475px]">
             <CardHeader>
                 <CardTitle className="text-xl md:text-2xl">Top IPs</CardTitle>
                 <CardDescription>See which IPs are making the most logs</CardDescription>
