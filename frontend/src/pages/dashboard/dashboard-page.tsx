@@ -27,6 +27,7 @@ export default function DashboardPage() {
     const action = searchParams.get("action")
     const severity = searchParams.get("severity")
     const aTenant = searchParams.get("aTenant")
+    const lDate = searchParams.get("lDate")
 
     const { data: userData } = useSuspenseQuery(userDataQuery())
     const { data: logsOverviewData } = useSuspenseQuery(logsOverviewQuery())
@@ -44,7 +45,7 @@ export default function DashboardPage() {
         isFetchingNextPage,
         fetchNextPage,
         hasNextPage,
-    } = useInfiniteQuery(logsInfiniteQuery(kw, tenant, ts, source, action, severity))
+    } = useInfiniteQuery(logsInfiniteQuery(kw, tenant, ts, source, action, severity, lDate))
 
     const allLogs = data?.pages.flatMap(page => page.data) ?? []
 

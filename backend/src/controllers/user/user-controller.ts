@@ -116,6 +116,7 @@ export const getAllLogsInfinite = [
     query("severity", "Invalid Severity.").trim().escape().optional(),
     query("source", "Invalid Source.").trim().escape().optional(),
     query("ts", "Invalid Timestamp.").trim().escape().optional(),
+    query("date", "Invalid Date.").trim().escape().optional(),
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const errors = validationResult(req).array({ onlyFirstError: true })
         if (errors.length > 0) return next(createHttpError({
@@ -124,7 +125,7 @@ export const getAllLogsInfinite = [
             code: errorCodes.invalid
         }))
 
-        const { limit = 7, cursor: lastCursor, kw, tenant, action, severity, source, ts = 'desc' } = req.query
+        const { limit = 7, cursor: lastCursor, kw, tenant, action, severity, source, ts = 'desc', date } = req.query
         const userId = req.userId
         const user = await getUserById(userId!)
         checkUserIfNotExist(user)
@@ -157,8 +158,16 @@ export const getAllLogsInfinite = [
                 ? { source: source as LogSource }
                 : {};
 
+        const dateFilter = date ? {
+            createdAt: {
+                gte: startOfDay(new Date(date as string)),
+                lte: endOfDay(new Date(date as string))
+            }
+        } : {}
+
         const options = {
             where: {
+                ...dateFilter,
                 ...kwFilter,
                 ...tenantFilter,
                 ...actionFilter,
@@ -300,7 +309,7 @@ export const getAllAlerts = [
 
         const { tenant } = req.query
 
-        const result = await getAllAlertsData(user!.tenant, tenant as string,  user!.role)
+        const result = await getAllAlertsData(user!.tenant, tenant as string, user!.role)
 
         res.status(200).json({
             message: "Here is All Alerts data.",

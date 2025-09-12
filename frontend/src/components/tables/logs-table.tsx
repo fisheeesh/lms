@@ -14,6 +14,7 @@ import CommonFilter from "../shared/common-filter";
 import CustomBadge, { type LabelType } from "../shared/custom-badge";
 import Empty from "../shared/empty";
 import { Button } from "../ui/button";
+import CustomCalendar from "../shared/custom-calendar";
 
 interface Props {
     data: Log[]
@@ -74,6 +75,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                         filters={SEVERITYFILTER}
                         otherClasses="min-h-[44px] sm:min-w-[150px]"
                     />
+                    <CustomCalendar filterValue="lDate" />
                     <CommonFilter
                         filterValue="ts"
                         filters={TIMEFILTER}
