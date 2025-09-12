@@ -6,8 +6,8 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import useCreateUser from "@/hooks/use-create-user"
-import useEditUser from "@/hooks/use-edit-user"
+import useCreateRule from "@/hooks/use-create-rule"
+import useEditRule from "@/hooks/use-edit-rule"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, type ControllerRenderProps, type DefaultValues, type Path, type SubmitHandler, } from "react-hook-form"
 import { GiFlyingFlag } from "react-icons/gi"
@@ -16,6 +16,8 @@ import type z from "zod"
 import Spinner from "../shared/spinner"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
+
+const NUMERIC_FIELDS = ["threshold", "windowSeconds"] as const;
 
 interface CreateEditAlertRuleModalProps<T extends z.ZodType<any, any, any>> {
     formType: "CREATE" | "EDIT",
@@ -33,8 +35,8 @@ export default function CreateEditAlertRuleModal<T extends z.ZodType<any, any, a
     onClose,
     ...props
 }: CreateEditAlertRuleModalProps<T>) {
-    const { createUser, userCreating } = useCreateUser()
-    const { editUser, userEditing } = useEditUser()
+    const { createRule, ruleCreating } = useCreateRule()
+    const { editRule, ruleEditing } = useEditRule()
     type FormData = z.infer<T>
 
     const form = useForm({
@@ -44,14 +46,14 @@ export default function CreateEditAlertRuleModal<T extends z.ZodType<any, any, a
 
     const handleSubmit: SubmitHandler<FormData> = async (values) => {
         if (formType === 'CREATE') {
-            createUser(values, {
+            createRule(values, {
                 onSettled: () => {
                     form.reset();
                     onClose?.();
                 }
             })
         } else {
-            editUser({
+            editRule({
                 id: ruleId,
                 ...values
             }, {
@@ -65,7 +67,7 @@ export default function CreateEditAlertRuleModal<T extends z.ZodType<any, any, a
 
     const buttonText = formType === 'CREATE' ? 'Create New Rule' : 'Save Changes'
 
-    const isWorking = form.formState.isSubmitting || userCreating || userEditing
+    const isWorking = form.formState.isSubmitting || ruleCreating || ruleEditing
 
     return (
         <DialogContent className="w-full mx-auto max-h-[90vh] overflow-y-auto sm:max-w-[800px] no-scrollbar" {...props}>
@@ -83,31 +85,55 @@ export default function CreateEditAlertRuleModal<T extends z.ZodType<any, any, a
                 <form className="space-y-6" onSubmit={form.handleSubmit(handleSubmit)}>
                     <div className="grid md:grid-cols-2 gap-4">
                         {
-                            Object.keys(defaultValues).map(field => (
+                            Object.keys(defaultValues).map((name) => (
                                 <FormField
-                                    key={field}
+                                    key={name}
                                     control={form.control}
-                                    name={field as Path<FormData>}
-                                    render={({ field }: { field: ControllerRenderProps<FormData, Path<FormData>> }) => (
-                                        <FormItem className="grid gap-3">
-                                            <div className="flex items-center gap-1 justify-between">
-                                                <FormLabel>
-                                                    {field.name.charAt(0).toUpperCase() + field.name.slice(1)}
-                                                    {field.name !== 'windowSeconds' && <span className="text-red-600"> *</span>}
-                                                </FormLabel>
-                                            </div>
-                                            <FormControl>
-                                                <Input
-                                                    className={`min-h-[44px] ${field.name === 'password' ? 'font-en' : ''}`}
-                                                    placeholder={`Enter ${field.name}`}
-                                                    disabled={isWorking}
-                                                    type={['threshold', 'windowSeconds'].includes(field.name) ? 'number' : 'text'}
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
+                                    name={name as Path<FormData>}
+                                    render={({
+                                        field,
+                                    }: {
+                                        field: ControllerRenderProps<FormData, Path<FormData>>;
+                                    }) => {
+                                        const isNumeric = NUMERIC_FIELDS.includes(field.name as any);
+
+                                        return (
+                                            <FormItem className="grid gap-3">
+                                                <div className="flex items-center gap-1 justify-between">
+                                                    <FormLabel>
+                                                        {field.name.charAt(0).toUpperCase() + field.name.slice(1)}
+                                                        {field.name !== "windowSeconds" && (
+                                                            <span className="text-red-600"> *</span>
+                                                        )}
+                                                    </FormLabel>
+                                                </div>
+
+                                                <FormControl>
+                                                    <Input
+                                                        className={`min-h-[44px] ${field.name === "password" ? "font-en" : ""
+                                                            }`}
+                                                        placeholder={`Enter ${field.name}`}
+                                                        disabled={isWorking}
+                                                        type={isNumeric ? "number" : "text"}
+                                                        value={field.value ?? ""}
+                                                        onChange={(e) => {
+                                                            const v = e.target.value;
+                                                            if (!isNumeric) {
+                                                                field.onChange(v);
+                                                            } else {
+                                                                field.onChange(v === "" ? undefined : Number(v));
+                                                            }
+                                                        }}
+                                                        onBlur={field.onBlur}
+                                                        name={field.name}
+                                                        ref={field.ref}
+                                                    />
+                                                </FormControl>
+
+                                                <FormMessage />
+                                            </FormItem>
+                                        );
+                                    }}
                                 />
                             ))
                         }

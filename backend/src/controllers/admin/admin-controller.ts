@@ -10,6 +10,7 @@ import { createNewUser, deleteUserById, getAllUsers, updateUserById } from "../.
 import { checkModalIfExist, checkUserExit, checkUserIfNotExist, createHttpError } from "../../utils/check"
 import { generateHashedValue, generateToken } from "../../utils/generate"
 import { normalizeData } from "../../utils/normalize"
+import { prisma } from "../../config/prisma-client"
 
 interface CustomRequest extends Request {
     userId?: number
@@ -293,7 +294,7 @@ export const updateAUser = [
 
 export const getAllUsersInfinite = [
     query("limit", "Limit must be LogId.").isInt({ gt: 6 }).optional(),
-    query("cursor", "Limit must be unsigned integer.").isInt({ gt: 0 }).optional(),
+    query("cursor", "Cursor must be unsigned integer.").isInt({ gt: 0 }).optional(),
     query("kw", "Invalid Keyword.").trim().escape().optional(),
     query("tenant", "Invalid Tenant.").trim().escape().optional(),
     query("role", "Invalid Role.").trim().escape().optional(),
@@ -567,4 +568,28 @@ export const getAllRules = [
         })
     }
 ]
+
+export const getSummary = async (req: CustomRequest, res: Response, next: NextFunction) => {
+
+    const allLogs = await prisma.log.count()
+    const allUsers = await prisma.user.count()
+    const allAlerts = await prisma.alert.count()
+    const allTenants = await prisma.user.groupBy({
+        by: ['tenant'],
+        _count: {
+            tenant: true
+        }
+    })
+
+
+    res.status(200).json({
+        message: "Here is summary data.",
+        data: {
+            allLogs,
+            allUsers,
+            allAlerts,
+            allTenants: allTenants.map(t => ({ count: t._count.tenant })).reduce((a, b) => a + b.count, 0)
+        }
+    })
+}
 

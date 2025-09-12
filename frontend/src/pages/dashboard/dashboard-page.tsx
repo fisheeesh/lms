@@ -34,8 +34,6 @@ export default function DashboardPage() {
     const { data: filtersData } = useSuspenseQuery(filtersQuery())
     const { data: topIpsData } = useSuspenseQuery(topIpsQuery())
 
-    console.log(topIpsData)
-
     const {
         status,
         data,

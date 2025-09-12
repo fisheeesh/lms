@@ -131,6 +131,7 @@ export const CreateEditAlertRuleSchema = z.object({
     tenant: z.string().min(1, { message: "Tenant is required" }),
     name: z.string().min(1, { message: "Name is required" }),
     condition: z.string().min(1, { message: "Condition is required" }),
-    threshold: z.number().int().min(1, { message: "Threshold is required" }),
-    windowSeconds: z.number().int().optional(),
-})
+    threshold: z.coerce.number().int().nonnegative(),
+    windowSeconds: z
+        .preprocess((v) => (v === "" || v == null ? undefined : v), z.coerce.number().int().nonnegative().optional()),
+});

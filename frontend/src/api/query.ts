@@ -12,6 +12,32 @@ export const queryClient = new QueryClient({
     }
 })
 
+export const invalidateLogsQueries = async () => {
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['source-comparisons'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['logs', 'infinite'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['logs-overview'] }),
+        queryClient.invalidateQueries({ queryKey: ['severity-overview'] }),
+        queryClient.invalidateQueries({ queryKey: ['top-ips'] }),
+        queryClient.invalidateQueries({ queryKey: ['summary'] })
+    ]);
+};
+
+export const invalidateUserQueries = async () => {
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['users', 'infinite'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['summary'] })
+    ]);
+};
+
+export const invalidateRuleQueries = async () => {
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['alert-rules'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['summary'] })
+    ]);
+};
+
+
 const fetchUserData = async () => {
     const res = await api.get("user/user-data")
 
@@ -80,16 +106,6 @@ export const logsInfiniteQuery = (kw: string | null = null, tenant: string | nul
     getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined
 })
 
-export const invalidateLogsQueries = async () => {
-    await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['source-comparisons'], exact: false }),
-        queryClient.invalidateQueries({ queryKey: ['logs', 'infinite'], exact: false }),
-        queryClient.invalidateQueries({ queryKey: ['logs-overview'] }),
-        queryClient.invalidateQueries({ queryKey: ['severity-overview'] }),
-        queryClient.invalidateQueries({ queryKey: ['top-ips'] }),
-    ]);
-};
-
 const fetchAllFilters = async () => {
     const res = await api.get("user/filters")
 
@@ -146,10 +162,6 @@ export const userInfiniteQuery = (kw: string | null = null, tenant: string | nul
     getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined
 })
 
-export const invalidateUserQueries = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['users', 'infinite'], exact: false })
-};
-
 const fetchTopIps = async () => {
     const res = api.get("user/top-ips")
 
@@ -159,4 +171,31 @@ const fetchTopIps = async () => {
 export const topIpsQuery = () => ({
     queryKey: ['top-ips'],
     queryFn: fetchTopIps
+})
+
+const fetchAlertRules = async ({ tenant = null, kw = null, ts = null }: {
+    tenant?: string | null, kw?: string | null, ts?: string | null
+}) => {
+    let query = "?"
+    if (tenant) query += `&tenant=${tenant}`
+    if (kw) query += `&kw=${kw}`
+    if (ts) query += `&ts=${ts}`
+    const res = await adminApi.get(`admin/alert-rules${query}`)
+    return res.data
+}
+
+export const alertRulesQuery = (tenant: string | null = null, kw: string | null = null, ts: string | null = null) => ({
+    queryKey: ['alert-rules', tenant ?? undefined, kw ?? undefined, ts ?? undefined],
+    queryFn: () => fetchAlertRules({ tenant, kw, ts })
+})
+
+const fetchSummary = async () => {
+    const res = await adminApi.get("admin/summary")
+
+    return res.data
+}
+
+export const summaryQuery = () => ({
+    queryKey: ['summary'],
+    queryFn: fetchSummary
 })

@@ -1,4 +1,5 @@
 import { adminApi } from "@/api"
+import { invalidateRuleQueries } from "@/api/query"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -10,8 +11,9 @@ const useDeleteRule = () => {
             return res.data
         },
         onSuccess: async () => {
+            await invalidateRuleQueries()
             toast.success("Success", {
-                description: `User has been deleted successfully.`
+                description: `Rule has been deleted successfully.`
             })
         },
         onError: (error) => {

@@ -3,18 +3,30 @@ import Spinner from "../shared/spinner";
 import { Button } from "../ui/button";
 import useLogDelete from "@/hooks/use-log-delete";
 import useDeleteUser from "@/hooks/use-delete-user";
+import useDeleteRule from "@/hooks/use-delete-rule";
 
 interface Props {
-    type: 'log' | 'user'
-    id: number
+    type: 'log' | 'user' | 'alert-rule'
+    id: number | string
 }
 
 export default function ConfirmModal({ type, id }: Props) {
     const { deleteLog, logLoading } = useLogDelete()
     const { deleteUser, userLoading } = useDeleteUser()
+    const { deleteRule, ruleLoading } = useDeleteRule()
 
-    const current = type === 'log' ? 'Log' : 'User'
-    const isLoading = type === 'log' ? logLoading : userLoading
+    const current = type === 'log' ? 'Log' : type === 'user' ? 'User' : 'Rule'
+    const isLoading = logLoading || userLoading || ruleLoading
+
+    const onHandleClick = () => {
+        if (type === 'log') {
+            deleteLog(id as number)
+        } else if (type === 'user') {
+            deleteUser(id as number)
+        } else if (type === 'alert-rule') {
+            deleteRule(id as string)
+        }
+    }
 
     return (
         <DialogContent className="sm:max-w-[500px] bg-card">
@@ -29,7 +41,7 @@ export default function ConfirmModal({ type, id }: Props) {
                     <Button variant="outline" className="cursor-pointer">Cancel</Button>
                 </DialogClose>
                 <Button
-                    onClick={() => type === 'log' ? deleteLog(id) : deleteUser(id)}
+                    onClick={onHandleClick}
                     type="submit"
                     variant='destructive'
                     className="cursor-pointer">

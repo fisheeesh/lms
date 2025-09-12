@@ -51,3 +51,20 @@ interface IP {
     ip: string
     count: number
 }
+
+interface Summary {
+    allTenants: number,
+    allUsers: number,
+    allLogs: number,
+    allAlerts: number
+}
+
+interface AlretRule {
+    id: string
+    name: string
+    tenant: string
+    condition: string
+    createdAt: string
+    threshold: number
+    windowSeconds: number
+}

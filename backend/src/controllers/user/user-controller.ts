@@ -109,7 +109,7 @@ export const getSeverityOverview = async (req: CustomRequest, res: Response, nex
 
 export const getAllLogsInfinite = [
     query("limit", "Limit must be LogId.").isInt({ gt: 6 }).optional(),
-    query("cursor", "Limit must be unsigned integer.").isInt({ gt: 0 }).optional(),
+    query("cursor", "Cursor must be unsigned integer.").isInt({ gt: 0 }).optional(),
     query("kw", "Invalid Keyword.").trim().escape().optional(),
     query("tenant", "Invalid Tenant.").trim().escape().optional(),
     query("action", "Invalid Action.").trim().escape().optional(),

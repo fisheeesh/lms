@@ -1,10 +1,10 @@
-import { logsInfiniteAdminQuery, userInfiniteQuery } from "@/api/query";
-import StatsCard from "@/components/cards/stats-cards";
+import { alertRulesQuery, logsInfiniteAdminQuery, summaryQuery, userInfiniteQuery } from "@/api/query";
+import StatsCards from "@/components/cards/stats-cards";
 import AlertRulesTable from "@/components/tables/alert-rules-table";
 import LogsTable from "@/components/tables/logs-table";
 import UserTable from "@/components/tables/user-table";
 import useTitle from "@/hooks/use-title";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router";
 
 export default function AdminDashboardPage() {
@@ -26,6 +26,14 @@ export default function AdminDashboardPage() {
     const role = searchParams.get("role")
     const uStatus = searchParams.get("status")
     const uTs = searchParams.get("uTs")
+
+    //* For alert-rules
+    const aKw = searchParams.get("aKw")
+    const aTenant = searchParams.get("aTenant")
+    const aTs = searchParams.get("aTs")
+
+    const { data: summaryData } = useSuspenseQuery(summaryQuery())
+    const { data: rulesData } = useSuspenseQuery(alertRulesQuery(aTenant, aKw, aTs))
 
     const {
         status,
@@ -55,9 +63,9 @@ export default function AdminDashboardPage() {
     return (
         <section className="flex flex-col gap-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatsCard />
+                <StatsCards summary={summaryData.data} />
             </div>
-            <AlertRulesTable />
+            <AlertRulesTable data={rulesData.data} />
             <LogsTable
                 data={allLogs}
                 status={status}

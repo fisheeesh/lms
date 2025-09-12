@@ -4,7 +4,11 @@ import { FaUsers } from 'react-icons/fa6'
 import { LuLogs } from 'react-icons/lu'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 
-export default function StatsCard() {
+interface Props {
+    summary: Summary
+}
+
+export default function StatsCards({ summary }: Props) {
     return (
         <>
             <Card>
@@ -14,7 +18,7 @@ export default function StatsCard() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">
-                        25
+                        {summary.allLogs}
                     </div>
                 </CardContent>
             </Card>
@@ -25,7 +29,7 @@ export default function StatsCard() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">
-                        3
+                        {summary.allTenants}
                     </div>
                 </CardContent>
             </Card>
@@ -36,7 +40,7 @@ export default function StatsCard() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">
-                        200
+                        {summary.allUsers}
                     </div>
                 </CardContent>
             </Card>
@@ -47,7 +51,7 @@ export default function StatsCard() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">
-                        10
+                        {summary.allAlerts}
                     </div>
                 </CardContent>
             </Card>
