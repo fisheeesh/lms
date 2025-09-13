@@ -1,9 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { Worker } from "bullmq";
 import { Resend } from "resend";
 import { redis } from "../../config/redis-client";
 import { SENDER_EMAIL } from "../../utils/helpers";
-
-require("dotenv").config()
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = SENDER_EMAIL;
@@ -24,6 +25,8 @@ const emailWorker = new Worker<JobPayload>(
     "email-send",
     async (job) => {
         if (job.name !== "send-alert-email") return;
+
+        console.log('working email')
 
         const { to, alertId, tenant, ruleName, severity, logId, source, eventType } = job.data;
         const subject = `[ALERT][${tenant}] ${ruleName} (sev ${severity ?? "-"})`;

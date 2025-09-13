@@ -28,12 +28,12 @@ export const getUserData = async (req: CustomRequest, res: Response, next: NextF
     const user = await getUserById(userId!)
     checkUserIfNotExist(user)
 
-    // const data = await getUserdataById(user!.id)
-    const cacheKey = `users:${JSON.stringify(user!.id)}`
-    const data = await getOrSetCache(
-        cacheKey,
-        async () => await getUserdataById(user!.id)
-    )
+    const data = await getUserdataById(user!.id)
+    // const cacheKey = `users:${JSON.stringify(user!.id)}`
+    // const data = await getOrSetCache(
+    //     cacheKey,
+    //     async () => await getUserdataById(user!.id)
+    // )
 
     res.status(200).json({
         message: "Here is your data",
@@ -63,12 +63,12 @@ export const getLogsAndAlertsOverview = [
         const end = endOfDay(now)
 
         //? Desired format: [ { date: "2024-04-01", logs: 222, alerts: 12}, ...]
-        // const results = await getLogsAlertsOverviewFor60days(tenant as string, user!.tenant, user!.role, start, end)
-        const cacheKey = `logs:laoverview-${JSON.stringify(req.query)}`
-        const results = await getOrSetCache(
-            cacheKey,
-            async () => await getLogsAlertsOverviewFor60days(tenant as string, user!.tenant, user!.role, start, end)
-        )
+        const results = await getLogsAlertsOverviewFor60days(tenant as string, user!.tenant, user!.role, start, end)
+        // const cacheKey = `logs:laoverview-${JSON.stringify(req.query)}`
+        // const results = await getOrSetCache(
+        //     cacheKey,
+        //     async () => await getLogsAlertsOverviewFor60days(tenant as string, user!.tenant, user!.role, start, end)
+        // )
 
 
         res.status(200).json({
@@ -101,12 +101,12 @@ export const getSourceComparisons = [
         const end = endOfDay(now)
 
         // ? Desired format: [{date: 'Sep 01', api: 100, ... }, ...]
-        // const results = await getLogsSourceComparison(tenant as string, user!.tenant, user!.role, start, end)
-        const cacheKey = `logs:sc-${JSON.stringify(req.query)}`
-        const results = await getOrSetCache(
-            cacheKey,
-            async () => await getLogsSourceComparison(tenant as string, user!.tenant, user!.role, start, end)
-        )
+        const results = await getLogsSourceComparison(tenant as string, user!.tenant, user!.role, start, end)
+        // const cacheKey = `logs:sc-${JSON.stringify(req.query)}`
+        // const results = await getOrSetCache(
+        //     cacheKey,
+        //     async () => await getLogsSourceComparison(tenant as string, user!.tenant, user!.role, start, end)
+        // )
 
         res.status(200).json({
             message: "Here is Log's Source Comparison data.",
@@ -132,12 +132,12 @@ export const getSeverityOverview = [
         const { tenant } = req.query
 
         // ? Desired format : [{type: "error", value: 100}, ...]
-        // const results = await getLogsSeverityOverview(tenant as string, user!.tenant, user!.role)
-        const cacheKey = `logs:so-${JSON.stringify(req.query)}`
-        const results = await getOrSetCache(
-            cacheKey,
-            async () => await getLogsSeverityOverview(tenant as string, user!.tenant, user!.role)
-        )
+        const results = await getLogsSeverityOverview(tenant as string, user!.tenant, user!.role)
+        // const cacheKey = `logs:so-${JSON.stringify(req.query)}`
+        // const results = await getOrSetCache(
+        //     cacheKey,
+        //     async () => await getLogsSeverityOverview(tenant as string, user!.tenant, user!.role)
+        // )
 
         res.status(200).json({
             message: "Here is your severity data.",
@@ -232,12 +232,12 @@ export const getAllLogsInfinite = [
             }
         }
 
-        // const logs = await getAllLogs(options, severity as string)
-        const cacheKey = `logs:infinite-${JSON.stringify(req.query)}`
-        const logs = await getOrSetCache(
-            cacheKey,
-            async () => await getAllLogs(options, severity as string)
-        )
+        const logs = await getAllLogs(options, severity as string)
+        // const cacheKey = `logs:infinite-${JSON.stringify(req.query)}`
+        // const logs = await getOrSetCache(
+        //     cacheKey,
+        //     async () => await getAllLogs(options, severity as string)
+        // )
 
         const hasNextPage = logs.length > +limit
 
@@ -340,12 +340,12 @@ export const getTopIps = [
 
         const { tenant } = req.query
 
-        // const results = await getTopIPsData(tenant as string, user!.tenant, user!.role)
-        const cacheKey = `logs:ips-${JSON.stringify(req.query)}`
-        const results = await getOrSetCache(
-            cacheKey,
-            async () => await getTopIPsData(tenant as string, user!.tenant, user!.role)
-        )
+        const results = await getTopIPsData(tenant as string, user!.tenant, user!.role)
+        // const cacheKey = `logs:ips-${JSON.stringify(req.query)}`
+        // const results = await getOrSetCache(
+        //     cacheKey,
+        //     async () => await getTopIPsData(tenant as string, user!.tenant, user!.role)
+        // )
 
         res.status(200).json({
             message: "Here is Top IPs data.",
@@ -371,12 +371,12 @@ export const getAllAlerts = [
 
         const { tenant, status } = req.query
 
-        // const result = await getAllAlertsData(user!.tenant, tenant as string, user!.role, status as string)
-        const cacheKey = `logs:alerts-${JSON.stringify(req.query)}`
-        const results = await getOrSetCache(
-            cacheKey,
-            async () => await getAllAlertsData(user!.tenant, tenant as string, user!.role, status as string)
-        )
+        const results = await getAllAlertsData(user!.tenant, tenant as string, user!.role, status as string)
+        // const cacheKey = `logs:alerts-${JSON.stringify(req.query)}`
+        // const results = await getOrSetCache(
+        //     cacheKey,
+        //     async () => await getAllAlertsData(user!.tenant, tenant as string, user!.role, status as string)
+        // )
 
         res.status(200).json({
             message: "Here is All Alerts data.",

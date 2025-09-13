@@ -16,25 +16,25 @@ export const invalidateLogsQueries = async () => {
     await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['source-comparisons'], exact: false }),
         queryClient.invalidateQueries({ queryKey: ['logs', 'infinite'], exact: false }),
-        queryClient.invalidateQueries({ queryKey: ['logs-overview'] }),
-        queryClient.invalidateQueries({ queryKey: ['severity-overview'] }),
-        queryClient.invalidateQueries({ queryKey: ['top-ips'] }),
-        queryClient.invalidateQueries({ queryKey: ['summary'] }),
-        queryClient.invalidateQueries({ queryKey: ['all-alerts'] })
+        queryClient.invalidateQueries({ queryKey: ['logs-alerts-overview'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['severity-overview'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['top-ips'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['summary'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['all-alerts'], exact: false })
     ]);
 };
 
 export const invalidateUserQueries = async () => {
     await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['users', 'infinite'], exact: false }),
-        queryClient.invalidateQueries({ queryKey: ['summary'] })
+        queryClient.invalidateQueries({ queryKey: ['summary'], exact: false })
     ]);
 };
 
 export const invalidateRuleQueries = async () => {
     await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['alert-rules'], exact: false }),
-        queryClient.invalidateQueries({ queryKey: ['summary'] })
+        queryClient.invalidateQueries({ queryKey: ['summary'], exact: false })
     ]);
 };
 
@@ -213,7 +213,7 @@ const fetchAllAlerts = async (tenant?: string | null, status?: string | null) =>
     return res.data
 }
 
-export const allAlertsQuery = (tenant?: string | null, status? : string | null) => ({
+export const allAlertsQuery = (tenant?: string | null, status?: string | null) => ({
     queryKey: ['all-alerts', tenant ?? undefined, status ?? undefined],
     queryFn: () => fetchAllAlerts(tenant, status)
 })

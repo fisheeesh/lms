@@ -1,9 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { Worker } from "bullmq";
 import { redis } from "../../config/redis-client";
 import { Resend } from "resend";
-import { SENDER_EMAIL } from "../../utils/helpers";
-
-require("dotenv").config();
+import { SENDER_EMAIL } from "../../utils/helpers"
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = SENDER_EMAIL
@@ -18,6 +19,8 @@ const otpWorker = new Worker<OTPJob>(
     "otp-send",
     async (job) => {
         if (job.name !== "send-otp-email") return;
+
+        console.log('working')
 
         const { to, otp, expiresIn = 120 } = job.data;
 
@@ -49,6 +52,12 @@ otpWorker.on("completed", (job) => {
 
 otpWorker.on("failed", (job, err) => {
     console.error(`OTP job ${job?.id} failed`, err);
+});
+
+redis.ping().then((result) => {
+    console.log('Redis PING result:', result);
+}).catch((err) => {
+    console.error('Redis PING failed:', err);
 });
 
 export default otpWorker;
