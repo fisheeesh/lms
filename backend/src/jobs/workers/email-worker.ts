@@ -1,7 +1,7 @@
 import { Worker } from "bullmq";
-import { redis } from "../../config/redis-client";
 import { Resend } from "resend";
-import { RECIEVER_EMAIL, SENDER_EMAIL } from "../../utils/helpers";
+import { redis } from "../../config/redis-client";
+import { SENDER_EMAIL } from "../../utils/helpers";
 
 require("dotenv").config()
 

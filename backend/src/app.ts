@@ -4,11 +4,9 @@ import cors from "cors"
 import express, { NextFunction, Request, Response } from "express"
 import helmet from "helmet"
 import morgan from "morgan"
-import cron from "node-cron"
 import { limiter } from "./middlewares/rate-limtter"
 
 import routes from './routes/v1'
-import { deleteLogsWhichAreOlderThan7Days } from "./services/log-services"
 
 export const app = express()
 
@@ -48,8 +46,8 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     })
 })
 
-//* Run once a day at midnight 
-cron.schedule("* * * * *", async () => {
-    console.log("Running log retention job...")
-    await deleteLogsWhichAreOlderThan7Days()
-})
+//* Run every minute for testing purpose
+// cron.schedule("* * * * *", async () => {
+//     console.log("Running log retention job...")
+//     await deleteLogsWhichAreOlderThan7Days()
+// })

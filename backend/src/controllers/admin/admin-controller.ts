@@ -12,6 +12,7 @@ import { generateHashedValue, generateOTP, generateToken } from "../../utils/gen
 import { normalizeData } from "../../utils/normalize"
 import { prisma } from "../../config/prisma-client"
 import { enqueueAlertEmail } from "../../utils/helpers"
+import { getOrSetCache } from "../../utils/cache"
 
 interface CustomRequest extends Request {
     userId?: number
@@ -415,7 +416,12 @@ export const getAllUsersInfinite = [
             }
         }
 
-        const users = await getAllUsers(options)
+        // const users = await getAllUsers(options)
+        const cacheKey = `users:infinite-${JSON.stringify(req.query)}`
+        const users = await getOrSetCache(
+            cacheKey,
+            async () => await getAllUsers(options)
+        )
 
         const hasNextPage = users.length > +limit
 
@@ -473,6 +479,13 @@ export const createAlertRule = [
 
         const newRule = await createNewAlertRule(data)
 
+        await CacheQueue.add("invalidate-alert-rules-cache", {
+            pattern: 'logs:alert-rules-*'
+        }, {
+            jobId: `invalidate-${Date.now()}`,
+            priority: 1
+        })
+
         res.status(201).json({
             message: "Rule created successfully.",
             ruleId: newRule.id
@@ -504,6 +517,13 @@ export const deleteAlertRule = [
         }))
 
         const deletedRule = await deleteAlertRuleById(id)
+
+        await CacheQueue.add("invalidate-alert-rules-cache", {
+            pattern: 'logs:alert-rules-*'
+        }, {
+            jobId: `invalidate-${Date.now()}`,
+            priority: 1
+        })
 
         res.status(200).json({
             message: "Rule deleted successfully.",
@@ -552,6 +572,13 @@ export const updateAlertRule = [
         }
 
         const updatedRule = await updateAlertRuleById(id, data)
+
+        await CacheQueue.add("invalidate-alert-rules-cache", {
+            pattern: 'logs:alert-rules-*'
+        }, {
+            jobId: `invalidate-${Date.now()}`,
+            priority: 1
+        })
 
         res.status(200).json({
             message: "Rule updated successfully.",
@@ -610,11 +637,16 @@ export const getAllRules = [
             }
         }
 
-        const result = await getAllAlertRules(options)
+        // const results = await getAllAlertRules(options)
+        const cacheKey = `logs:alert-rules-${JSON.stringify(req.query)}`
+        const results = await getOrSetCache(
+            cacheKey,
+            async () => await getAllAlertRules(options)
+        )
 
         res.status(200).json({
             message: "Here is all rules.",
-            data: result
+            data: results
         })
     }
 ]

@@ -70,7 +70,7 @@ export function normalizeData(
             out.severity = to0to10(payload?.severity);
             out.eventType = payload?.eventType ?? "application";
             out.user = payload?.user;
-            out.ip = payload?.ip;
+            out.ip = payload?.ip ?? payload?.src_ip;
             out.reason = payload?.reason;
             break;
         }
@@ -116,7 +116,7 @@ export function normalizeData(
             out.severity = to0to10(payload?.severity);
             out.eventType = payload?.eventType ?? "audit";
             out.user = payload?.user;
-            out.ip = payload?.ip;
+            out.ip = payload?.ip ?? payload?.src_ip;
             out.status_code = payload?.status;
             out.process = payload?.workload;
 
@@ -134,7 +134,7 @@ export function normalizeData(
             out.severity = to0to10(payload?.severity);
             out.eventType = payload?.eventType ?? "audit";
             out.user = payload?.user;
-            out.ip = payload?.ip;
+            out.ip = payload?.ip ?? payload?.src_ip;
             out.status_code = payload?.status;
             out.process = payload?.workload;
             break;
@@ -150,7 +150,7 @@ export function normalizeData(
             out.eventType = payload?.eventType ?? "authentication";
             out.user = payload?.user;
             out.host = payload?.host;
-            out.ip = payload?.ip;
+            out.ip = payload?.ip ?? payload?.src_ip;
             break;
         }
 
@@ -162,6 +162,7 @@ export function normalizeData(
             out.process = payload?.process;
             out.action = toAction(payload?.event_action ?? payload?.behavior) ?? Action.ALERT;
             out.severity = to0to10(payload?.severity);
+            out.ip = payload?.ip ?? payload?.src_ip;
             break;
         }
     }

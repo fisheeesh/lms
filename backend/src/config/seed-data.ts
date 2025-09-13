@@ -15,7 +15,7 @@ const seedData = {
             severity: 5,
             eventType: "LoginAttempt",
             user: "Swam Yi Phyo",
-            src_ip: "203.0.113.10",
+            ip: "203.0.113.10",
             raw: { reason: "Testing default API log" } as Prisma.InputJsonValue,
         },
         {
@@ -26,7 +26,7 @@ const seedData = {
             severity: 4,
             eventType: "LoginAttempt",
             user: "Alice",
-            src_ip: "198.51.100.45",
+            ip: "198.51.100.45",
             raw: { reason: "Suspicious user-agent" } as Prisma.InputJsonValue,
         },
         {
@@ -37,7 +37,7 @@ const seedData = {
             severity: 6,
             eventType: "LoginAttempt",
             user: "Bob",
-            src_ip: "192.0.2.77",
+            ip: "192.0.2.77",
             raw: { reason: "Multiple failed attempts" } as Prisma.InputJsonValue,
         },
         {
@@ -48,7 +48,7 @@ const seedData = {
             severity: 3,
             eventType: "LoginAttempt",
             user: "Carol",
-            src_ip: "203.0.113.55",
+            ip: "203.0.113.55",
             raw: { reason: "Password reset required" } as Prisma.InputJsonValue,
         },
         {
@@ -59,7 +59,7 @@ const seedData = {
             severity: 5,
             eventType: "LoginAttempt",
             user: "David",
-            src_ip: "198.51.100.99",
+            ip: "198.51.100.99",
             raw: { reason: "Testing default API log" } as Prisma.InputJsonValue,
         },
         {
@@ -70,7 +70,7 @@ const seedData = {
             severity: 2,
             eventType: "LoginAttempt",
             user: "Eve",
-            src_ip: "203.0.113.200",
+            ip: "203.0.113.200",
             raw: { reason: "Legacy token used" } as Prisma.InputJsonValue,
         },
         {
@@ -82,7 +82,7 @@ const seedData = {
             eventType: "malware_detected",
             host: "WIN10-01",
             process: "powershell.exe",
-            src_ip: "10.0.0.12",
+            ip: "10.0.0.12",
             raw: {
                 sha256:
                     "f3b1a9e7c1d2e9a4cc00112233445566778899aabbccddeeff00112233445500",
@@ -97,7 +97,7 @@ const seedData = {
             eventType: "malware_detected",
             host: "WIN11-WS02",
             process: "cmd.exe",
-            src_ip: "10.10.5.21",
+            ip: "10.10.5.21",
             raw: {
                 sha256:
                     "aa55bb66cc77dd88ee9900ff11223344556677889900aabbccddeeff00112233",
@@ -112,7 +112,7 @@ const seedData = {
             eventType: "malware_detected",
             host: "SRV-APP-01",
             process: "java.exe",
-            src_ip: "172.16.1.40",
+            ip: "172.16.1.40",
             raw: {
                 sha256:
                     "1122aabb3344cc5566778899ddeeff00112233445566778899aabbccddeeff00",
@@ -127,7 +127,7 @@ const seedData = {
             eventType: "malware_detected",
             host: "LAPTOP-DEV01",
             process: "node.exe",
-            src_ip: "10.0.2.55",
+            ip: "10.0.2.55",
             raw: {
                 sha256:
                     "00ffeeddccbbaa99887766554433221100ffeeddccbbaa998877665544332211",
@@ -142,7 +142,7 @@ const seedData = {
             eventType: "malware_detected",
             host: "WIN10-SEC",
             process: "powershell.exe",
-            src_ip: "10.10.10.10",
+            ip: "10.10.10.10",
             raw: {
                 sha256:
                     "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
@@ -157,7 +157,7 @@ const seedData = {
             eventType: "malware_detected",
             host: "SRV-FILE-02",
             process: "rundll32.exe",
-            src_ip: "172.16.2.88",
+            ip: "172.16.2.88",
             raw: {
                 sha256:
                     "cafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
@@ -171,7 +171,7 @@ const seedData = {
             severity: 4,
             eventType: "CreateUser",
             user: "Fisheeesh",
-            src_ip: "198.51.100.10",
+            ip: "198.51.100.10",
             raw: { cloud: { service: "iam", account_id: "123456789012", region: "ap-southeast-1" } } as Prisma.InputJsonValue,
         },
         {
@@ -182,7 +182,7 @@ const seedData = {
             severity: 5,
             eventType: "StartInstances",
             user: "ops-bot",
-            src_ip: "203.0.113.90",
+            ip: "203.0.113.90",
             raw: { cloud: { service: "ec2", account_id: "123456789012", region: "us-east-1" } } as Prisma.InputJsonValue,
         },
         {
@@ -193,7 +193,7 @@ const seedData = {
             severity: 3,
             eventType: "PutBucketAcl",
             user: "auditor",
-            src_ip: "192.0.2.120",
+            ip: "192.0.2.120",
             raw: { cloud: { service: "s3", account_id: "123456789012", region: "eu-west-1" } } as Prisma.InputJsonValue,
         },
         {
@@ -204,7 +204,7 @@ const seedData = {
             severity: 6,
             eventType: "AttachRolePolicy",
             user: "admin",
-            src_ip: "203.0.113.33",
+            ip: "203.0.113.33",
             raw: { cloud: { service: "iam", account_id: "123456789012", region: "ap-southeast-1" } } as Prisma.InputJsonValue,
         },
         {
@@ -215,7 +215,7 @@ const seedData = {
             severity: 4,
             eventType: "AuthorizeSecurityGroupIngress",
             user: "sec-team",
-            src_ip: "198.51.100.200",
+            ip: "198.51.100.200",
             raw: { cloud: { service: "ec2", account_id: "123456789012", region: "ap-south-1" } } as Prisma.InputJsonValue,
         },
         {
@@ -226,7 +226,7 @@ const seedData = {
             severity: 5,
             eventType: "CreateAccessKey",
             user: "devops",
-            src_ip: "192.0.2.88",
+            ip: "192.0.2.88",
             raw: { cloud: { service: "iam", account_id: "123456789012", region: "us-west-2" } } as Prisma.InputJsonValue,
         },
         {
@@ -237,7 +237,7 @@ const seedData = {
             severity: 3,
             eventType: "UserLoggedIn",
             user: "syp@swe",
-            src_ip: "198.51.100.23",
+            ip: "198.51.100.23",
             raw: { status: "Success", workload: "Exchange" } as Prisma.InputJsonValue,
         },
         {
@@ -248,7 +248,7 @@ const seedData = {
             severity: 2,
             eventType: "FileAccessed",
             user: "alice@tenantb.com",
-            src_ip: "203.0.113.150",
+            ip: "203.0.113.150",
             raw: { status: "Success", workload: "SharePoint" } as Prisma.InputJsonValue,
         },
         {
@@ -259,7 +259,7 @@ const seedData = {
             severity: 4,
             eventType: "MailboxPermissionChanged",
             user: "admin@tenantc.com",
-            src_ip: "192.0.2.13",
+            ip: "192.0.2.13",
             raw: { status: "Modified", workload: "Exchange" } as Prisma.InputJsonValue,
         },
         {
@@ -270,7 +270,7 @@ const seedData = {
             severity: 3,
             eventType: "UserLoggedIn",
             user: "ops@tenanta.com",
-            src_ip: "198.51.100.60",
+            ip: "198.51.100.60",
             raw: { status: "Success", workload: "AzureAD" } as Prisma.InputJsonValue,
         },
         {
@@ -281,7 +281,7 @@ const seedData = {
             severity: 5,
             eventType: "DlpPolicyMatch",
             user: "hr@tenantb.com",
-            src_ip: "203.0.113.77",
+            ip: "203.0.113.77",
             raw: { status: "Blocked", workload: "Exchange" } as Prisma.InputJsonValue,
         },
         {
@@ -292,7 +292,7 @@ const seedData = {
             severity: 2,
             eventType: "UserLoggedIn",
             user: "user@tenantc.com",
-            src_ip: "192.0.2.200",
+            ip: "192.0.2.200",
             raw: { status: "Success", workload: "Teams" } as Prisma.InputJsonValue,
         },
         {
@@ -304,7 +304,7 @@ const seedData = {
             eventType: "LogonFailed",
             user: "Chotta Bheem",
             host: "DC01",
-            src_ip: "203.0.113.77",
+            ip: "203.0.113.77",
             raw: { eventId: "4625", logonType: "3" } as Prisma.InputJsonValue,
         },
         {
@@ -316,7 +316,7 @@ const seedData = {
             eventType: "KerberosTgtRequest",
             user: "service_acct",
             host: "DC02",
-            src_ip: "198.51.100.11",
+            ip: "198.51.100.11",
             raw: { eventId: "4768", logonType: "3" } as Prisma.InputJsonValue,
         },
         {
@@ -328,7 +328,7 @@ const seedData = {
             eventType: "AdminPrivilegeAssigned",
             user: "administrator",
             host: "DC01",
-            src_ip: "192.0.2.33",
+            ip: "192.0.2.33",
             raw: { eventId: "4672", logonType: "2" } as Prisma.InputJsonValue,
         },
         {
@@ -340,7 +340,7 @@ const seedData = {
             eventType: "Logoff",
             user: "svc-backup",
             host: "FS01",
-            src_ip: "10.0.0.50",
+            ip: "10.0.0.50",
             raw: { eventId: "4634", logonType: "3" } as Prisma.InputJsonValue,
         },
         {
@@ -352,7 +352,7 @@ const seedData = {
             eventType: "ExplicitCredentials",
             user: "ops-user",
             host: "APP01",
-            src_ip: "10.10.1.25",
+            ip: "10.10.1.25",
             raw: { eventId: "4648", logonType: "10" } as Prisma.InputJsonValue,
         },
     ]
