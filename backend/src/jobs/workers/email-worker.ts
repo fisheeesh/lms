@@ -41,7 +41,7 @@ const emailWorker = new Worker<JobPayload>(
 
         await resend.emails.send({
             from: FROM,
-            to,
+            to: "6531503187@lamduan.mfu.ac.th",
             subject,
             html,
         });

@@ -2,24 +2,22 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { TIMEFILTER } from "@/lib/constants";
 import { formatId } from "@/lib/utils";
 import { CreateEditAlertRuleSchema } from "@/lib/validators";
-import useFilterStore from "@/store/filter-store";
 import { useState } from "react";
 import { GiFlyingFlag } from "react-icons/gi";
 import ConfirmModal from "../modals/confirm-modal";
 import CreateEditAlertRuleModal from "../modals/create-edit-alert-rule-modal";
 import CommonFilter from "../shared/common-filter";
 import LocalSearch from "../shared/common-search";
+import Empty from "../shared/empty";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import Empty from "../shared/empty";
 
 interface Props {
     data: AlretRule[]
 }
 
 export default function AlertRulesTable({ data }: Props) {
-    const { filters } = useFilterStore()
     const [createOpen, setCreateOpen] = useState(false);
     const [editingAlertRule, setEditingAlertRule] = useState<AlretRule | null>(null);
 
@@ -55,11 +53,6 @@ export default function AlertRulesTable({ data }: Props) {
                 </div>
                 <div className="flex flex-col xl:flex-row gap-2">
                     <LocalSearch filterValue="aKw" />
-                    <CommonFilter
-                        filterValue="aTenant"
-                        filters={filters?.uTenants}
-                        otherClasses="min-h-[44px] sm:min-w-[150px]"
-                    />
                     <CommonFilter
                         filterValue="aTs"
                         filters={TIMEFILTER}

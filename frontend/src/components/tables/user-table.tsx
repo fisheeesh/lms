@@ -5,7 +5,6 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ROLEFILTER, STATUSFILTER, TIMEFILTER } from "@/lib/constants";
 import { CreateUserSchema, EditUserSchema } from "@/lib/validators";
-import useFilterStore from "@/store/filter-store";
 import { useState } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import ConfirmModal from "../modals/confirm-modal";
@@ -25,7 +24,6 @@ interface Props {
 }
 
 export default function UserTable({ data, status, error, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage }: Props) {
-    const { filters } = useFilterStore()
     const [createOpen, setCreateOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
 
@@ -62,11 +60,6 @@ export default function UserTable({ data, status, error, isFetching, isFetchingN
                 </div>
                 <div className="flex flex-col xl:flex-row gap-2">
                     <LocalSearch filterValue="uName" />
-                    <CommonFilter
-                        filterValue="uTenant"
-                        filters={filters?.uTenants}
-                        otherClasses="min-h-[44px] sm:min-w-[150px]"
-                    />
                     <CommonFilter
                         filterValue="role"
                         filters={ROLEFILTER}

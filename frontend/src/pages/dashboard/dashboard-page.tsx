@@ -14,20 +14,21 @@ import { useSearchParams } from "react-router"
 
 export default function DashboardPage() {
     useTitle("Logs Dashboard")
-    const { setUser } = useUserStore()
+    const { user, setUser } = useUserStore()
     const { setFilters } = useFilterStore()
 
     const [searchParams] = useSearchParams()
 
     const duration = searchParams.get("duration")
     const kw = searchParams.get("kw")
-    const tenant = searchParams.get("tenant")
+    const gTenant = searchParams.get("gTenant")
     const ts = searchParams.get("ts")
     const source = searchParams.get("source")
     const action = searchParams.get("action")
     const severity = searchParams.get("severity")
-    const aTenant = searchParams.get("aTenant")
     const lDate = searchParams.get("lDate")
+
+    const tenant = user.role === 'ADMIN' ? gTenant : user.tenant
 
     const { data: userData } = useSuspenseQuery(userDataQuery())
     const { data: logsAlertsOverviewData } = useSuspenseQuery(logsAlertsOverviewQuery())
@@ -35,7 +36,7 @@ export default function DashboardPage() {
     const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery())
     const { data: filtersData } = useSuspenseQuery(filtersQuery())
     const { data: topIpsData } = useSuspenseQuery(topIpsQuery())
-    const { data: alertsData } = useSuspenseQuery(allAlertsQuery(aTenant))
+    const { data: alertsData } = useSuspenseQuery(allAlertsQuery(tenant))
 
     const {
         status,

@@ -1,19 +1,15 @@
+import { ASTATUSFILTER } from "@/lib/constants"
 import { formatId } from "@/lib/utils"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../ui/table"
 import CommonFilter from "../shared/common-filter"
-import useFilterStore from "@/store/filter-store"
 import Empty from "../shared/empty"
-import useUserStore from "@/store/user-store"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 
 interface Props {
     data: Alert[]
 }
 
 export default function TriggeredAlertsCard({ data }: Props) {
-    const { filters } = useFilterStore()
-    const { user } = useUserStore()
-
     return (
         <Card className="min-h-[475px]">
             <CardHeader className="flex lg:items-center flex-col lg:flex-row justify-between gap-3">
@@ -23,11 +19,11 @@ export default function TriggeredAlertsCard({ data }: Props) {
                         List of alerts generated based on log severity and predefined rules.
                     </CardDescription>
                 </div>
-                {user.role === "ADMIN" && <CommonFilter
-                    filterValue="aTenant"
-                    filters={filters.lTenants}
+                <CommonFilter
+                    filterValue="aStatus"
+                    filters={ASTATUSFILTER}
                     otherClasses="min-h-[44px] sm:min-w-[150px]"
-                />}
+                />
             </CardHeader>
             <CardContent>
                 <Table>

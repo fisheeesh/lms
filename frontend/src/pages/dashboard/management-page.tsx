@@ -4,6 +4,7 @@ import AlertRulesTable from "@/components/tables/alert-rules-table";
 import LogsTable from "@/components/tables/logs-table";
 import UserTable from "@/components/tables/user-table";
 import useTitle from "@/hooks/use-title";
+import useUserStore from "@/store/user-store";
 import { useInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router";
 
@@ -11,10 +12,11 @@ export default function AdminDashboardPage() {
     useTitle("Management Dashboard")
 
     const [searchParams] = useSearchParams()
+    const { user } = useUserStore()
 
     //* For logs
     const kw = searchParams.get("kw")
-    const tenant = searchParams.get("tenant")
+    const gTenant = searchParams.get("gTenant")
     const ts = searchParams.get("ts")
     const source = searchParams.get("source")
     const action = searchParams.get("action")
@@ -22,18 +24,18 @@ export default function AdminDashboardPage() {
 
     //* For users
     const uName = searchParams.get("uName")
-    const uTenant = searchParams.get("uTenant")
     const role = searchParams.get("role")
     const uStatus = searchParams.get("status")
     const uTs = searchParams.get("uTs")
 
     //* For alert-rules
     const aKw = searchParams.get("aKw")
-    const aTenant = searchParams.get("aTenant")
     const aTs = searchParams.get("aTs")
 
+    const tenant = user.role === 'ADMIN' ? gTenant : user.tenant
+
     const { data: summaryData } = useSuspenseQuery(summaryQuery())
-    const { data: rulesData } = useSuspenseQuery(alertRulesQuery(aTenant, aKw, aTs))
+    const { data: rulesData } = useSuspenseQuery(alertRulesQuery(tenant, aKw, aTs))
 
     const {
         status,
@@ -53,7 +55,7 @@ export default function AdminDashboardPage() {
         isFetchingNextPage: isUserFetchingNextPage,
         fetchNextPage: fetchUserNextPage,
         hasNextPage: hasUserNextPage,
-    } = useInfiniteQuery(userInfiniteQuery(uName, uTenant, role, uStatus, uTs))
+    } = useInfiniteQuery(userInfiniteQuery(uName, tenant, role, uStatus, uTs))
 
 
     const allLogs = data?.pages.flatMap(page => page.data) ?? []

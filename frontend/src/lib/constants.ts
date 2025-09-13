@@ -11,6 +11,13 @@ export const IMG_URL = import.meta.env.VITE_IMG_URL
 
 export const APP_NAME = "Logs Management System"
 
+export const ASTATUSFILTER = [
+    { name: "All Status", value: "all" },
+    { name: "New", value: "NEW" },
+    { name: "Acknowledged", value: "ACK" },
+    { name: "Closed", value: "CLOSED" },
+]
+
 export const NAVLINKS = [
     { to: "/", name: "Logs Dashboard" },
     { to: "/management", name: "Management" },

@@ -55,11 +55,6 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                 </div>
                 <div className="flex flex-col xl:flex-row gap-2">
                     <LocalSearch filterValue="kw" />
-                    {isAdmin && <CommonFilter
-                        filterValue="tenant"
-                        filters={filters?.lTenants}
-                        otherClasses="min-h-[44px] sm:min-w-[150px]"
-                    />}
                     <CommonFilter
                         filterValue="action"
                         filters={filters.actions}
