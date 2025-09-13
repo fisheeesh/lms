@@ -204,14 +204,16 @@ export const summaryQuery = (tenant?: string | null) => ({
     queryFn: () => fetchSummary(tenant)
 })
 
-const fetchAllAlerts = async (tenant?: string | null) => {
-    const query = tenant ? `?tenant=${tenant}` : ''
+const fetchAllAlerts = async (tenant?: string | null, status?: string | null) => {
+    let query = "?"
+    if (tenant) query += `&tenant=${tenant}`
+    if (status) query += `&status=${status}`
     const res = await api.get(`user/all-alerts${query}`)
 
     return res.data
 }
 
-export const allAlertsQuery = (tenant?: string | null) => ({
-    queryKey: ['all-alerts', tenant ?? undefined],
-    queryFn: () => fetchAllAlerts(tenant)
+export const allAlertsQuery = (tenant?: string | null, status? : string | null) => ({
+    queryKey: ['all-alerts', tenant ?? undefined, status ?? undefined],
+    queryFn: () => fetchAllAlerts(tenant, status)
 })

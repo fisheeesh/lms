@@ -27,6 +27,7 @@ export default function DashboardPage() {
     const action = searchParams.get("action")
     const severity = searchParams.get("severity")
     const lDate = searchParams.get("lDate")
+    const aStatus = searchParams.get("aStatus")
 
     const tenant = user.role === 'ADMIN' ? gTenant : user.tenant
 
@@ -36,7 +37,7 @@ export default function DashboardPage() {
     const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery(tenant))
     const { data: filtersData } = useSuspenseQuery(filtersQuery())
     const { data: topIpsData } = useSuspenseQuery(topIpsQuery(tenant))
-    const { data: alertsData } = useSuspenseQuery(allAlertsQuery(tenant))
+    const { data: alertsData } = useSuspenseQuery(allAlertsQuery(tenant, aStatus))
 
     const {
         status,
