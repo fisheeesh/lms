@@ -1,4 +1,4 @@
-import { LogSource, Prisma, Action } from "../generated/prisma";
+import { LogSource, Prisma, Action } from "../../prisma/generated/prisma"
 import { toAction, to0to10, num } from "./helpers";
 
 function parseSyslogKV(line: string) {

@@ -1,7 +1,7 @@
 import dgram from "dgram";
 import net from "net";
 import { normalizeData } from "./utils/normalize";
-import { LogSource, PrismaClient } from "./generated/prisma";
+import { LogSource, PrismaClient } from "../prisma/generated/prisma";
 
 const prisma = new PrismaClient()
 

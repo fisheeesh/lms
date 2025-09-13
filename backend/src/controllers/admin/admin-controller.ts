@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import { body, query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
-import { Action, LogSource, Prisma, Role, Status } from "../../generated/prisma"
+import { Action, LogSource, Prisma, Role, Status } from "../../../prisma/generated/prisma"
 import CacheQueue from "../../jobs/queues/cache-queue"
 import { createNewAlertRule, deleteAlertRuleById, getRuleById, getRuleByFields, updateAlertRuleById, getAllAlertRules, getEnabledRulesForTenant, createAlert, countLogsSince } from "../../services/alert-services"
 import { getUserByEmail, getUserById } from "../../services/auth-services"

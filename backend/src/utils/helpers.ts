@@ -1,5 +1,5 @@
 import { prisma } from "../config/prisma-client"
-import { Action } from "../generated/prisma"
+import { Action } from "../../prisma/generated/prisma"
 import EmailQueue from "../jobs/queues/email-queue"
 
 export const actions = ["ALLOW", "DENY", "CREATE", "DELETE", "LOGIN", "LOGOUT", "ALERT"]

@@ -1,5 +1,5 @@
 import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
-import { Prisma, PrismaClient } from "../generated/prisma";
+import { Prisma, PrismaClient } from '../../prisma/generated/prisma'
 import CacheQueue from "../jobs/queues/cache-queue";
 import { rentationDay } from "../utils/helpers";
 import { prisma } from "../config/prisma-client";

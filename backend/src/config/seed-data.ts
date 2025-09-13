@@ -1,4 +1,4 @@
-import { Action, LogSource, Prisma } from "../generated/prisma";
+import { Action, LogSource, Prisma } from "../../prisma/generated/prisma";
 
 const at = (iso: string) => {
     const d = new Date(iso);

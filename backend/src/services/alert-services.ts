@@ -1,5 +1,5 @@
 import { prisma } from "../config/prisma-client";
-import { Prisma, PrismaClient, AlertStatus } from "../generated/prisma";
+import { Prisma, PrismaClient, AlertStatus } from '../../prisma/generated/prisma'
 
 const prismaClient = new PrismaClient()
 
