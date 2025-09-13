@@ -49,6 +49,16 @@ export function toAction(a: any): Action | undefined {
     return undefined;
 }
 
+export const getSeverityRange = (severityLabel: string) => {
+    switch (severityLabel) {
+        case 'info': return { lte: 2 };
+        case 'warn': return { gte: 3, lte: 4 };
+        case 'error': return { gte: 5, lte: 7 };
+        case 'critical': return { gte: 8 };
+        default: return undefined;
+    }
+}
+
 export type AlertEmailJob = {
     to: string;
     alertId: string;

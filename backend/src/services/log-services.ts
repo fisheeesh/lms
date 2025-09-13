@@ -1,7 +1,7 @@
 import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
 import { Prisma, PrismaClient } from '../../prisma/generated/prisma'
 import CacheQueue from "../jobs/queues/cache-queue";
-import { rentationDay } from "../utils/helpers";
+import { getSeverityRange, rentationDay } from "../utils/helpers";
 import { prisma } from "../config/prisma-client";
 
 const prismaClient = new PrismaClient()
@@ -252,13 +252,14 @@ export const getLogsSeverityOverview = async (qTenant: string, uTenant: string, 
 }
 
 export const getAllLogs = async (options: any, severity: string) => {
-    const result = await prisma.log.findMany(options)
+    if (typeof severity === 'string' && severity !== 'all') {
+        const severityRange = getSeverityRange(severity.toLowerCase());
+        if (severityRange) {
+            options.where.severity = severityRange;
+        }
+    }
 
-    const filtered = typeof severity === 'string' && severity !== 'all'
-        ? result.filter(r => r.severityLabel.toLowerCase().includes(severity.toLowerCase()))
-        : result
-
-    return filtered
+    return await prisma.log.findMany(options)
 }
 
 export const getTopIPsData = async (qTenant: string, uTenant: string, role: string) => {

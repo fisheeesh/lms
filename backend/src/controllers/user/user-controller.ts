@@ -268,7 +268,7 @@ export const getAllFilters = async (req: CustomRequest, res: Response, next: Nex
             select: { tenant: true },
         });
         const uTenants = [
-            { name: "All Companies", value: "all" },
+            { name: "All Tenants", value: "all" },
             ...uTenantsRaw.map((u) => ({
                 name: u.tenant,
                 value: u.tenant,
@@ -279,7 +279,7 @@ export const getAllFilters = async (req: CustomRequest, res: Response, next: Nex
             select: { tenant: true },
         });
         const lTenants = [
-            { name: "All Companies", value: "all" },
+            { name: "All Tenants", value: "all" },
             ...lTenantsRaw.map((u) => ({
                 name: u.tenant,
                 value: u.tenant,
