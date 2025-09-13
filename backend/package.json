@@ -11,7 +11,8 @@
     "email": "nodemon src/jobs/workers/email-worker.ts",
     "otp": "nodemon src/jobs/workers/otp-worker.ts",
     "build": "tsc -p .",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "deploy": "npx prisma migrate deploy && npx prisma generate"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

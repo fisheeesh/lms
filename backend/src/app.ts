@@ -10,7 +10,7 @@ import routes from './routes/v1'
 
 export const app = express()
 
-var whitelist = ['https://lms-one-lac.vercel.app', 'http://localhost:5173', 'http://localhost:4000']
+var whitelist = ['https://www.logsmanagementsystem.xyz', 'https://lms-one-lac.vercel.app', 'http://localhost:5173', 'http://localhost:4000']
 var corsOptions = {
     origin: function (origin: any, callback: (err: Error | null, origin?: any) => void) {
         //* Allow requests with no origin (like mobile apps or curl requests)
