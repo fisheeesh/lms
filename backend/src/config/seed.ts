@@ -1,5 +1,5 @@
-import seedData from "../src/config/seed-data";
-import { PrismaClient } from "../src/generated/prisma";
+import seedData from "./seed-data";
+import { PrismaClient } from '../generated/prisma';
 
 const prisma = new PrismaClient();
 
@@ -12,7 +12,7 @@ async function main() {
     await prisma.alert.deleteMany()
     await prisma.alertRule.deleteMany()
 
-    await prisma.log.createMany({ data : seedData.logs });
+    await prisma.log.createMany({ data: seedData.logs });
 
     console.log(`Seeding finished.`);
 }
