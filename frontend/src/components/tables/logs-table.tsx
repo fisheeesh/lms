@@ -91,6 +91,7 @@ export default function LogsTable({ data, status, error, isFetchingNextPage, fet
                             <TableHead className="whitespace-nowrap">Severity</TableHead>
                             <TableHead className="whitespace-nowrap">Action</TableHead>
                             <TableHead className="whitespace-nowrap">TimeStamp</TableHead>
+                            <TableHead className="whitespace-nowrap"></TableHead>
                         </TableRow>
                     </TableHeader>
 
