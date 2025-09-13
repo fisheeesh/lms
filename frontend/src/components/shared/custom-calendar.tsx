@@ -23,12 +23,28 @@ export default function CustomCalendar({ filterValue }: Props) {
         });
     };
 
-    const onSelectDate = (date: Date | undefined, close: boolean) => {
-        setDate(date)
-        if (close) setOpen(false)
-        searchParams.set(filterValue, date!.toISOString())
-        setSearchParams(searchParams)
-    }
+    const onSelectDate = (newDate: Date | undefined, close: boolean) => {
+        if (date && newDate && date.toDateString() === newDate.toDateString()) {
+            //* Same day clicked again → clear
+            setDate(undefined);
+            searchParams.delete(filterValue);
+            setSearchParams(searchParams, { replace: true });
+            if (close) setOpen(false);
+            return;
+        }
+
+        if (newDate) {
+            setDate(newDate);
+            searchParams.set(filterValue, newDate.toISOString());
+            setSearchParams(searchParams, { replace: true });
+        } else {
+            setDate(undefined);
+            searchParams.delete(filterValue);
+            setSearchParams(searchParams, { replace: true });
+        }
+
+        if (close) setOpen(false);
+    };
 
     return <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>

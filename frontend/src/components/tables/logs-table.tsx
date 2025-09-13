@@ -20,14 +20,14 @@ interface Props {
     data: Log[]
     status: "error" | 'success' | 'pending',
     error: Error | null,
-    isFetching: boolean,
+    isFetching?: boolean,
     isFetchingNextPage: boolean,
     fetchNextPage: () => void,
     hasNextPage: boolean
 }
 
 
-export default function LogsTable({ data, status, error, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage }: Props) {
+export default function LogsTable({ data, status, error, isFetchingNextPage, fetchNextPage, hasNextPage }: Props) {
     const { user } = useUserStore()
     const { filters } = useFilterStore()
     const [open, setOpen] = useState(false);
@@ -161,7 +161,7 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                     }
                 </Table>
                 <div className="my-4 flex flex-col items-center justify-center">
-                    {data.length > 0 ? <Button
+                    {data.length > 0 && <Button
                         className="cursor-pointer"
                         onClick={() => fetchNextPage()}
                         disabled={!hasNextPage || isFetchingNextPage}
@@ -172,12 +172,16 @@ export default function LogsTable({ data, status, error, isFetching, isFetchingN
                             : hasNextPage
                                 ? "Load More"
                                 : "Nothing more to load"}
-                    </Button> : <Empty label="No records found" classesName="w-[300px] h-[200px] " />}
+                    </Button>}
                 </div>
 
-                <div className="my-4 flex items-center justify-center">
+                {data.length === 0 && status === 'success' && <div className="my-4 flex flex-col items-center justify-center">
+                    <Empty label="No records found" classesName="w-[300px] h-[200px] " />
+                </div>}
+
+                {/* <div className="my-4 flex items-center justify-center">
                     {isFetching && !isFetchingNextPage ? "Background Updating..." : null}
-                </div>
+                </div> */}
             </CardContent>
         </Card>
     )
