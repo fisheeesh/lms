@@ -50,13 +50,13 @@ export const userDataQuery = () => ({
     queryFn: fetchUserData
 })
 
-const fetchLogsAlertsOverview = async (tennat: string | null = null) => {
+const fetchLogsAlertsOverview = async (tennat?: string | null) => {
     const res = await api.get(`user/logs-alerts-overview?tenant=${tennat}`)
 
     return res.data
 }
 
-export const logsAlertsOverviewQuery = (tenant: string | null) => ({
+export const logsAlertsOverviewQuery = (tenant?: string | null) => ({
     queryKey: ['logs-alerts-overview', tenant ?? undefined],
     queryFn: () => fetchLogsAlertsOverview(tenant)
 })
@@ -75,13 +75,13 @@ export const sourceCompaisonsQuery = (d?: string | null, tenant?: string | null)
     queryFn: () => fetchSourceComparisons(d, tenant)
 })
 
-export const fetchSeverityOverview = async (tenant: string | null) => {
+export const fetchSeverityOverview = async (tenant?: string | null) => {
     const res = await api.get(`user/severity-overview?tenant=${tenant}`)
 
     return res.data
 }
 
-export const severityOverviewQuery = (tenant: string | null) => ({
+export const severityOverviewQuery = (tenant?: string | null) => ({
     queryKey: ['severity-overview', tenant ?? undefined],
     queryFn: () => fetchSeverityOverview(tenant)
 })
@@ -166,13 +166,13 @@ export const userInfiniteQuery = (kw: string | null = null, tenant: string | nul
     getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined
 })
 
-const fetchTopIps = async (tenant: string | null) => {
+const fetchTopIps = async (tenant?: string | null) => {
     const res = await api.get(`user/top-ips?tenant=${tenant}`)
 
     return res.data
 }
 
-export const topIpsQuery = (tenant: string | null) => ({
+export const topIpsQuery = (tenant?: string | null) => ({
     queryKey: ['top-ips', tenant ?? undefined],
     queryFn: () => fetchTopIps(tenant)
 })
@@ -193,13 +193,13 @@ export const alertRulesQuery = (tenant: string | null = null, kw: string | null 
     queryFn: () => fetchAlertRules({ tenant, kw, ts })
 })
 
-const fetchSummary = async (tenant: string | null) => {
+const fetchSummary = async (tenant?: string | null) => {
     const res = await adminApi.get(`admin/summary?tenant=${tenant}`)
 
     return res.data
 }
 
-export const summaryQuery = (tenant: string | null) => ({
+export const summaryQuery = (tenant?: string | null) => ({
     queryKey: ['summary', tenant ?? undefined],
     queryFn: () => fetchSummary(tenant)
 })

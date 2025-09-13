@@ -10,7 +10,7 @@ export const rentationDay = process.env.LOG_RETENTION_DAYS || 7
 
 export const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev"
 
-export const RECIEVER_EMAIL = process.env.RECIEVER_EMAIL || "swanphyo444@gmail.com"
+export const RECIEVER_EMAIL = process.env.RECIEVER_EMAIL || "6531503187@lamduan.mfu.ac.th"
 
 export const authorize = (permission: boolean, userRole: string, ...roles: string[]) => {
     const result = roles.includes(userRole)
