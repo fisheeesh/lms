@@ -60,7 +60,7 @@ export type AlertEmailJob = {
     eventType?: string | null;
 };
 
-export const enqueueAlertEmail = async(payload: AlertEmailJob) => {
+export const enqueueAlertEmail = async (payload: AlertEmailJob) => {
     return await EmailQueue.add(
         "send-alert-email",
         payload,

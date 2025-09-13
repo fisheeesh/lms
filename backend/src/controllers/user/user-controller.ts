@@ -324,6 +324,7 @@ export const getTopIps = [
 
 export const getAllAlerts = [
     query("tenant", "Invalid Tenant").trim().escape().optional(),
+    query("status", "Invalid Status").trim().escape().optional(),
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const errors = validationResult(req).array({ onlyFirstError: true })
         if (errors.length > 0) return next(createHttpError({
@@ -336,9 +337,9 @@ export const getAllAlerts = [
         const user = await getUserById(userId!);
         checkUserIfNotExist(user);
 
-        const { tenant } = req.query
+        const { tenant, status } = req.query
 
-        const result = await getAllAlertsData(user!.tenant, tenant as string, user!.role)
+        const result = await getAllAlertsData(user!.tenant, tenant as string, user!.role, status as string)
 
         res.status(200).json({
             message: "Here is All Alerts data.",

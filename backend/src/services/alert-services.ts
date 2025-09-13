@@ -1,5 +1,5 @@
 import { prisma } from "../config/prisma-client";
-import { Prisma, PrismaClient } from "../generated/prisma";
+import { Prisma, PrismaClient, AlertStatus } from "../generated/prisma";
 
 const prismaClient = new PrismaClient()
 
@@ -63,7 +63,7 @@ export const countLogsSince = async (tenant: string, minSeverity: number, since:
     });
 };
 
-export const getAllAlertsData = async (uTenant: string, qTenant: string, role: string) => {
+export const getAllAlertsData = async (uTenant: string, qTenant: string, role: string, status: string) => {
     try {
         const tenantFilter: Prisma.AlertWhereInput =
             qTenant && qTenant !== 'all' ?
@@ -71,9 +71,17 @@ export const getAllAlertsData = async (uTenant: string, qTenant: string, role: s
                 : !qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter }
                     : qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
 
+        const statusFilter: Prisma.AlertWhereInput =
+            status &&
+                status !== "all" &&
+                Object.values(AlertStatus).includes(status as AlertStatus)
+                ? { status: status as AlertStatus }
+                : {};
+
         const results = await prisma.alert.findMany({
             where: {
-                ...tenantFilter
+                ...tenantFilter,
+                ...statusFilter
             },
             orderBy: {
                 triggeredAt: "desc",
