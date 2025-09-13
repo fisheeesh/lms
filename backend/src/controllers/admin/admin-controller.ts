@@ -619,26 +619,50 @@ export const getAllRules = [
     }
 ]
 
-export const getSummary = async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const allLogs = await prisma.log.count()
-    const allUsers = await prisma.user.count()
-    const allAlerts = await prisma.alert.count()
-    const allTenants = await prisma.user.groupBy({
-        by: ['tenant'],
-        _count: {
-            tenant: true
-        }
-    })
+export const getSummary = [
+    query("tenant", "Invalid Tenant.").trim().escape().optional(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid
+        }))
 
+        const { tenant } = req.query
 
-    res.status(200).json({
-        message: "Here is summary data.",
-        data: {
-            allLogs,
-            allUsers,
-            allAlerts,
-            allTenants: allTenants.length
-        }
-    })
-}
+        const tenantFilter = tenant && tenant !== 'all' ? { tenant: { contains: tenant as string, mode: 'insensitive' } as Prisma.StringFilter } : {}
+
+        const allLogs = await prisma.log.count({
+            where: {
+                ...tenantFilter
+            }
+        })
+        const allUsers = await prisma.user.count({
+            where: {
+                ...tenantFilter
+            }
+        })
+        const allAlerts = await prisma.alert.count({
+            where: {
+                ...tenantFilter
+            }
+        })
+        const allRules = await prisma.alertRule.count({
+            where: {
+                ...tenantFilter
+            }
+        })
+
+        res.status(200).json({
+            message: "Here is summary data.",
+            data: {
+                allLogs,
+                allUsers,
+                allAlerts,
+                allRules
+            }
+        })
+    }
+]
 

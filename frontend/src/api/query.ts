@@ -50,38 +50,40 @@ export const userDataQuery = () => ({
     queryFn: fetchUserData
 })
 
-const fetchLogsAlertsOverview = async () => {
-    const res = await api.get("user/logs-alerts-overview")
+const fetchLogsAlertsOverview = async (tennat: string | null = null) => {
+    const res = await api.get(`user/logs-alerts-overview?tenant=${tennat}`)
 
     return res.data
 }
 
-export const logsAlertsOverviewQuery = () => ({
-    queryKey: ['logs-alerts-overview'],
-    queryFn: fetchLogsAlertsOverview
+export const logsAlertsOverviewQuery = (tenant: string | null) => ({
+    queryKey: ['logs-alerts-overview', tenant ?? undefined],
+    queryFn: () => fetchLogsAlertsOverview(tenant)
 })
 
-const fetchSourceComparisons = async (q?: string | null) => {
-    const query = q ? `?duration=${q}` : ''
+const fetchSourceComparisons = async (d?: string | null, tenant?: string | null) => {
+    let query = "?"
+    if (d) query += `duration=${d}`
+    if (tenant) query += `&tenant=${tenant}`
     const res = await api.get(`user/source-comparisons${query}`)
 
     return res.data
 }
 
-export const sourceCompaisonsQuery = (q?: string | null) => ({
-    queryKey: ['source-comparisons', q ?? undefined],
-    queryFn: () => fetchSourceComparisons(q)
+export const sourceCompaisonsQuery = (d?: string | null, tenant?: string | null) => ({
+    queryKey: ['source-comparisons', d ?? undefined, tenant ?? undefined],
+    queryFn: () => fetchSourceComparisons(d, tenant)
 })
 
-export const fetchSeverityOverview = async () => {
-    const res = await api.get("user/severity-overview")
+export const fetchSeverityOverview = async (tenant: string | null) => {
+    const res = await api.get(`user/severity-overview?tenant=${tenant}`)
 
     return res.data
 }
 
-export const severityOverviewQuery = () => ({
-    queryKey: ['severity-overview'],
-    queryFn: fetchSeverityOverview
+export const severityOverviewQuery = (tenant: string | null) => ({
+    queryKey: ['severity-overview', tenant ?? undefined],
+    queryFn: () => fetchSeverityOverview(tenant)
 })
 
 const fetchLogsInfinite = async ({ pageParam = null, kw = null, tenant = null, ts = null, source = null, action = null, severity = null, lDate = null }: {
@@ -164,15 +166,15 @@ export const userInfiniteQuery = (kw: string | null = null, tenant: string | nul
     getNextPageParam: (lastPage, pages) => lastPage.nextCursor ?? undefined
 })
 
-const fetchTopIps = async () => {
-    const res = api.get("user/top-ips")
+const fetchTopIps = async (tenant: string | null) => {
+    const res = await api.get(`user/top-ips?tenant=${tenant}`)
 
-    return (await res).data
+    return res.data
 }
 
-export const topIpsQuery = () => ({
-    queryKey: ['top-ips'],
-    queryFn: fetchTopIps
+export const topIpsQuery = (tenant: string | null) => ({
+    queryKey: ['top-ips', tenant ?? undefined],
+    queryFn: () => fetchTopIps(tenant)
 })
 
 const fetchAlertRules = async ({ tenant = null, kw = null, ts = null }: {
@@ -191,15 +193,15 @@ export const alertRulesQuery = (tenant: string | null = null, kw: string | null 
     queryFn: () => fetchAlertRules({ tenant, kw, ts })
 })
 
-const fetchSummary = async () => {
-    const res = await adminApi.get("admin/summary")
+const fetchSummary = async (tenant: string | null) => {
+    const res = await adminApi.get(`admin/summary?tenant=${tenant}`)
 
     return res.data
 }
 
-export const summaryQuery = () => ({
-    queryKey: ['summary'],
-    queryFn: fetchSummary
+export const summaryQuery = (tenant: string | null) => ({
+    queryKey: ['summary', tenant ?? undefined],
+    queryFn: () => fetchSummary(tenant)
 })
 
 const fetchAllAlerts = async (tenant?: string | null) => {

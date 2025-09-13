@@ -16,7 +16,7 @@ export default function AdminDashboardPage() {
 
     //* For logs
     const kw = searchParams.get("kw")
-    const gTenant = searchParams.get("gTenant")
+    const gTenant = searchParams.get("gTenant") || 'all'
     const ts = searchParams.get("ts")
     const source = searchParams.get("source")
     const action = searchParams.get("action")
@@ -34,7 +34,7 @@ export default function AdminDashboardPage() {
 
     const tenant = user.role === 'ADMIN' ? gTenant : user.tenant
 
-    const { data: summaryData } = useSuspenseQuery(summaryQuery())
+    const { data: summaryData } = useSuspenseQuery(summaryQuery(tenant))
     const { data: rulesData } = useSuspenseQuery(alertRulesQuery(tenant, aKw, aTs))
 
     const {

@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
     const duration = searchParams.get("duration")
     const kw = searchParams.get("kw")
-    const gTenant = searchParams.get("gTenant")
+    const gTenant = searchParams.get("gTenant") || 'all'
     const ts = searchParams.get("ts")
     const source = searchParams.get("source")
     const action = searchParams.get("action")
@@ -31,11 +31,11 @@ export default function DashboardPage() {
     const tenant = user.role === 'ADMIN' ? gTenant : user.tenant
 
     const { data: userData } = useSuspenseQuery(userDataQuery())
-    const { data: logsAlertsOverviewData } = useSuspenseQuery(logsAlertsOverviewQuery())
-    const { data: soureComparisonsData } = useSuspenseQuery(sourceCompaisonsQuery(duration))
-    const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery())
+    const { data: logsAlertsOverviewData } = useSuspenseQuery(logsAlertsOverviewQuery(tenant))
+    const { data: soureComparisonsData } = useSuspenseQuery(sourceCompaisonsQuery(duration, tenant))
+    const { data: severityOverviewData } = useSuspenseQuery(severityOverviewQuery(tenant))
     const { data: filtersData } = useSuspenseQuery(filtersQuery())
-    const { data: topIpsData } = useSuspenseQuery(topIpsQuery())
+    const { data: topIpsData } = useSuspenseQuery(topIpsQuery(tenant))
     const { data: alertsData } = useSuspenseQuery(allAlertsQuery(tenant))
 
     const {

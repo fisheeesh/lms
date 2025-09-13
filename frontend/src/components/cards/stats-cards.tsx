@@ -40,7 +40,7 @@ export default function StatsCards({ summary }: Props) {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">
-                        {summary.allTenants}
+                        {summary.allRules}
                     </div>
                 </CardContent>
             </Card>

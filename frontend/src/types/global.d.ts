@@ -54,7 +54,7 @@ interface IP {
 }
 
 interface Summary {
-    allTenants: number,
+    allRules: number,
     allUsers: number,
     allLogs: number,
     allAlerts: number

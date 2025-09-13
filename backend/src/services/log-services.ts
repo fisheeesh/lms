@@ -68,7 +68,8 @@ type DailyOverview = {
     alerts: number;
 };
 
-export const getLogsOverviewFor60days = async (
+export const getLogsAlertsOverviewFor60days = async (
+    qTenant: string,
     uTenant: string,
     role: string,
     start: Date,
@@ -76,9 +77,11 @@ export const getLogsOverviewFor60days = async (
 ): Promise<DailyOverview[]> => {
     try {
         const tenantFilter: Prisma.LogWhereInput =
-            role !== "ADMIN"
-                ? ({ tenant: { contains: uTenant, mode: "insensitive" } } as Prisma.StringFilter as any)
-                : {};
+            qTenant && qTenant !== "all"
+                ? ({ tenant: { contains: qTenant as string, mode: "insensitive" } } as Prisma.StringFilter as any)
+                : !qTenant && role !== "ADMIN"
+                    ? ({ tenant: { contains: uTenant, mode: "insensitive" } } as Prisma.StringFilter as any)
+                    : {};
 
         const logs = await prismaClient.log.findMany({
             where: {
@@ -90,9 +93,11 @@ export const getLogsOverviewFor60days = async (
 
         const alerts = await prismaClient.alert.findMany({
             where: {
-                ...(role !== "ADMIN"
-                    ? ({ tenant: { contains: uTenant, mode: "insensitive" } } as Prisma.StringFilter as any)
-                    : {}),
+                ...(qTenant && qTenant !== "all"
+                    ? ({ tenant: { contains: qTenant as string, mode: "insensitive" } } as Prisma.StringFilter as any)
+                    : !qTenant && role !== "ADMIN"
+                        ? ({ tenant: { contains: uTenant, mode: "insensitive" } } as Prisma.StringFilter as any)
+                        : {}),
                 triggeredAt: { gte: start, lte: end },
             },
             select: { triggeredAt: true },
@@ -128,10 +133,13 @@ export const getLogsOverviewFor60days = async (
     }
 };
 
-export const getLogsSourceComparison = async (uTenant: string, role: string, start: Date, end: Date) => {
+export const getLogsSourceComparison = async (qTenant: string, uTenant: string, role: string, start: Date, end: Date) => {
     try {
         const tenantFilter: Prisma.LogWhereInput =
-            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+            qTenant && qTenant !== 'all' ?
+                { tenant: { contains: qTenant as string, mode: 'insensitive' } as Prisma.StringFilter }
+                : !qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter }
+                    : qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
 
         const allLogs = await prismaClient.log.findMany({
             where: {
@@ -195,10 +203,13 @@ export const getLogsSourceComparison = async (uTenant: string, role: string, sta
     }
 }
 
-export const getLogsSeverityOverview = async (uTenant: string, role: string) => {
+export const getLogsSeverityOverview = async (qTenant: string, uTenant: string, role: string) => {
     try {
         const tenantFilter: Prisma.LogWhereInput =
-            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+            qTenant && qTenant !== 'all' ?
+                { tenant: { contains: qTenant as string, mode: 'insensitive' } as Prisma.StringFilter }
+                : !qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter }
+                    : qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
 
         const allLogs = await prisma.log.findMany({
             where: {
@@ -250,10 +261,13 @@ export const getAllLogs = async (options: any, severity: string) => {
     return filtered
 }
 
-export const getTopIPsData = async (uTenant: string, role: string) => {
+export const getTopIPsData = async (qTenant: string, uTenant: string, role: string) => {
     try {
         const tenantFilter: Prisma.LogWhereInput =
-            role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
+            qTenant && qTenant !== 'all' ?
+                { tenant: { contains: qTenant as string, mode: 'insensitive' } as Prisma.StringFilter }
+                : !qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter }
+                    : qTenant && role !== 'ADMIN' ? { tenant: { contains: uTenant, mode: 'insensitive' } as Prisma.StringFilter } : {}
 
         const results = await prismaClient.log.groupBy({
             where: {

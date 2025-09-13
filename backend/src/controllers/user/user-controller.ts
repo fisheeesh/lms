@@ -4,7 +4,7 @@ import { query, validationResult } from "express-validator"
 import { errorCodes } from "../../config/error-codes"
 import { Action, LogSource, Prisma, PrismaClient } from "../../generated/prisma"
 import { getUserById } from "../../services/auth-services"
-import { getAllLogs, getLogsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison, getTopIPsData } from "../../services/log-services"
+import { getAllLogs, getLogsAlertsOverviewFor60days, getLogsSeverityOverview, getLogsSourceComparison, getTopIPsData } from "../../services/log-services"
 import { getUserdataById } from "../../services/user-services"
 import { checkUserIfNotExist, createHttpError } from "../../utils/check"
 import { getAllAlertsData } from "../../services/alert-services"
@@ -36,6 +36,7 @@ export const getUserData = async (req: CustomRequest, res: Response, next: NextF
 }
 
 export const getLogsAndAlertsOverview = [
+    query("tenant", "Invalid Tenant").trim().escape().optional(),
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const errors = validationResult(req).array({ onlyFirstError: true })
         if (errors.length > 0) return next(createHttpError({
@@ -48,13 +49,15 @@ export const getLogsAndAlertsOverview = [
         const user = await getUserById(userId!)
         checkUserIfNotExist(user)
 
+        const { tenant } = req.query
+
         const now = new Date();
 
         const start = startOfDay(subDays(now, 59))
         const end = endOfDay(now)
 
         //? Desired format: [ { date: "2024-04-01", logs: 222, alerts: 12}, ...]
-        const results = await getLogsOverviewFor60days(user!.tenant, user!.role, start, end)
+        const results = await getLogsAlertsOverviewFor60days(tenant as string, user!.tenant, user!.role, start, end)
 
         res.status(200).json({
             message: 'Here is your logs.',
@@ -64,6 +67,7 @@ export const getLogsAndAlertsOverview = [
 ]
 
 export const getSourceComparisons = [
+    query("tenant", "Invalid Tenant").trim().escape().optional(),
     query("duration", "Invalid Duration").trim().escape().optional(),
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const errors = validationResult(req).array({ onlyFirstError: true })
@@ -73,7 +77,7 @@ export const getSourceComparisons = [
             code: errorCodes.invalid
         }))
 
-        const { duration = '7' } = req.query
+        const { tenant, duration = '7' } = req.query
         const userId = req.userId
         const user = await getUserById(userId!)
         checkUserIfNotExist(user)
@@ -85,7 +89,7 @@ export const getSourceComparisons = [
         const end = endOfDay(now)
 
         // ? Desired format: [{date: 'Sep 01', api: 100, ... }, ...]
-        const result = await getLogsSourceComparison(user!.tenant, user!.role, start, end)
+        const result = await getLogsSourceComparison(tenant as string, user!.tenant, user!.role, start, end)
 
         res.status(200).json({
             message: "Here is Log's Source Comparison data.",
@@ -94,19 +98,31 @@ export const getSourceComparisons = [
     }
 ]
 
-export const getSeverityOverview = async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const userId = req.userId
-    const user = await getUserById(userId!)
-    checkUserIfNotExist(user)
+export const getSeverityOverview = [
+    query("tenant", "Invalid Tenant").trim().escape().optional(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid
+        }))
 
-    // ? Desired format : [{type: "error", value: 100}, ...]
-    const result = await getLogsSeverityOverview(user!.tenant, user!.role)
+        const userId = req.userId
+        const user = await getUserById(userId!)
+        checkUserIfNotExist(user)
 
-    res.status(200).json({
-        message: "Here is your severity data.",
-        data: result
-    })
-}
+        const { tenant } = req.query
+
+        // ? Desired format : [{type: "error", value: 100}, ...]
+        const result = await getLogsSeverityOverview(tenant as string, user!.tenant, user!.role)
+
+        res.status(200).json({
+            message: "Here is your severity data.",
+            data: result
+        })
+    }
+]
 
 export const getAllLogsInfinite = [
     query("limit", "Limit must be LogId.").isInt({ gt: 6 }).optional(),
@@ -281,18 +297,30 @@ export const getAllFilters = async (req: CustomRequest, res: Response, next: Nex
     }
 };
 
-export const getTopIps = async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const userId = req.userId;
-    const user = await getUserById(userId!);
-    checkUserIfNotExist(user);
+export const getTopIps = [
+    query("tenant", "Invalid Tenant").trim().escape().optional(),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const errors = validationResult(req).array({ onlyFirstError: true })
+        if (errors.length > 0) return next(createHttpError({
+            message: errors[0].msg,
+            status: 400,
+            code: errorCodes.invalid
+        }))
 
-    const result = await getTopIPsData(user!.tenant, user!.role)
+        const userId = req.userId;
+        const user = await getUserById(userId!);
+        checkUserIfNotExist(user);
 
-    res.status(200).json({
-        message: "Here is Top IPs data.",
-        data: result
-    })
-}
+        const { tenant } = req.query
+
+        const result = await getTopIPsData(tenant as string, user!.tenant, user!.role)
+
+        res.status(200).json({
+            message: "Here is Top IPs data.",
+            data: result
+        })
+    }
+]
 
 export const getAllAlerts = [
     query("tenant", "Invalid Tenant").trim().escape().optional(),
