@@ -110,7 +110,7 @@ export default function CreateEditAlertRuleModal<T extends z.ZodType<any, any, a
 
                                                 <FormControl>
                                                     <Input
-                                                        className={`min-h-[44px] ${field.name === "password" ? "font-en" : ""
+                                                        className={`min-h-[44px] ${field.name === "threshold" || field.name === 'windowSeconds' ? "font-en" : ""
                                                             }`}
                                                         placeholder={`Enter ${field.name}`}
                                                         disabled={isWorking}

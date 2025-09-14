@@ -48,7 +48,7 @@ export function LogsAlertsOverviewChart({ data }: Props) {
                     </CardDescription>
                 </div>
 
-                <div className="flex">
+                <div className="flex font-en">
                     {(["logs", "alerts"] as const).map((key) => (
                         <button
                             key={key}

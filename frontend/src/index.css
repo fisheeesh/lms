@@ -6,7 +6,7 @@
 @theme {
   --font-mich: 'Michroma', sans-serif;
   --font-raleway: 'Raleway', sans-serif;
-  --font-en: Rubik, sans-serif;
+  --font-en: 'Lato', sans-serif;
 }
 
 @theme inline {

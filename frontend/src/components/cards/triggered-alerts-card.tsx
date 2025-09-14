@@ -39,11 +39,11 @@ export default function TriggeredAlertsCard({ data }: Props) {
                     {data.length > 0 && <TableBody>
                         {data.map((alert) => (
                             <TableRow key={alert.id}>
-                                <TableCell className="py-5">{formatId(alert.id)}</TableCell>
+                                <TableCell className="py-5 font-en">{formatId(alert.id)}</TableCell>
                                 <TableCell className="py-5">{alert.tenant}</TableCell>
                                 <TableCell className="py-5">{alert.ruleName}</TableCell>
                                 <TableCell className="py-5">{alert.status}</TableCell>
-                                <TableCell className="py-5">{alert.triggeredAt}</TableCell>
+                                <TableCell className="py-5 font-en">{alert.triggeredAt}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>}

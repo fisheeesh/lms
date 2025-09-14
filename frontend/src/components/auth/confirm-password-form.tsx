@@ -141,7 +141,7 @@ export function ConfirmPasswordForm({
                                                                 [field.name]: !prev[field.name]
                                                             }))
                                                         }
-                                                        className="absolute cursor-pointer right-3 top-2.5 text-muted-foreground"
+                                                        className="absolute cursor-pointer right-3 top-4 text-muted-foreground"
                                                     >
                                                         {showPassword[field.name] ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                                                     </button>

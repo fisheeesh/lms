@@ -17,7 +17,7 @@ export default function StatsCards({ summary }: Props) {
                     <LuLogs className="size-6" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold font-en">
                         {summary.allLogs}
                     </div>
                 </CardContent>
@@ -28,7 +28,7 @@ export default function StatsCards({ summary }: Props) {
                     <FaUsers className="size-6" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold font-en">
                         {summary.allUsers}
                     </div>
                 </CardContent>
@@ -39,7 +39,7 @@ export default function StatsCards({ summary }: Props) {
                     <GiFlyingFlag className="size-6" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold font-en">
                         {summary.allRules}
                     </div>
                 </CardContent>
@@ -50,7 +50,7 @@ export default function StatsCards({ summary }: Props) {
                     <AiFillAlert className="size-6" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">
+                    <div className="text-2xl font-bold font-en">
                         {summary.allAlerts}
                     </div>
                 </CardContent>

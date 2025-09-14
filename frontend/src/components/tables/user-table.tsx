@@ -121,7 +121,7 @@ export default function UserTable({ data, status, error, isFetchingNextPage, fet
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-4">
-                                            <span className="whitespace-nowrap">{user.email}</span>
+                                            <span className="whitespace-nowrap font-en">{user.email}</span>
                                         </TableCell>
                                         <TableCell className="py-4">
                                             <span className="whitespace-nowrap">{user.tenant}</span>

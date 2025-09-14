@@ -25,10 +25,10 @@ export default function TopIPsCard({ data }: Props) {
                         {
                             data.map(item => (
                                 <TableRow key={item.ip}>
-                                    <TableCell className="py-5">
+                                    <TableCell className="py-5 font-en">
                                         {item.ip}
                                     </TableCell>
-                                    <TableCell className="py-5">
+                                    <TableCell className="py-5 font-en">
                                         {item.count}
                                     </TableCell>
                                 </TableRow>

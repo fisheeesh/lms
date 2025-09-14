@@ -73,8 +73,8 @@ export default function ResendOTPBtn({ type }: { type: 'register' | 'forgot' }) 
                             Resend
                         </Spinner>
                     </Button>
-                    : <h2 className="text-brand  font-medium font-en">
-                        Resend Code in <span className="text-white">{min < 10 && '0'}{min} : {sec < 10 && '0'}{sec}</span>
+                    : <h2 className="text-brand font-medium font-en">
+                        Resend Code in <span className="dark:text-white text-black">{min < 10 && '0'}{min} : {sec < 10 && '0'}{sec}</span>
                     </h2>
             }
         </>

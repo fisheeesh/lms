@@ -78,13 +78,13 @@ export default function AlertRulesTable({ data }: Props) {
                     {data.length > 0 && <TableBody>
                         {data.map((rule) => (
                             <TableRow key={rule.id}>
-                                <TableCell className="py-5">{formatId(rule.id)}</TableCell>
+                                <TableCell className="py-5 font-en">{formatId(rule.id)}</TableCell>
                                 <TableCell className="py-5">{rule.tenant}</TableCell>
                                 <TableCell className="py-5">{rule.name}</TableCell>
                                 <TableCell className="py-5">{rule.condition}</TableCell>
-                                <TableCell className="py-5">{rule.threshold}</TableCell>
-                                <TableCell className="py-5">{rule.windowSeconds}</TableCell>
-                                <TableCell className="py-5">{rule.createdAt}</TableCell>
+                                <TableCell className="py-5 font-en">{rule.threshold}</TableCell>
+                                <TableCell className="py-5 font-en">{rule.windowSeconds}</TableCell>
+                                <TableCell className="py-5 font-en">{rule.createdAt}</TableCell>
                                 <TableCell className="py-5 space-x-2">
                                     <Button
                                         variant="outline"

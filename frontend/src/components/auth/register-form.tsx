@@ -64,7 +64,7 @@ export function RegisterForm({
                                             <FormLabel>Email Address <span className="text-red-600">*</span></FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    className="min-h-[44px]"
+                                                    className="min-h-[44px] font-en"
                                                     id="email"
                                                     type="email"
                                                     placeholder="Enter your Email Address"

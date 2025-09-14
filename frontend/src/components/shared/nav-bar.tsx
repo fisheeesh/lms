@@ -1,4 +1,4 @@
-import { APP_NAME, NAVLINKS } from '@/lib/constants'
+import { ADMINNAVLINKS, APP_NAME, USERNAVLINKS } from '@/lib/constants'
 import useFilterStore from '@/store/filter-store'
 import useUserStore from '@/store/user-store'
 import { useState } from 'react'
@@ -16,6 +16,8 @@ export default function Navbar() {
     const navigate = useNavigate()
     const { user } = useUserStore()
     const { filters } = useFilterStore()
+
+    const NAVLINKS = user.role === 'ADMIN' ? ADMINNAVLINKS : USERNAVLINKS
 
     const renderNavLinks = () =>
         NAVLINKS.map((link, index) => (

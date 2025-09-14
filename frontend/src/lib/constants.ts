@@ -18,9 +18,12 @@ export const ASTATUSFILTER = [
     { name: "Closed", value: "CLOSED" },
 ]
 
-export const NAVLINKS = [
+export const ADMINNAVLINKS = [
     { to: "/", name: "Logs Dashboard" },
     { to: "/management", name: "Management" },
+]
+export const USERNAVLINKS = [
+    { to: "/", name: "Logs Dashboard" },
 ]
 
 export const TSFILTER = [
