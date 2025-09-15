@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import useCreateLog from "@/hooks/use-create-log"
-import { AdSchema, AwsSchema, CrowdStrikeSchema, HTTPSchema, M365Schema } from "@/lib/validators"
+import { AdSchema, AwsSchema, CrowdStrikeSchema, FirewallSchema, HTTPSchema, M365Schema, NetworkSchema } from "@/lib/validators"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -34,6 +34,8 @@ const schemas = {
     crowdstrike: CrowdStrikeSchema,
     m365: M365Schema,
     ad: AdSchema,
+    firewall: FirewallSchema,
+    network: NetworkSchema,
 } as const
 
 const defaults = {
@@ -94,6 +96,36 @@ const defaults = {
         host: "DC01",
         ip: "203.0.113.77",
         logonType: "3",
+    },
+    firewall: {
+        tenant: "tenantA",
+        source: "FIREWALL",
+        action: "DENY",
+        severity: 5,
+        host: "fw01",
+        vendor: "demo",
+        product: "ngfw",
+        ip: "10.0.1.10",
+        src: "10.0.1.10",
+        dst: "8.8.8.8",
+        spt: 5353,
+        dpt: 53,
+        proto: "udp",
+        msg: "DNS blocked",
+        policy: "Block-DNS",
+        eventType: "dns_block",
+    },
+    network: {
+        tenant: "tenantA",
+        source: "NETWORK",
+        action: "ALERT",
+        severity: 3,
+        host: "r1",
+        ip: "127.0.0.1",
+        if: "ge-0/0/1",
+        event: "link-down",
+        mac: "aa:bb:cc:dd:ee:ff",
+        reason: "carrier-loss",
     },
 } as const
 
@@ -275,25 +307,41 @@ export default function CreateLogModal({ onClose }: CreateLogModalProps) {
                 key={name}
                 control={form.control}
                 name={name as any}
-                render={({ field }) => (
-                    <FormItem className="grid gap-2">
-                        <FormLabel>
-                            {name.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())} <span className="text-red-600">*</span>
-                        </FormLabel>
-                        <FormControl>
-                            <Input
-                                disabled={isWorking}
-                                className="min-h-[44px]"
-                                value={typeof field.value === "string" || typeof field.value === "number" ? (field.value as any) : JSON.stringify(field.value ?? "")}
-                                onChange={(e) => field.onChange(e.target.value)}
-                                placeholder={`Enter ${name}`}
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
+                render={({ field }) => {
+                    const isNumber = typeof field.value === "number";
+                    return (
+                        <FormItem className="grid gap-2">
+                            <FormLabel>
+                                {name.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())} <span className="text-red-600">*</span>
+                            </FormLabel>
+                            <FormControl>
+                                <Input
+                                    type={isNumber ? "number" : "text"}
+                                    className="min-h-[44px]"
+                                    value={
+                                        isNumber
+                                            ? (field.value as number)
+                                            : typeof field.value === "string"
+                                                ? (field.value as string)
+                                                : JSON.stringify(field.value ?? "")
+                                    }
+                                    onChange={(e) =>
+                                        field.onChange(
+                                            isNumber
+                                                ? e.target.value === "" ? "" : Number(e.target.value)
+                                                : e.target.value
+                                        )
+                                    }
+                                    placeholder={`Enter ${name}`}
+                                    disabled={isWorking}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    );
+                }}
             />
-        )
+        );
     }
 
     return (
@@ -318,6 +366,8 @@ export default function CreateLogModal({ onClose }: CreateLogModalProps) {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="http">API / HTTP</SelectItem>
+                            <SelectItem value="firewall">Firewall</SelectItem>
+                            <SelectItem value="network">Network</SelectItem>
                             <SelectItem value="crowdstrike">CrowdStrike</SelectItem>
                             <SelectItem value="aws">AWS</SelectItem>
                             <SelectItem value="m365">Microsoft 365</SelectItem>

@@ -85,6 +85,7 @@ export function normalizeData(
                 out.eventSubtype = "syslog";
 
                 //* Map common kvs
+                out.ip = kv.ip ?? kv.src_ip
                 out.src_ip = kv.src ?? kv.src_ip;
                 out.dst_ip = kv.dst ?? kv.dst_ip;
                 out.src_port = kv.spt ?? kv.src_port;
@@ -93,9 +94,12 @@ export function normalizeData(
                 out.action = toAction(kv.action) ?? Action.ALERT;
                 out.rule_name = kv.policy ?? kv.rule ?? out.rule_name;
                 out.reason = kv.msg ?? "syslog";
+                out.eventType = kv.eventType ?? "syslog";
             } else {
                 //* Structured firewall JSON
+                out.eventType = payload?.eventType ?? "syslog";
                 out.ts = payload.ts ? new Date(payload.ts) : now;
+                out.ip = payload?.ip ?? payload?.src_ip;
                 out.src_ip = payload.src_ip;
                 out.src_port = num(payload.src_port)?.toString();
                 out.dst_ip = payload.dst_ip;

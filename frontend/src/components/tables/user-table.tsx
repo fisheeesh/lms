@@ -162,6 +162,7 @@ export default function UserTable({ data, status, error, isFetchingNextPage, fet
                                                 lastName: editingUser.lastName,
                                                 role: editingUser.role as "ADMIN" | "USER",
                                                 tenant: editingUser.tenant,
+                                                status: editingUser.status as "ACTIVE" | "INACTIVE" | "FREEZE",
                                             }}
                                             onClose={() => setEditingUser(null)}
                                         />

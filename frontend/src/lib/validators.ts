@@ -65,6 +65,30 @@ export const BASE_SCHEMA = z.object({
     ip: z.string().min(1, { message: "IP is required" }),
 })
 
+export const FirewallSchema = BASE_SCHEMA.extend({
+    source: z.literal("FIREWALL"),
+    host: z.string().optional(),
+    vendor: z.string().min(1, { message: "Vendor is required" }),
+    product: z.string().min(1, { message: "Product is required" }),
+    src: z.string().min(1, { message: "Source IP is required" }),
+    dst: z.string().min(1, { message: "Destination IP is required" }),
+    spt: z.number().int().min(0, { message: "Source port is required" }),
+    dpt: z.number().int().min(0, { message: "Destination port is required" }),
+    proto: z.string().min(1, { message: "Protocol is required" }),
+    msg: z.string().min(1, { message: "Message is required" }),
+    policy: z.string().min(1, { message: "Policy is required" }),
+    eventType: z.string().optional(),
+});
+
+export const NetworkSchema = BASE_SCHEMA.extend({
+    source: z.literal("NETWORK"),
+    host: z.string().optional(),
+    if: z.string().min(1, { message: "Interface is required" }),
+    event: z.string().min(1, { message: "Event is required" }),
+    mac: z.string().min(1, { message: "MAC is required" }),
+    reason: z.string().min(1, { message: "Reason is required" }),
+});
+
 export const HTTPSchema = BASE_SCHEMA.extend({
     source: z.literal("API"),
     eventType: z.string().min(1, { message: "Event type is required" }),
@@ -120,7 +144,9 @@ export const CreateUserSchema = z.object({
     tenant: z.string().min(1, { message: "Tenant is required" }),
 })
 
-export const EditUserSchema = CreateUserSchema.omit({ email: true, password: true })
+export const EditUserSchema = CreateUserSchema.omit({ email: true, password: true }).extend({
+    status: z.enum(["ACTIVE", "INACTIVE", "FREEZE"], { message: "Status must be 'ACTIVE' or 'INACTIVE'" }),
+})
 
 export const CreateEditAlertRuleSchema = z.object({
     tenant: z.string().min(1, { message: "Tenant is required" }),

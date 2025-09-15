@@ -302,6 +302,7 @@ export const updateAUser = [
     body("lastName", "Last name is required.").notEmpty().isString().trim(),
     body("role", "Role is required.").notEmpty().isString().trim(),
     body("tenant", "Tenant is required.").notEmpty().isString().trim(),
+    body("status", "Status is required.").notEmpty().isString().trim(),
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const errors = validationResult(req).array({ onlyFirstError: true });
         if (errors.length > 0) {
@@ -314,7 +315,7 @@ export const updateAUser = [
             );
         }
 
-        const { id, firstName, lastName, role, tenant } = req.body
+        const { id, firstName, lastName, role, tenant, status } = req.body
         const user = await getUserById(+id)
         if (!user) return next(createHttpError({
             message: 'There is no account with this ID in database.',
@@ -326,7 +327,8 @@ export const updateAUser = [
             firstName,
             lastName,
             role,
-            tenant
+            tenant,
+            status
         })
 
         // await CacheQueue.add("invalidate-user-cache", {

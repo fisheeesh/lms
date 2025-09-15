@@ -101,41 +101,57 @@ export default function CreateEditUserModal<T extends z.ZodType<any, any, any>>(
                                                 </FormLabel>
                                             </div>
                                             <FormControl>
-                                                {field.name === "role" ? (
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        defaultValue={field.value}
-                                                    >
-                                                        <SelectTrigger className="min-h-[44px] w-full">
-                                                            <SelectValue placeholder="Select role" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="ADMIN">Admin</SelectItem>
-                                                            <SelectItem value="USER">User</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                ) : (
-                                                    <div className="relative">
-                                                        <Input
-                                                            className={`min-h-[44px] ${field.name === 'password' ? 'font-en' : ''}`}
-                                                            placeholder={`Enter ${field.name}`}
-                                                            disabled={isWorking}
-                                                            type={field.name === 'password' ? showPassword ? 'text' : 'password' : 'text'}
-                                                            {...field}
-                                                        />
-                                                        {(field.name === 'password' || field.name === 'confirmPassword') && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    setShowPassword(prev => !prev)
-                                                                }
-                                                                className="absolute cursor-pointer right-3 top-4 text-muted-foreground"
+                                                {
+                                                    field.name === "status" ? (
+                                                        <Select
+                                                            onValueChange={field.onChange}
+                                                            defaultValue={field.value}
+                                                        >
+                                                            <SelectTrigger className="min-h-[44px] w-full">
+                                                                <SelectValue placeholder="Select status" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="ACTIVE">Active</SelectItem>
+                                                                <SelectItem value="INACTIVE">Inactive</SelectItem>
+                                                                <SelectItem value="FREEZE">Freeze</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    ) :
+                                                        field.name === "role" ? (
+                                                            <Select
+                                                                onValueChange={field.onChange}
+                                                                defaultValue={field.value}
                                                             >
-                                                                {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                                                            </button>
+                                                                <SelectTrigger className="min-h-[44px] w-full">
+                                                                    <SelectValue placeholder="Select role" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="ADMIN">Admin</SelectItem>
+                                                                    <SelectItem value="USER">User</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        ) : (
+                                                            <div className="relative">
+                                                                <Input
+                                                                    className={`min-h-[44px] ${field.name === 'password' ? 'font-en' : ''}`}
+                                                                    placeholder={`Enter ${field.name}`}
+                                                                    disabled={isWorking}
+                                                                    type={field.name === 'password' ? showPassword ? 'text' : 'password' : 'text'}
+                                                                    {...field}
+                                                                />
+                                                                {(field.name === 'password' || field.name === 'confirmPassword') && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            setShowPassword(prev => !prev)
+                                                                        }
+                                                                        className="absolute cursor-pointer right-3 top-4 text-muted-foreground"
+                                                                    >
+                                                                        {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         )}
-                                                    </div>
-                                                )}
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
