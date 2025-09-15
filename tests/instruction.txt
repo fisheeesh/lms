@@ -1,0 +1,14 @@
+Tests for the backend in: backend/src/__test__/
+
+Reason:
+- I run Jest from the backend package (ts-jest config lives there).
+- Keeping tests close to the code avoids path/tsconfig drift.
+
+How to run:
+  cd backend
+  npm test
+
+Notes:
+- Sample unit tests cover controllers:
+    - GET /api/v1/user/logs-alerts-overview
+    - GET /api/v1/user/severity-overview
